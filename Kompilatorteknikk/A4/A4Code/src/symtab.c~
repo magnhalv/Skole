@@ -1,0 +1,136 @@
+#include "symtab.h"
+#include <string.h>
+
+// static does not mean the same as in Java.
+// For global variables, it means they are only visible in this file.
+
+// Pointer to stack of hash tables 
+static hash_t **scopes;
+
+// Pointer to array of values, to make it easier to free them
+static symbol_t **values;
+
+// Pointer to array of strings, should be able to dynamically expand as new strings
+// are added.
+static char **strings;
+
+// Helper variables for manageing the stacks/arrays
+static int32_t scopes_size = 16, scopes_index = -1;
+static int32_t values_size = 16, values_index = -1;
+static int32_t strings_size = 16, strings_index = -1;
+
+
+void
+symtab_init ( void )
+{
+	scopes = (void**)malloc(sizeof(void*)*scopes_size);
+	values = (void**)malloc(sizeof(void*)*values_size);
+	strings = (char**)malloc(sizeof(char*)*strings_size);
+}
+
+
+void
+symtab_finalize ( void )
+{
+	for (int i = 0; i < scopes_size; i++) {
+		free(scopes[i]);
+	}
+	free(scope);
+	for (int i = 0; i < values_size; i++) {
+		free(values[i]);
+	}
+	free(values);
+	for (int i = 0; i < strings_size; i++) {
+		free(strings[i]);
+	}
+	free(strings);
+}
+
+
+int32_t
+strings_add ( char *str )
+{
+	strings_index++;
+	if (strings_index == strings_size) {
+		strings_size = strings_size*2;
+		string = (void**)realloc(sizeof(void*)*strings_size);	
+	}	
+	strings[strings_index] = str;
+	return strings_index;
+}
+
+
+void
+strings_output ( FILE *stream ) {
+	
+	fprinf(stream, ".data\n");	
+	fprintf(stream, ".INTEGER: .string \"%d \"\n");
+	
+	for (int i = 0; i < (strings_size); i++) {
+		fprintf(stream,".STRING");
+		fprintf(stream, "%d ", i);
+		fprintf(stream, strings[i];
+		fprintf(stream, "\n");
+	} 
+	fprintf(stream, ".global main\n");
+}
+
+
+void
+scope_add ( void )
+{
+	scopes_index++;
+	if (scopes_index == scopes_size) {
+		scopes_size = scopes_size*2;
+		scopes = (void**)realloc(sizeof(void*)*scopes_size);
+	}
+	hash_t *newScope;
+	newScope = ght_create(8);
+	scopes[scopes_index] = newScope;
+	
+}
+
+
+void
+scope_remove ( void )
+{
+	ght_finalize(scopes[scopes_index]);
+	scopes_index--;
+	if (scopes_index*2 == scopes_size) {
+		scopes_size = scopes_size/2;
+		scopes = (void**)realloc(sizeof(void*)*scopes_size);	
+	}
+}
+
+
+void
+symbol_insert ( char *key, symbol_t *value )
+{
+	
+int keyLength = strlen(key);
+ght_insert(scopes[scopes_index], value, keyLength, key);
+
+// Keep this for debugging/testing
+#ifdef DUMP_SYMTAB
+fprintf ( stderr, "Inserting (%s,%d)\n", key, value->stack_offset );
+#endif
+
+}
+
+
+symbol_t *
+symbol_get ( char *key )
+{
+	int keyLength = strlen(key);
+	symbol_t* result = NULL;
+	for (int i = scopes_index; i >= 0; i--) {
+		result = ght_get(scopes[i], keyLength, key);
+		if (result != NULL) break;	
+	}	
+
+// Keep this for debugging/testing
+#ifdef DUMP_SYMTAB
+    if ( result != NULL )
+        fprintf ( stderr, "Retrieving (%s,%d)\n", key, result->stack_offset );
+#endif
+}

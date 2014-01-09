@@ -1,0 +1,91 @@
+// Program to exercise all lexical entities.
+
+FUNC main() {                   // FUNC, identifier (func. def.)
+    VAR a, _a1, a_2, i, j       // VAR, identifier, comma operator
+    PRINT "Hello, world!"       // PRINT keyword, string literal
+	PRINT ""                    // Whitespace: line starts on a tab character
+    PRINT "Hello, \"world\"!"   // String literal with escaped double quotes
+
+    _a1 := 10                   // Assignment operator and number constant
+    a_2 := 2
+
+    a := _a1 + a_2              // Plus operator
+    PRINT _a1, "+", a_2, "=", a
+
+    a := _a1 - a_2              // Minus operator
+    PRINT _a1, "-", a_2, "=", a
+
+    a := _a1 + (-a_2)           // Parentheses, unary minus operator
+    PRINT _a1, "+ (-", a_2, ") =", a
+
+    a := _a1 * a_2              // Multiply operator
+    PRINT _a1, "*", a_2, "=", a
+
+    a := _a1 / a_2              // Divide operator
+    PRINT _a1, "/", a_2, "=", a
+
+    a := _a1 > a_2              // Greater than operator
+    PRINT _a1, ">", a_2, "=", a
+
+    a := _a1 < a_2              // Less than operator
+    PRINT _a1, "<", a_2, "=", a
+
+    a := _a1 >= a_2              // Greater than or equal than operator
+    PRINT _a1, ">=", a_2, "=", a
+
+    a := _a1 <= a_2              // Less than or equal operator
+    PRINT _a1, "<=", a_2, "=", a
+
+    a := _a1 == a_2              // Equal operator
+    PRINT _a1, "==", a_2, "=", a
+
+    a := _a1 != a_2              // Not equal  operator
+    PRINT _a1, "!=", a_2, "=", a
+
+    IF ( a ) THEN               // IF, THEN, FI, single statement
+        PRINT a
+    FI
+
+    // Testing while loop
+    i := 10
+    WHILE ( i > 5 ) DO
+    {
+        i := i - 1
+    }
+    DONE
+
+    //Testing for loop
+    FOR i := 5 TO 10 DO
+        PRINT "i ", i
+    DONE
+
+    //Testing nested foor loop, multiplication table
+    FOR i:=1 TO 4 DO
+    {
+        FOR j:= 1 TO 4 DO
+            PRINT i, "*", j, "=", i*j
+        DONE
+    }
+    DONE
+
+
+    // This loop prints the integers 5 through 0, skipping 2
+    a := 5
+    WHILE ( a ) DO              // WHILE/DO/DONE, block statements
+    {
+        IF ( a - 3 ) THEN       // IF/THEN/ELSE/FI
+            a := a - 1
+        ELSE
+        {
+            a := a - 1
+            PRINT "Skip..."
+            CONTINUE            // CONTINUE
+        }
+        FI
+        PRINT a
+    }
+    DONE
+
+    RETURN 0                    // RETURN keyword and number constant
+}
+

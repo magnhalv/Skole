@@ -1,0 +1,8 @@
+Nested scopes coming up...
+Parameter a is a=1 
+Outer scope has a=2 
+Inner scope has a=3 and b=4 
+b was updated to 5 in inner scope
+Outer scope (still) has a=2 
+Return expression (a-1) using a=1 
+x=0 

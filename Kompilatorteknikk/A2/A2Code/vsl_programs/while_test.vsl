@@ -1,0 +1,26 @@
+
+// This program is a simple test of while loops, counting down from 19 to 0
+// and skipping 10 (if CONTINUE is implemented)
+
+FUNC while_test ()
+{
+    VAR a
+    a := 20
+    WHILE ( a ) DO
+    {
+        IF ( a-11 ) THEN
+        {
+            a := a - 1
+        }
+        ELSE
+        {
+            a := a - 1
+            PRINT "Skip..."
+            CONTINUE
+        }
+        FI
+        PRINT a
+    }
+    DONE
+    RETURN 0
+}

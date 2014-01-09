@@ -1,0 +1,22 @@
+15c15
+< Retrieving (b,-4)
+---
+> Retrieving (b,-8)
+17,19c17,19
+< Retrieving (b,-4)
+< Retrieving (b,-4)
+< Retrieving (b,-4)
+---
+> Retrieving (b,-8)
+> Retrieving (b,-8)
+> Retrieving (b,-8)
+24,25c24,25
+< .INTEGER: .string "%d "
+< .STRING0: .string "Nested scopes coming up..."
+---
+> .INTEGER: .string "6 " 
+> .STRING0: .string 
+35c35
+< .globl main
+---
+> .global main

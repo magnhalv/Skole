@@ -1,0 +1,50 @@
+==================================================================
+2: Test case A started.
+461: Server 1 was notified of the arrival of server 2
+590: Server 1 started.
+801: Server 1 was notified of the arrival of server 3
+1005: Server 1 was notified of the arrival of server 4
+2470: Server 1 started its transactions.
+2522: Transaction 1000 arrived.
+2526: TRANS 1000: Starting transaction 1000.
+2528: TRANS 1000: Trying to claim lock of resource 9 at server 1
+2531: TRANS 1000: Lock claimed. Processing...
+6532: TRANS 1000: Committing transaction 1000.
+6534: TRANS 1000: Unlocked resource 9 at server 1
+6536: TRANS 1000: Transaction 1000 committed.
+6537: Transaction 1000 ended.
+6595: Transaction 1001 arrived.
+6596: TRANS 1001: Starting transaction 1001.
+6599: TRANS 1001: Trying to claim lock of resource 1 at server 1
+6600: TRANS 1001: Lock claimed. Processing...
+6701: TRANS 1001: Trying to claim lock of resource 1 at server 2
+11704: Transaction aborted due to timeout. Will retry in 100 milis
+11805: TRANS 1001: Trying to claim lock of resource 1 at server 2
+16808: Transaction aborted due to timeout. Will retry in 100 milis
+16909: TRANS 1001: Trying to claim lock of resource 1 at server 2
+21914: Transaction aborted due to timeout. Will retry in 100 milis
+22016: TRANS 1001: Trying to claim lock of resource 1 at server 2
+27019: Transaction aborted due to timeout. Will retry in 100 milis
+27121: TRANS 1001: Trying to claim lock of resource 1 at server 2
+32124: Transaction aborted due to timeout. Will retry in 100 milis
+32226: TRANS 1001: Trying to claim lock of resource 1 at server 2
+37230: Transaction aborted due to timeout. Will retry in 100 milis
+37332: TRANS 1001: Trying to claim lock of resource 1 at server 2
+42335: Transaction aborted due to timeout. Will retry in 100 milis
+42437: TRANS 1001: Trying to claim lock of resource 1 at server 2
+47440: Transaction aborted due to timeout. Will retry in 100 milis
+47542: TRANS 1001: Trying to claim lock of resource 1 at server 2
+52546: Transaction aborted due to timeout. Will retry in 100 milis
+52648: TRANS 1001: Trying to claim lock of resource 1 at server 2
+57651: Transaction aborted due to timeout. Will retry in 100 milis
+57753: TRANS 1001: Trying to claim lock of resource 1 at server 2
+62756: Transaction aborted due to timeout. Will retry in 100 milis
+62858: TRANS 1001: Trying to claim lock of resource 1 at server 2
+67862: Transaction aborted due to timeout. Will retry in 100 milis
+67963: TRANS 1001: Trying to claim lock of resource 1 at server 2
+72967: Transaction aborted due to timeout. Will retry in 100 milis
+73069: TRANS 1001: Trying to claim lock of resource 1 at server 2
+78072: Transaction aborted due to timeout. Will retry in 100 milis
+78174: TRANS 1001: Trying to claim lock of resource 1 at server 2
+80001: Contact with server 1 was lost.
+80025: TRANS 1001: Contact was lost with a server hosting a resource involved in transaction 1001. Transaction must abort.

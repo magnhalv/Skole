@@ -1,0 +1,15 @@
+Task 1
+
+b) A language which wants an equal, but variable, amount of different symbols can not be desicribed by a regual expression. 
+E.g. you want a fixed number of a's, followed by an equal number of b's. Regual expressions are not defined to accept such a language, because 
+the size of the DFA required to reconize such a language is unbounded. In other words, it becomes really impractical, unless we have a unlimited amount of 
+memory. 
+
+Task 2
+
+a) Ambiguous grammar is grammar that can be represented by more than one parse tree. It's problematic because it causes programs to become undeterministic, i.e. 
+your program may provide different result for the same input. This will result in buggy, unpredictable and unusable programs. 
+
+b) 
+
+aaaa+*+

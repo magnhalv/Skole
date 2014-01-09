@@ -1,0 +1,58 @@
+FUNC cornercases()
+{
+	VAR a, b
+	a := 5
+	b := 6
+
+	IF a > b THEN
+		PRINT a," > ",b
+	FI
+	
+	IF a < b THEN
+		PRINT a," < ",b
+	FI
+	
+	IF a >= b THEN
+		PRINT a," >= ",b
+	FI
+	
+	IF a <= b THEN
+		PRINT a," <= ",b
+	FI
+	
+	IF a == b THEN
+		PRINT a," == ",b
+	FI
+	
+	IF a != b THEN
+		PRINT a,"!= ",b
+	FI
+	
+	PRINT "STATIC, 4,4"
+	
+	IF 4 > 4 THEN
+		PRINT 4," > ",4
+	FI
+	
+	IF 4 < 4 THEN
+		PRINT 4," < ",4
+	FI
+	
+	IF 4 >= 4 THEN
+		PRINT 4," >= ",4
+	FI
+	
+	IF 4 <= 4 THEN
+		PRINT 4," <= ",4
+	FI
+	
+	IF 4 == 4 THEN
+		PRINT 4," == ",4
+	FI
+	
+	IF 4 != 4 THEN
+		PRINT 4,"!= ",4
+	FI
+}
+	
+	

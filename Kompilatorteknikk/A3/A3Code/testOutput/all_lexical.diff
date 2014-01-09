@@ -1,0 +1,5 @@
+72,73c72
+<        EXPRESSION("-")
+<         VARIABLE("a_2")
+---
+>        VARIABLE("Ÿ Íÿ")

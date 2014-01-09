@@ -1,0 +1,14 @@
+7c7
+< Retrieving (x,-4)
+---
+> Retrieving (x,-8)
+14,15c14,15
+< .INTEGER: .string "%d "
+< .STRING0: .string "t is"
+---
+> .INTEGER: .string "6 " 
+> .STRING0: .string 
+17c17
+< .globl main
+---
+> .global main

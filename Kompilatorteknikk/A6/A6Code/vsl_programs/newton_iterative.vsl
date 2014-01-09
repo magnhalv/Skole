@@ -1,0 +1,16 @@
+FUNC newton(n)
+{
+	VAR estimate, next
+	estimate := 0
+	next := 1
+	
+	WHILE estimate != next DO
+	{
+		estimate := next
+		next := estimate - ( (estimate * estimate - n) / ( 2 * estimate ) )
+	}
+	DONE
+	
+	PRINT "The root of ", n, " is ", next-1
+}
+		

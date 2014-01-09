@@ -1,0 +1,15 @@
+Inserting (negatives,0)
+Inserting (a,-4)
+Inserting (b,-8)
+Retrieving (a,-8)
+Retrieving (b,-8)
+Retrieving (a,-8)
+Retrieving (b,-8)
+Retrieving (a,-8)
+Retrieving (b,-8)
+.data
+.INTEGER: .string "6 " 
+.STRING0: .string 
+.STRING1: .string "and b is"
+.STRING2: .string "a/(-b) is"
+.global main

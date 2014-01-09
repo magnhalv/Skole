@@ -1,0 +1,5 @@
+set view map
+set term jpeg size 1024, 1024
+set output 'output.jpg'
+plot 'plot.txt' index 0 with points pt 5, '' index 1 with points pt 3
+

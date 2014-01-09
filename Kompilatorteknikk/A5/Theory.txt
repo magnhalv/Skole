@@ -1,0 +1,43 @@
+
+
+
+Task 5
+
+_addFive:
+	pushl	%ebp
+	movl	%esp,%ebp
+	pushl	%ebp
+	movl	%esp,%ebp
+	pushl	$1
+	movl	%ebp,%ebx
+	movl	(%ebx),%ebx
+	pushl	8(%ebx)
+	call	_addFour
+	pushl	%eax
+	popl	%ebx
+	popl	%eax
+	addl	%ebx,%eax
+	pushl	%eax
+	popl	%eax
+	movl	%ebp,%esp
+	popl	%ebp
+	leave
+	ret
+_addFour:
+	pushl	%ebp
+	movl	%esp,%ebp
+	pushl	%ebp
+	movl	%esp,%ebp
+	pushl	$4
+	movl	%ebp,%ebx
+	movl	(%ebx),%ebx
+	pushl	8(%ebx)
+	popl	%ebx
+	popl	%eax
+	addl	%ebx,%eax
+	pushl	%eax
+	popl	%eax
+	movl	%ebp,%esp
+	popl	%ebp
+	leave
+	ret

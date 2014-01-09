@@ -1,0 +1,17 @@
+FUNC comp()
+{
+	VAR a,b,c
+	a := 4
+	b := 5
+	c := 6
+	{
+		VAR x,y,z,w
+		x := a > b   // x = 0
+		y := c == c  // y = 1
+		z := c >= a  // z = 1
+		
+		w := (x != y) >= z  // w = 1
+		
+		PRINT "w is: ",w
+	}
+}

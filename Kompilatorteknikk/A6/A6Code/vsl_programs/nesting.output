@@ -1,0 +1,6 @@
+Hello, world!
+Outer scope has a=32 
+I have a=64 and b=27 
+B was reassigned to 128 in inner
+Outer scope has a=32 
+x=43 

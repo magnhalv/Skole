@@ -1,0 +1,22 @@
+14c14
+< Retrieving (b,-4)
+---
+> Retrieving (b,-8)
+16,18c16,18
+< Retrieving (b,-4)
+< Retrieving (b,-4)
+< Retrieving (b,-4)
+---
+> Retrieving (b,-8)
+> Retrieving (b,-8)
+> Retrieving (b,-8)
+22,23c22,23
+< .INTEGER: .string "%d "
+< .STRING0: .string "Hello, world!"
+---
+> .INTEGER: .string "6 " 
+> .STRING0: .string 
+31c31
+< .globl main
+---
+> .global main

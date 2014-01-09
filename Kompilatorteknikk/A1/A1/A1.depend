@@ -1,0 +1,23 @@
+# depslib dependency file v1.0
+1359646476 source:b:\dropbox\codeblocks\kompilatorteknikk\a1\a1\main.c
+	<stdio.h>
+	<string.h>
+	<stdlib.h>
+	"rpn.h"
+
+1359222967 b:\dropbox\codeblocks\kompilatorteknikk\a1\a1\rpn.h
+
+1359644299 source:b:\dropbox\codeblocks\kompilatorteknikk\a1\a1\rpn.c
+	"rpn.h"
+
+1359476278 source:c:\users\magnus\dropbox\codeblocks\kompilatorteknikk\a1\a1\main.c
+	<stdio.h>
+	<string.h>
+	<stdlib.h>
+	"rpn.h"
+
+1359222967 c:\users\magnus\dropbox\codeblocks\kompilatorteknikk\a1\a1\rpn.h
+
+1359552672 source:c:\users\magnus\dropbox\codeblocks\kompilatorteknikk\a1\a1\rpn.c
+	"rpn.h"
+

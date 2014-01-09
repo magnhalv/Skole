@@ -1,0 +1,36 @@
+7,10c7,10
+< Retrieving (x,-4)
+< Retrieving (y,-8)
+< Retrieving (x,-4)
+< Retrieving (y,-8)
+---
+> Retrieving (x,-12)
+> Retrieving (y,-12)
+> Retrieving (x,-12)
+> Retrieving (y,-12)
+13,14c13,14
+< Retrieving (x,-4)
+< Retrieving (y,-8)
+---
+> Retrieving (x,-12)
+> Retrieving (y,-12)
+23,24c23,24
+< Retrieving (s,12)
+< Retrieving (s,12)
+---
+> Retrieving (s,8)
+> Retrieving (s,8)
+27c27
+< Retrieving (s,12)
+---
+> Retrieving (s,8)
+35,36c35,36
+< .INTEGER: .string "%d "
+< .STRING0: .string "Calling my_function with parameters"
+---
+> .INTEGER: .string "6 " 
+> .STRING0: .string 
+42c42
+< .globl main
+---
+> .global main

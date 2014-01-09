@@ -1,0 +1,20 @@
+
+// This program is a simple test of conditionals, including nesting
+
+FUNC while_test ()
+{
+    VAR a,b
+    a := 10
+    b := -15
+    IF ( a-10 ) THEN
+        PRINT "A is different from 10"
+    FI
+    IF ( a ) THEN
+        IF ( b+15 ) THEN
+            PRINT "B is different from -15"
+        ELSE
+            PRINT "B equals -15"
+        FI
+    FI
+    RETURN 0
+}

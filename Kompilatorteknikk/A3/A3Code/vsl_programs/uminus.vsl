@@ -1,0 +1,12 @@
+
+// This program tests the evaluation of the unary minus
+
+FUNC negatives ()
+{
+    VAR a,b
+    a := 100
+    b := 20
+    PRINT "a is", a, "and b is", b
+    PRINT "a/(-b) is", a / -b
+    RETURN 0
+}

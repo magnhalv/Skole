@@ -1,0 +1,36 @@
+6c6
+< Retrieving (a,12)
+---
+> Retrieving (a,8)
+8c8
+< Retrieving (a,12)
+---
+> Retrieving (a,8)
+11c11
+< Retrieving (a,12)
+---
+> Retrieving (a,8)
+13c13
+< Retrieving (a,12)
+---
+> Retrieving (a,8)
+22,23c22,23
+< Retrieving (a,12)
+< Retrieving (a,12)
+---
+> Retrieving (a,8)
+> Retrieving (a,8)
+27c27
+< Retrieving (a,12)
+---
+> Retrieving (a,8)
+30,31c30,31
+< .INTEGER: .string "%d "
+< .STRING0: .string "Greatest common divisor of"
+---
+> .INTEGER: .string "6 " 
+> .STRING0: .string 
+36c36
+< .globl main
+---
+> .global main

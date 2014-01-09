@@ -1,0 +1,18 @@
+FUNC escapecodes ()
+{
+    VAR a,b
+    PRINT
+"Testing if printf format codes are left alone.",
+"\nOutput *should* contain percent characters, but no integers."
+    a := 64
+    b := 42
+    PRINT "\tHello, world! %d %d"
+
+    PRINT
+"Adding a splash of ANSI color codes - This will only work in a color terminal"
+    PRINT "\t\033[31mRed"
+    PRINT "\t\033[32mGreen"
+    PRINT "\t\033[34mBlue", "\033[0m"
+
+    RETURN 0
+}

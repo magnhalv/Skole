@@ -1,0 +1,8 @@
+Inserting (while_test,0)
+Inserting (a,-4)
+Inserting (b,-8)
+Retrieving (a,-4)
+Retrieving (b,-8)
+Retrieving (a,-4)
+Retrieving (a,-4)
+Retrieving (b,-8)

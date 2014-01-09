@@ -1,0 +1,13 @@
+// Test parentheses/precedence w. 2*(3-1) vs 2*3-1
+FUNC precedence ()
+{
+    VAR a,b,c,d
+    a := 2
+    b := 3
+    c := 1
+    d := a*(b-c)
+    PRINT "2*(3-1) = ", d
+    d := a*b-c
+    PRINT "2*3-1 = ", d
+    RETURN 0
+}

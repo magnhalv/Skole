@@ -1,0 +1,38 @@
+7,9c7,9
+< Retrieving (x,-4)
+< Retrieving (y,-8)
+< Retrieving (f,-12)
+---
+> Retrieving (x,-16)
+> Retrieving (y,-16)
+> Retrieving (f,-16)
+13,19c13,19
+< Retrieving (f,-12)
+< Retrieving (x,-4)
+< Retrieving (y,-8)
+< Retrieving (x,-4)
+< Retrieving (y,-8)
+< Retrieving (y,-8)
+< Retrieving (f,-12)
+---
+> Retrieving (f,-16)
+> Retrieving (x,-16)
+> Retrieving (y,-16)
+> Retrieving (x,-16)
+> Retrieving (y,-16)
+> Retrieving (y,-16)
+> Retrieving (f,-16)
+21c21
+< Retrieving (f,-12)
+---
+> Retrieving (f,-16)
+23,24c23,24
+< .INTEGER: .string "%d "
+< .STRING0: .string "Fibonacci number #"
+---
+> .INTEGER: .string "6 " 
+> .STRING0: .string 
+26c26
+< .globl main
+---
+> .global main

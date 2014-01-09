@@ -1,0 +1,5 @@
+.data
+.INTEGER: .string "%d "
+.STRING0: .string "Parameter s is"
+.STRING1: .string "t is "
+.globl main

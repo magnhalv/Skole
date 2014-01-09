@@ -1,0 +1,6 @@
+.data
+.INTEGER: .string "%d "
+.STRING0: .string "a is"
+.STRING1: .string "and b is"
+.STRING2: .string "a/(-b) is"
+.globl main

@@ -1,0 +1,22 @@
+
+// This program tests the evaluation of the unary minus
+
+FUNC negatives ()
+{
+    VAR a,b
+    a := 100
+    b := 20
+    PRINT "a is", a, "and b is", b
+    PRINT "a/(-b) is", a / -b
+    RETURN 0
+}
+
+FUNC addFive(a)
+{
+	RETURN 1 + addFour(a)
+}
+
+FUNC addFour(a)
+{
+	RETURN 4 + a
+}

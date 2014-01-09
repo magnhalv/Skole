@@ -1,0 +1,14 @@
+8c8
+< Retrieving (s,12)
+---
+> Retrieving (s,8)
+11,12c11,12
+< .INTEGER: .string "%d "
+< .STRING0: .string "Parameter s is"
+---
+> .INTEGER: .string "6 " 
+> .STRING0: .string 
+14c14
+< .globl main
+---
+> .global main

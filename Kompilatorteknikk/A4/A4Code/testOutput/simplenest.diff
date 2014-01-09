@@ -1,0 +1,22 @@
+9c9
+< Retrieving (x,-4)
+---
+> Retrieving (x,-8)
+11c11
+< Retrieving (x,-4)
+---
+> Retrieving (x,-8)
+19c19
+< Retrieving (x,-4)
+---
+> Retrieving (x,-8)
+23,24c23,24
+< .INTEGER: .string "%d "
+< .STRING0: .string "Outer x is"
+---
+> .INTEGER: .string "6 " 
+> .STRING0: .string 
+33c33
+< .globl main
+---
+> .global main

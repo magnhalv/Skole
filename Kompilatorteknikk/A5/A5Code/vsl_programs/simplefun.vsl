@@ -1,0 +1,12 @@
+FUNC funcall ()
+{
+    VAR x
+    x := my_function( 5, 10 )
+    RETURN 0
+}
+
+FUNC my_function ( s, t )
+{
+    PRINT "Parameter s is", s, "t is ", t
+    RETURN 0
+}

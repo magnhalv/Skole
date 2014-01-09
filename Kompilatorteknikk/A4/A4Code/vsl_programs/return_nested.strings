@@ -1,0 +1,5 @@
+.data
+.INTEGER: .string "%d "
+.STRING0: .string "t is"
+.STRING1: .string "This never executes"
+.globl main

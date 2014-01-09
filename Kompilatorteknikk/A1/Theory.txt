@@ -1,0 +1,11 @@
+Task 2
+
+An acceptor takes the input and outputs either yes or no, depending on whether the input was a legit input. 
+A lexical analyzer also checks if the input is legit, but it also groups up the input-characters into meaningful 
+lexemes and outputs a token for each lexeme. A token is on the form <token-name, attribute-value>.  
+
+Task 3
+
+b) 100, 1000, 10001, 1100, 11001, 11000
+
+c)

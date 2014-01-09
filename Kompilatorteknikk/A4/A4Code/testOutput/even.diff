@@ -1,0 +1,10 @@
+6c6
+< Retrieving (a,12)
+---
+> Retrieving (a,8)
+12,13c12,13
+< .INTEGER: .string "%d "
+< .globl main
+---
+> .INTEGER: .string "6 " 
+> .global main

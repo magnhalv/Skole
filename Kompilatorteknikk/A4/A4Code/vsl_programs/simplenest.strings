@@ -1,0 +1,12 @@
+.data
+.INTEGER: .string "%d "
+.STRING0: .string "Outer x is"
+.STRING1: .string "y is"
+.STRING2: .string "parm is"
+.STRING3: .string "Inner x is"
+.STRING4: .string "y is"
+.STRING5: .string "parm is"
+.STRING6: .string "Outer x is"
+.STRING7: .string "y is"
+.STRING8: .string "parm is"
+.globl main

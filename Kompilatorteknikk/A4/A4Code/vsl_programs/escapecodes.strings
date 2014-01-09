@@ -1,0 +1,11 @@
+.data
+.INTEGER: .string "%d "
+.STRING0: .string "Testing if printf format codes are left alone."
+.STRING1: .string "\nOutput *should* contain percent characters, but no integers."
+.STRING2: .string "\tHello, world! %d %d"
+.STRING3: .string "Adding a splash of ANSI color codes - This will only work in a color terminal"
+.STRING4: .string "\t\033[31mRed"
+.STRING5: .string "\t\033[32mGreen"
+.STRING6: .string "\t\033[34mBlue"
+.STRING7: .string "\033[0m"
+.globl main

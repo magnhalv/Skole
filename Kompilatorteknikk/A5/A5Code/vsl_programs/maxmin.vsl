@@ -1,0 +1,27 @@
+FUNC maxmin()
+{
+	VAR a, b, c, d, e
+	a := max(5,6)
+	b := min(-1,4)
+	c := max(0,0)
+	
+	PRINT "a is: ", a, "b is: ", b, "c is: ", c
+}
+
+// Returns maximum of a and b, or zero if equal
+FUNC max(a,b)
+{
+	VAR aGreater,bGreater
+	aGreater := a > b
+	bGreater := b > a
+	RETURN a*aGreater + b*bGreater
+}
+
+// Returns minimum of a and b, or zero if equal
+FUNC min(a,b)
+{
+	VAR aSmaller,bSmaller
+	aSmaller := a < b
+	bSmaller := b < a
+	RETURN a*aSmaller + b*bSmaller
+}

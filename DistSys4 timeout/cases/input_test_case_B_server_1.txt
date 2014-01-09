@@ -1,0 +1,60 @@
+# This is an example test case file.
+# Empty lines and lines starting with the # sign are ignored and can be used for comments.
+# NB: This file is case and space SENSITIVE.
+# Call this test case anything you want, e.g. TEST CASE: 123 or TEST CASE: Deadly deadlock
+TEST CASE: B
+# Output will be written to cases/output_test_case_B_server_1.txt etc.
+OUTPUT_FILE_PREFIX: cases/output_test_case_B
+# The number of local resources on each server
+NOF_RESOURCES_PER_SERVER: 10
+# The number of milliseconds to wait for a lock before a timeout is declared, set to zero to disable timeouts
+TIMEOUT_INTERVAL: 0
+# Whether or not to use edge chasing to detect deadlocks, set to true/false
+# Timeouts and edge chasing shouldn't be enabled simultaneously.
+PROBING_ENABLED: true
+
+# Now come the transactions of this test case
+
+START TRANSACTION
+# The number of resource accesses that this transaction consists of:
+NUMBER OF ACCESSES: 1
+# Specify the first resource to be accessed:
+ACCESS SERVER 1 RESOURCE 9
+# Specify the time that this resource should be "processed" by this transaction
+# Write e.g. 500-500 to specify a fixed number.
+PROCESS 4000-4000
+# NB: The resources aren't unlocked until after the last bit of processing, i.e. now.
+# Take this into account when devising deadlock scenarios.
+END OF TRANSACTION
+
+WAIT 50-50
+
+START TRANSACTION
+NUMBER OF ACCESSES: 11
+ACCESS SERVER 1 RESOURCE 0
+PROCESS 10-10
+ACCESS SERVER 1 RESOURCE 1
+PROCESS 10-10
+ACCESS SERVER 1 RESOURCE 2
+PROCESS 10-10
+ACCESS SERVER 1 RESOURCE 3
+PROCESS 10-10
+ACCESS SERVER 1 RESOURCE 4
+PROCESS 10-10
+ACCESS SERVER 1 RESOURCE 5
+PROCESS 10-10
+ACCESS SERVER 1 RESOURCE 6
+PROCESS 10-10
+ACCESS SERVER 1 RESOURCE 7
+PROCESS 10-10
+ACCESS SERVER 1 RESOURCE 8
+PROCESS 10-10
+ACCESS SERVER 1 RESOURCE 9
+PROCESS 1000-1000
+ACCESS SERVER 4 RESOURCE 5
+PROCESS 10-10
+END OF TRANSACTION
+
+WAIT 0-0
+
+END OF FILE

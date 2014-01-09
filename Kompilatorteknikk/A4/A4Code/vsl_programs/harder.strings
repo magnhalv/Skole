@@ -1,0 +1,13 @@
+.data
+.INTEGER: .string "%d "
+.STRING0: .string "Nested scopes coming up..."
+.STRING1: .string "x="
+.STRING2: .string "Parameter a is a="
+.STRING3: .string "Outer scope has a="
+.STRING4: .string "Inner scope has a="
+.STRING5: .string "and b="
+.STRING6: .string "b was updated to "
+.STRING7: .string "in inner scope"
+.STRING8: .string "Outer scope (still) has a="
+.STRING9: .string "Return expression (a-1) using a="
+.globl main

@@ -1,0 +1,20 @@
+FUNC fibonacci_iterative( n )
+{
+    VAR x, y, f, i
+    x := 1
+    y := 1
+    f := 1
+    
+    IF n >= 2 THEN
+    	FOR i := 2 TO n DO
+    	{
+    		f := x + y
+    		x := y
+    		y := f
+    	}
+    	DONE
+    FI
+
+    PRINT "Fibonacci number # ",n," is ",f
+    RETURN 0
+}

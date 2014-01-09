@@ -1,0 +1,18 @@
+4c4
+< Retrieving (a,-4)
+---
+> Retrieving (a,-8)
+7,8c7,8
+< .INTEGER: .string "%d "
+< .STRING0: .string "Testing if printf format codes are left alone."
+---
+> .INTEGER: .string "6 " 
+> .STRING0: .string 
+10c10
+< .STRING2: .string "\tHello, world! %d %d"
+---
+> .STRING2: .string "\tHello, world! 10 1075254656"
+16c16
+< .globl main
+---
+> .global main

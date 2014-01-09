@@ -1,0 +1,5 @@
+Inserting (hello,0)
+.data
+.INTEGER: .string "%d "
+.STRING0: .string "Hello, world!"
+.globl main

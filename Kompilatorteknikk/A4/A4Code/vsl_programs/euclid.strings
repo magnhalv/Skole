@@ -1,0 +1,8 @@
+.data
+.INTEGER: .string "%d "
+.STRING0: .string "Greatest common divisor of"
+.STRING1: .string "and"
+.STRING2: .string "is"
+.STRING3: .string "and"
+.STRING4: .string "are relative primes"
+.globl main

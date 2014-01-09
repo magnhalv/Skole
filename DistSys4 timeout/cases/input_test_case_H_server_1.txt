@@ -1,0 +1,35 @@
+# This is an example test case file.
+# Empty lines and lines starting with the # sign are ignored and can be used for comments.
+# NB: This file is case and space SENSITIVE.
+# Call this test case anything you want, e.g. TEST CASE: 123 or TEST CASE: Deadly deadlock
+TEST CASE: H
+# Output will be written to cases/output_test_case_C_server_1.txt etc.
+OUTPUT_FILE_PREFIX: cases/output_test_case_H
+# The number of local resources on each server
+NOF_RESOURCES_PER_SERVER: 10
+# The number of milliseconds to wait for a lock before a timeout is declared, set to zero to disable timeouts
+TIMEOUT_INTERVAL: 3000
+# Whether or not to use edge chasing to detect deadlocks, set to true/false
+# Timeouts and edge chasing shouldn't be enabled simultaneously.
+PROBING_ENABLED: false
+
+# Now come the transactions of this test case
+
+START TRANSACTION
+NUMBER OF ACCESSES: 1
+ACCESS SERVER 1 RESOURCE 9
+PROCESS 2000-2000
+END OF TRANSACTION
+
+WAIT 50-50
+START TRANSACTION
+NUMBER OF ACCESSES: 2
+ACCESS SERVER 2 RESOURCE 7
+PROCESS 300-300
+ACCESS SERVER 4 RESOURCE 4
+PROCESS 100-100
+END OF TRANSACTION
+
+WAIT 0-0
+
+END OF FILE

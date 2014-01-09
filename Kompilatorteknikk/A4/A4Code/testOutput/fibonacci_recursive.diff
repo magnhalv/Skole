@@ -1,0 +1,10 @@
+22,23c22,23
+< .INTEGER: .string "%d "
+< .STRING0: .string "The"
+---
+> .INTEGER: .string "6 " 
+> .STRING0: .string 
+25c25
+< .globl main
+---
+> .global main

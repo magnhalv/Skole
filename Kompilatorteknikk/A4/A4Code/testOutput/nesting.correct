@@ -1,0 +1,31 @@
+Inserting (hello,0)
+Inserting (test_me,0)
+Inserting (x,-4)
+Retrieving (x,-4)
+Retrieving (test_me,0)
+Retrieving (x,-4)
+Inserting (a,8)
+Inserting (a,-4)
+Retrieving (a,-4)
+Retrieving (a,-4)
+Inserting (b,-4)
+Inserting (a,-8)
+Retrieving (a,-8)
+Retrieving (b,-4)
+Retrieving (a,-8)
+Retrieving (b,-4)
+Retrieving (b,-4)
+Retrieving (b,-4)
+Retrieving (a,-4)
+Retrieving (a,8)
+.data
+.INTEGER: .string "%d "
+.STRING0: .string "Hello, world!"
+.STRING1: .string "x="
+.STRING2: .string "Outer scope has a="
+.STRING3: .string "I have a="
+.STRING4: .string "and b="
+.STRING5: .string "B was reassigned to "
+.STRING6: .string "in inner"
+.STRING7: .string "Outer scope has a="
+.globl main

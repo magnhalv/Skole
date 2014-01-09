@@ -1,0 +1,8 @@
+12,14c12,14
+< .INTEGER: .string "%d "
+< .STRING0: .string "Skip..."
+< .globl main
+---
+> .INTEGER: .string "6 " 
+> .STRING0: .string 
+> .global main

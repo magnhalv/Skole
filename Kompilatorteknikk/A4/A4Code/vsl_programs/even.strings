@@ -1,0 +1,3 @@
+.data
+.INTEGER: .string "%d "
+.globl main

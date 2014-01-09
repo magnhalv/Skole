@@ -1,0 +1,128 @@
+Inserting (main,0)
+Inserting (a,-4)
+Inserting (_a1,-8)
+Inserting (a_2,-12)
+Inserting (i,-16)
+Inserting (j,-20)
+Retrieving (_a1,-20)
+Retrieving (a_2,-20)
+Retrieving (a,-20)
+Retrieving (_a1,-20)
+Retrieving (a_2,-20)
+Retrieving (_a1,-20)
+Retrieving (a_2,-20)
+Retrieving (a,-20)
+Retrieving (a,-20)
+Retrieving (_a1,-20)
+Retrieving (a_2,-20)
+Retrieving (_a1,-20)
+Retrieving (a_2,-20)
+Retrieving (a,-20)
+Retrieving (a,-20)
+Retrieving (_a1,-20)
+Retrieving (a_2,-20)
+Retrieving (_a1,-20)
+Retrieving (a_2,-20)
+Retrieving (a,-20)
+Retrieving (a,-20)
+Retrieving (_a1,-20)
+Retrieving (a_2,-20)
+Retrieving (_a1,-20)
+Retrieving (a_2,-20)
+Retrieving (a,-20)
+Retrieving (a,-20)
+Retrieving (_a1,-20)
+Retrieving (a_2,-20)
+Retrieving (_a1,-20)
+Retrieving (a_2,-20)
+Retrieving (a,-20)
+Retrieving (a,-20)
+Retrieving (_a1,-20)
+Retrieving (a_2,-20)
+Retrieving (_a1,-20)
+Retrieving (a_2,-20)
+Retrieving (a,-20)
+Retrieving (a,-20)
+Retrieving (_a1,-20)
+Retrieving (a_2,-20)
+Retrieving (_a1,-20)
+Retrieving (a_2,-20)
+Retrieving (a,-20)
+Retrieving (a,-20)
+Retrieving (_a1,-20)
+Retrieving (a_2,-20)
+Retrieving (_a1,-20)
+Retrieving (a_2,-20)
+Retrieving (a,-20)
+Retrieving (a,-20)
+Retrieving (_a1,-20)
+Retrieving (a_2,-20)
+Retrieving (_a1,-20)
+Retrieving (a_2,-20)
+Retrieving (a,-20)
+Retrieving (a,-20)
+Retrieving (_a1,-20)
+Retrieving (a_2,-20)
+Retrieving (_a1,-20)
+Retrieving (a_2,-20)
+Retrieving (a,-20)
+Retrieving (a,-20)
+Retrieving (_a1,-20)
+Retrieving (a_2,-20)
+Retrieving (_a1,-20)
+Retrieving (a_2,-20)
+Retrieving (a,-20)
+Retrieving (a,-20)
+Retrieving (a,-20)
+Retrieving (i,-20)
+Retrieving (i,-20)
+Retrieving (i,-20)
+Retrieving (i,-20)
+Retrieving (i,-20)
+Retrieving (i,-20)
+Retrieving (i,-20)
+Retrieving (j,-20)
+Retrieving (i,-20)
+Retrieving (j,-20)
+Retrieving (i,-20)
+Retrieving (j,-20)
+Retrieving (a,-20)
+Retrieving (a,-20)
+Retrieving (a,-20)
+Retrieving (a,-20)
+Retrieving (a,-20)
+Retrieving (a,-20)
+Retrieving (a,-20)
+Retrieving (a,-20)
+.data
+.INTEGER: .string "6 " 
+.STRING0: .string Àçpãææpãpã !@ !@¨!@¨!@°!@°!@¸!@¸!@À!@À!@È!@È!@Ð!@Ð!@Ø!@Ø!@à!@à!@è!@è!@ð!@ð!@ø!@ø!@
+.STRING1: .string Àçpãææpãpã !@ !@¨!@¨!@°!@°!@¸!@¸!@À!@À!@È!@È!@Ð!@Ð!@Ø!@Ø!@à!@à!@è!@è!@ð!@ð!@ø!@ø!@
+.STRING2: .string "Hello, \"world\"!"
+.STRING3: .string "+"
+.STRING4: .string "="
+.STRING5: .string "-"
+.STRING6: .string "="
+.STRING7: .string "+ (-"
+.STRING8: .string ") ="
+.STRING9: .string "*"
+.STRING10: .string "="
+.STRING11: .string "/"
+.STRING12: .string "="
+.STRING13: .string ">"
+.STRING14: .string "="
+.STRING15: .string "<"
+.STRING16: .string "="
+.STRING17: .string ">="
+.STRING18: .string "="
+.STRING19: .string "<="
+.STRING20: .string "="
+.STRING21: .string "=="
+.STRING22: .string "="
+.STRING23: .string "!="
+.STRING24: .string "="
+.STRING25: .string "i "
+.STRING26: .string "*"
+.STRING27: .string "="
+.STRING28: .string "Skip..."
+.global main

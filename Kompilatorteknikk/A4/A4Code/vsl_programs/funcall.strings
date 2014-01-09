@@ -1,0 +1,9 @@
+.data
+.INTEGER: .string "%d "
+.STRING0: .string "Calling my_function with parameters"
+.STRING1: .string "The returned result is"
+.STRING2: .string "The other returned result is"
+.STRING3: .string "Parameter s is"
+.STRING4: .string "Parameter t is"
+.STRING5: .string "The sum of their squares is"
+.globl main

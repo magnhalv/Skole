@@ -1,0 +1,30 @@
+FUNC hello ()
+{
+    VAR x
+    PRINT "Hello, world!"
+    x:=test_me ( 42 )
+    PRINT "x=",x
+    RETURN 0
+}
+
+FUNC test_me ( a )
+{
+    {
+        VAR a
+        a:=32
+        PRINT "Outer scope has a=",a
+        {
+            VAR b
+            VAR a
+            a := 64
+            b := 27
+            {
+                PRINT "I have a=",a, "and b=", b
+                b := 128
+            }
+            PRINT "B was reassigned to ",b,"in inner"
+        } 
+        PRINT "Outer scope has a=",a
+    }
+    RETURN a+1
+}

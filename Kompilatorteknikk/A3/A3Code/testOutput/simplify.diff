@@ -1,0 +1,20 @@
+73c73
+<       INTEGER(5)
+---
+>       EXPRESSION(5)
+76c76
+<       INTEGER(1)
+---
+>       EXPRESSION(1)
+79c79
+<       INTEGER(4)
+---
+>       EXPRESSION(4)
+82c82
+<       INTEGER(2)
+---
+>       EXPRESSION(8)
+88c88
+<       INTEGER(4)
+---
+>       EXPRESSION(100)

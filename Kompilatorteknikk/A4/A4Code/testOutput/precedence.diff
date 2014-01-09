@@ -1,0 +1,34 @@
+6,8c6,8
+< Retrieving (a,-4)
+< Retrieving (b,-8)
+< Retrieving (c,-12)
+---
+> Retrieving (a,-16)
+> Retrieving (b,-16)
+> Retrieving (c,-16)
+10,12c10,12
+< Retrieving (a,-4)
+< Retrieving (b,-8)
+< Retrieving (c,-12)
+---
+> Retrieving (a,-16)
+> Retrieving (b,-16)
+> Retrieving (c,-16)
+15,17c15,17
+< Retrieving (a,-4)
+< Retrieving (b,-8)
+< Retrieving (c,-12)
+---
+> Retrieving (a,-16)
+> Retrieving (b,-16)
+> Retrieving (c,-16)
+20,21c20,21
+< .INTEGER: .string "%d "
+< .STRING0: .string "2*(3-1) = "
+---
+> .INTEGER: .string "6 " 
+> .STRING0: .string 
+23c23
+< .globl main
+---
+> .global main

@@ -1,0 +1,5 @@
+36,37c36
+<          EXPRESSION("-")
+<           VARIABLE("b")
+---
+>          VARIABLE("žÿÿÿ")

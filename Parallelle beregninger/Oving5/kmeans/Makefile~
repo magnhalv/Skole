@@ -1,0 +1,25 @@
+JPGS=$(shell ls *.dat | sed s/\.dat/.jpg/)
+
+all: kmeans kmeans_cuda
+
+kmeans: kmeans.c
+	gcc -std=c99 -O3 -o kmeans kmeans.c -lm
+	
+kmeans_cuda: kmeans_cuda.cu
+	nvcc -arch=sm_20 -O3 -o kmeans_cuda kmeans_cuda.cu -lcudart -lm
+
+plot: plot.txt
+	gnuplot gpbatch.txt
+	
+plot.txt: kmeans
+	./kmeans 1 10 300 > plot.txt
+	
+	
+jpgs: ${JPGS}
+
+%.jpg: %.dat
+	gnuplot -e "infile='$*.dat'; outfile='$*.jpg'" gpbatch.txt
+	-rm -f $*.dat
+	
+clean:
+	-rm -f kmeans kmeans_cuda plot.txt plot.jpg

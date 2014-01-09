@@ -1,0 +1,56 @@
+==================================================================
+29: Test case A started.
+371: Server 4 started.
+1456: Server 4 started its transactions.
+1490: Transaction 4000 arrived.
+1502: TRANS 4000: Starting transaction 4000.
+1512: TRANS 4000: Trying to claim lock of resource 0 at server 4
+1519: TRANS 4000: Lock claimed. Processing...
+2020: TRANS 4000: Trying to claim lock of resource 9 at server 1
+5545: TRANS 4000: Lock claimed. Processing...
+5556: TRANS 4000: Committing transaction 4000.
+5561: TRANS 4000: Unlocked resource 9 at server 1
+5563: TRANS 4000: Unlocked resource 0 at server 4
+5564: TRANS 4000: Transaction 4000 committed.
+5564: Transaction 4000 ended.
+5622: Transaction 4001 arrived.
+5623: TRANS 4001: Starting transaction 4001.
+5624: TRANS 4001: Trying to claim lock of resource 1 at server 4
+5626: TRANS 4001: Lock claimed. Processing...
+5727: TRANS 4001: Trying to claim lock of resource 1 at server 1
+10730: Transaction aborted due to timeout. Will retry in 100 milis
+10831: TRANS 4001: Trying to claim lock of resource 1 at server 1
+15833: Transaction aborted due to timeout. Will retry in 100 milis
+15935: TRANS 4001: Trying to claim lock of resource 1 at server 1
+20940: Transaction aborted due to timeout. Will retry in 100 milis
+21042: TRANS 4001: Trying to claim lock of resource 1 at server 1
+26044: Transaction aborted due to timeout. Will retry in 100 milis
+26145: TRANS 4001: Trying to claim lock of resource 1 at server 1
+31148: Transaction aborted due to timeout. Will retry in 100 milis
+31250: TRANS 4001: Trying to claim lock of resource 1 at server 1
+36253: Transaction aborted due to timeout. Will retry in 100 milis
+36355: TRANS 4001: Trying to claim lock of resource 1 at server 1
+41358: Transaction aborted due to timeout. Will retry in 100 milis
+41460: TRANS 4001: Trying to claim lock of resource 1 at server 1
+46463: Transaction aborted due to timeout. Will retry in 100 milis
+46566: TRANS 4001: Trying to claim lock of resource 1 at server 1
+51573: Transaction aborted due to timeout. Will retry in 100 milis
+51675: TRANS 4001: Trying to claim lock of resource 1 at server 1
+56680: Transaction aborted due to timeout. Will retry in 100 milis
+56781: TRANS 4001: Trying to claim lock of resource 1 at server 1
+61788: Transaction aborted due to timeout. Will retry in 100 milis
+61890: TRANS 4001: Trying to claim lock of resource 1 at server 1
+66893: Transaction aborted due to timeout. Will retry in 100 milis
+66995: TRANS 4001: Trying to claim lock of resource 1 at server 1
+72000: Transaction aborted due to timeout. Will retry in 100 milis
+72102: TRANS 4001: Trying to claim lock of resource 1 at server 1
+77107: Transaction aborted due to timeout. Will retry in 100 milis
+77209: TRANS 4001: Trying to claim lock of resource 1 at server 1
+79004: Server 4 was notified of the departure of server 1 by server 1.
+79021: TRANS 4001: Lock claimed. Processing...
+80023: TRANS 4001: Committing transaction 4001.
+81028: TRANS 4001: Failed to unlock resource 1 at server 1 due to communication failure.
+81030: TRANS 4001: Unlocked resource 1 at server 4
+81032: TRANS 4001: Transaction 4001 committed.
+81033: Transaction 4001 ended.
+81034: End of input file reached, no more transactions will be started.

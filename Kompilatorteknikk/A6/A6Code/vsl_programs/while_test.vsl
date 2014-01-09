@@ -1,0 +1,24 @@
+
+// This program is a simple test of while loops, counting down from 19 to 0
+// and skipping 10
+
+FUNC while_test ()
+{
+    VAR a
+    a := 20
+    WHILE ( a ) DO
+    {
+        IF ( a-11 ) THEN
+        {
+            a := a - 1
+        		PRINT a
+        }
+        ELSE
+        {
+            a := a - 1
+        }
+        FI
+    }
+    DONE
+    RETURN 0
+}

@@ -1,0 +1,5 @@
+Inserting (hello,0)
+.data
+.INTEGER: .string "6 " 
+.STRING0: .string 
+.global main

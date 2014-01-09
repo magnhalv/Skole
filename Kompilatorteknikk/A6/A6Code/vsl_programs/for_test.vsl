@@ -1,0 +1,13 @@
+FUNC even(){
+	VAR a, b, i
+	a := 0
+	b := 20
+	
+	FOR i := a TO b DO
+	{
+		IF i/2 > (i-1)/2 THEN
+			PRINT i
+		FI
+	}
+	DONE
+}

@@ -1,0 +1,32 @@
+
+// This program tests activation records, function call and return
+
+FUNC funcall ()
+{
+    VAR x,y,z
+    x := 5
+    y := 10
+    PRINT "Calling my_function with parameters", x, y
+    z := my_function ( x, y )
+    PRINT "The returned result is", z
+    z := my_other_function ()
+    PRINT "The other returned result is", z
+    RETURN 0
+}
+
+FUNC my_function ( s, t )
+{
+    VAR u
+    u := s*s + t*t
+    PRINT "Parameter s is", s
+    PRINT "Parameter t is", t
+    PRINT "The sum of their squares is", u
+    RETURN u
+}
+
+FUNC my_other_function ()
+{
+    VAR x
+    x := 42
+    RETURN x
+}

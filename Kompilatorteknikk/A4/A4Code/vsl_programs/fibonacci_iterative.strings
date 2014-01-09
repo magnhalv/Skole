@@ -1,0 +1,5 @@
+.data
+.INTEGER: .string "%d "
+.STRING0: .string "Fibonacci number #"
+.STRING1: .string "is"
+.globl main

@@ -1,0 +1,11 @@
+.data
+.INTEGER: .string "%d "
+.STRING0: .string "Hello, world!"
+.STRING1: .string "x="
+.STRING2: .string "Outer scope has a="
+.STRING3: .string "I have a="
+.STRING4: .string "and b="
+.STRING5: .string "B was reassigned to "
+.STRING6: .string "in inner"
+.STRING7: .string "Outer scope has a="
+.globl main

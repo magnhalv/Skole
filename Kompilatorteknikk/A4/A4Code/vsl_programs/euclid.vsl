@@ -1,0 +1,20 @@
+FUNC euclid ( a, b )
+{
+    IF ( gcd ( a, b ) - 1 ) THEN
+        PRINT "Greatest common divisor of", a, "and", b, "is", gcd ( a, b )
+    ELSE
+        PRINT a, "and", b, "are relative primes"
+    FI
+    RETURN 0
+}
+
+FUNC gcd( a, b )
+{
+    VAR g
+    IF ( b ) THEN
+        g := gcd ( b, a - ((a/b)*b) )
+    ELSE
+        g := a
+    FI
+    RETURN g
+}

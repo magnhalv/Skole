@@ -1,0 +1,18 @@
+17c17
+< Retrieving (n,12)
+---
+> Retrieving (n,8)
+22c22
+< Retrieving (n,12)
+---
+> Retrieving (n,8)
+26,27c26,27
+< .INTEGER: .string "%d "
+< .STRING0: .string "The square root of"
+---
+> .INTEGER: .string "6 " 
+> .STRING0: .string 
+29c29
+< .globl main
+---
+> .global main

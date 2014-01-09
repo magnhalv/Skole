@@ -1,0 +1,28 @@
+13,15c13,15
+< Retrieving (u,-4)
+< Retrieving (v,-8)
+< Retrieving (w,-12)
+---
+> Retrieving (u,-24)
+> Retrieving (v,-24)
+> Retrieving (w,-24)
+17,18c17,18
+< Retrieving (x,-16)
+< Retrieving (y,-20)
+---
+> Retrieving (x,-24)
+> Retrieving (y,-24)
+20,22c20,22
+< Retrieving (u,-4)
+< Retrieving (v,-8)
+< Retrieving (w,-12)
+---
+> Retrieving (u,-24)
+> Retrieving (v,-24)
+> Retrieving (w,-24)
+33,34c33,34
+< .INTEGER: .string "%d "
+< .globl main
+---
+> .INTEGER: .string "6 " 
+> .global main

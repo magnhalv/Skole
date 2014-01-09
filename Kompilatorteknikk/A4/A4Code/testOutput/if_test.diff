@@ -1,0 +1,20 @@
+4c4
+< Retrieving (a,-4)
+---
+> Retrieving (a,-8)
+6,7c6,7
+< Retrieving (a,-4)
+< Retrieving (a,-4)
+---
+> Retrieving (a,-8)
+> Retrieving (a,-8)
+10,11c10,11
+< .INTEGER: .string "%d "
+< .STRING0: .string "A is different from 10"
+---
+> .INTEGER: .string "6 " 
+> .STRING0: .string 
+14c14
+< .globl main
+---
+> .global main
