@@ -1,0 +1,15 @@
+\begin{thebibliography}{1}
+
+\bibitem{Farabet2009}
+Cl\'{e}ment Farabet, Cyril Poulet, Jefferson~Y. Han, and Yann LeCun.
+\newblock {CNP: An FPGA-based processor for Convolutional Networks}.
+\newblock {\em FPL 09: 19th International Conference on Field Programmable
+  Logic and Applications}, 1(1):32--37, 2009.
+
+\bibitem{LeCun1998}
+Yann LeCun, L\'{e}on Bottou, Yoshua Bengio, and Patrick. Haffner.
+\newblock {Gradient-Based Learning Applied to Document Recognition}.
+\newblock {\em Proceedings of the IEEE International Conference on Computer
+  Vision}, 1998.
+
+\end{thebibliography}

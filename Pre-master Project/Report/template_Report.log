@@ -1,4 +1,4 @@
-This is pdfTeX, Version 3.1415926-2.5-1.40.13 (TeX Live 2013/dev) (format=pdflatex 2013.11.17)  1 OCT 2014 15:59
+This is pdfTeX, Version 3.1415926-2.5-1.40.13 (TeX Live 2013/dev) (format=pdflatex 2013.11.17)  6 OCT 2014 16:15
 entering extended mode
  restricted \write18 enabled.
  %&-line parsing enabled.
@@ -420,8 +420,9 @@ LaTeX Info: Redefining \addtolength on input line 77.
 )
 \c@@todonotes@numberoftodonotes=\count124
 )
-(./template_Report.aux (./introduction.aux) (./related_work.aux) (./method.aux)
-(./results.aux) (./discussion.aux) (./conclusion.aux))
+(./template_Report.aux (./introduction.aux) (./related_work.aux)
+(./background.aux) (./method.aux) (./results.aux) (./discussion.aux)
+(./conclusion.aux))
 \openout1 = `template_Report.aux'.
 
 LaTeX Font Info:    Checking defaults for OML/cmm/m/it on input line 9.
@@ -507,17 +508,35 @@ e
 
 (./introduction.tex
 Chapter 1.
-[1
+) [1
 
 
 ]
-Overfull \hbox (46.06622pt too wide) in paragraph at lines 37--40
+\openout2 = `related_work.aux'.
+
+ (./related_work.tex
+Chapter 2.
+) [2
+
+
+
+]
+\openout2 = `background.aux'.
+
+ (./background.tex
+Chapter 3.
+[3
+
+
+
+]
+Overfull \hbox (46.06622pt too wide) in paragraph at lines 35--38
 []\OT1/cmr/m/n/10 The net-work takes in two pa-ram-e-ters, $([]) = ([]\OML/cmm/
 m/it/10 ; []; [] ; []\OT1/cmr/m/n/10 )$.
  []
 
 
-Overfull \hbox (63.47546pt too wide) in paragraph at lines 51--53
+Overfull \hbox (63.47546pt too wide) in paragraph at lines 47--49
 \OT1/cmr/m/n/10 cor-rect out-put. Then the cost func-tion for \OT1/cmr/m/it/10 
 m \OT1/cmr/m/n/10 train-ing ex-am-ples $((\OML/cmm/m/it/10 x[]; y[]\OT1/cmr/m/n
 /10 )\OML/cmm/m/it/10 ; \OT1/cmr/m/n/10 (\OML/cmm/m/it/10 x[]; y[]\OT1/cmr/m/n/
@@ -525,21 +544,23 @@ m \OT1/cmr/m/n/10 train-ing ex-am-ples $((\OML/cmm/m/it/10 x[]; y[]\OT1/cmr/m/n
 m/n/10 ))$
  []
 
-[2]) [3]
-\openout2 = `related_work.aux'.
+[4] [5] <Figures/Background/convnet.png, id=44, 1037.8775pt x 322.20375pt>
+File: Figures/Background/convnet.png Graphic file (type png)
 
- (./related_work.tex
-Chapter 2.
-) [4
+<use Figures/Background/convnet.png>
+Package pdftex.def Info: Figures/Background/convnet.png used on input line 124.
+
+(pdftex.def)             Requested size: 345.0pt x 107.10435pt.
 
 
+LaTeX Warning: `!h' float specifier changed to `!ht'.
 
-]
+) [6] [7 <./Figures/Background/convnet.png>]
 \openout2 = `method.aux'.
 
  (./method.tex
-Chapter 3.
-) [5
+Chapter 4.
+) [8
 
 
 
@@ -551,8 +572,8 @@ No file results.tex.
 \openout2 = `discussion.aux'.
 
 (./discussion.tex
-Chapter 4.
-) [6
+Chapter 5.
+) [9
 
 
 
@@ -562,41 +583,45 @@ Chapter 4.
 \openout2 = `conclusion.aux'.
 
  (./conclusion.tex
-Chapter 5.
-) [7
+Chapter 6.
+) [10
 
 
 
-] (./template_Report.aux (./introduction.aux) (./related_work.aux)
-(./method.aux) (./results.aux) (./discussion.aux) (./conclusion.aux)) ) 
+] (./template_Report.bbl) [11
+
+
+] (./template_Report.aux (./introduction.aux) (./related_work.aux) (./backgroun
+d.aux) (./method.aux) (./results.aux)
+(./discussion.aux) (./conclusion.aux)) ) 
 Here is how much of TeX's memory you used:
- 11011 strings out of 493515
- 206295 string characters out of 3144459
- 253414 words of memory out of 3000000
- 14041 multiletter control sequences out of 15000+200000
- 10901 words of font info for 39 fonts, out of 3000000 for 9000
+ 11032 strings out of 493515
+ 206659 string characters out of 3144459
+ 252726 words of memory out of 3000000
+ 14049 multiletter control sequences out of 15000+200000
+ 10893 words of font info for 39 fonts, out of 3000000 for 9000
  953 hyphenation exceptions out of 8191
- 63i,9n,78p,727b,671s stack positions out of 5000i,500n,10000p,200000b,50000s
-</usr/sh
-are/texlive/texmf-dist/fonts/type1/public/amsfonts/cm/cmbx10.pfb></usr/share/te
-xlive/texmf-dist/fonts/type1/public/amsfonts/cm/cmbx12.pfb></usr/share/texlive/
-texmf-dist/fonts/type1/public/amsfonts/cm/cmbx5.pfb></usr/share/texlive/texmf-d
-ist/fonts/type1/public/amsfonts/cm/cmbx7.pfb></usr/share/texlive/texmf-dist/fon
-ts/type1/public/amsfonts/cm/cmex10.pfb></usr/share/texlive/texmf-dist/fonts/typ
-e1/public/amsfonts/cm/cmmi10.pfb></usr/share/texlive/texmf-dist/fonts/type1/pub
-lic/amsfonts/cm/cmmi5.pfb></usr/share/texlive/texmf-dist/fonts/type1/public/ams
-fonts/cm/cmmi7.pfb></usr/share/texlive/texmf-dist/fonts/type1/public/amsfonts/c
-m/cmr10.pfb></usr/share/texlive/texmf-dist/fonts/type1/public/amsfonts/cm/cmr12
-.pfb></usr/share/texlive/texmf-dist/fonts/type1/public/amsfonts/cm/cmr17.pfb></
-usr/share/texlive/texmf-dist/fonts/type1/public/amsfonts/cm/cmr5.pfb></usr/shar
-e/texlive/texmf-dist/fonts/type1/public/amsfonts/cm/cmr7.pfb></usr/share/texliv
-e/texmf-dist/fonts/type1/public/amsfonts/cm/cmsy10.pfb></usr/share/texlive/texm
-f-dist/fonts/type1/public/amsfonts/cm/cmsy7.pfb></usr/share/texlive/texmf-dist/
-fonts/type1/public/amsfonts/cm/cmti10.pfb>
-Output written on template_Report.pdf (9 pages, 171116 bytes).
+ 63i,9n,78p,1260b,671s stack positions out of 5000i,500n,10000p,200000b,50000s
+</usr/share/texlive/texmf-dist/fonts/ty
+pe1/public/amsfonts/cm/cmbx10.pfb></usr/share/texlive/texmf-dist/fonts/type1/pu
+blic/amsfonts/cm/cmbx12.pfb></usr/share/texlive/texmf-dist/fonts/type1/public/a
+msfonts/cm/cmbx5.pfb></usr/share/texlive/texmf-dist/fonts/type1/public/amsfonts
+/cm/cmbx7.pfb></usr/share/texlive/texmf-dist/fonts/type1/public/amsfonts/cm/cme
+x10.pfb></usr/share/texlive/texmf-dist/fonts/type1/public/amsfonts/cm/cmmi10.pf
+b></usr/share/texlive/texmf-dist/fonts/type1/public/amsfonts/cm/cmmi5.pfb></usr
+/share/texlive/texmf-dist/fonts/type1/public/amsfonts/cm/cmmi7.pfb></usr/share/
+texlive/texmf-dist/fonts/type1/public/amsfonts/cm/cmr10.pfb></usr/share/texlive
+/texmf-dist/fonts/type1/public/amsfonts/cm/cmr12.pfb></usr/share/texlive/texmf-
+dist/fonts/type1/public/amsfonts/cm/cmr17.pfb></usr/share/texlive/texmf-dist/fo
+nts/type1/public/amsfonts/cm/cmr5.pfb></usr/share/texlive/texmf-dist/fonts/type
+1/public/amsfonts/cm/cmr7.pfb></usr/share/texlive/texmf-dist/fonts/type1/public
+/amsfonts/cm/cmsy10.pfb></usr/share/texlive/texmf-dist/fonts/type1/public/amsfo
+nts/cm/cmsy7.pfb></usr/share/texlive/texmf-dist/fonts/type1/public/amsfonts/cm/
+cmti10.pfb>
+Output written on template_Report.pdf (13 pages, 223587 bytes).
 PDF statistics:
- 101 PDF objects out of 1000 (max. 8388607)
- 73 compressed objects within 1 object stream
+ 115 PDF objects out of 1000 (max. 8388607)
+ 82 compressed objects within 1 object stream
  0 named destinations out of 1000 (max. 500000)
- 13 words of extra memory for PDF output out of 10000 (max. 10000000)
+ 18 words of extra memory for PDF output out of 10000 (max. 10000000)
 

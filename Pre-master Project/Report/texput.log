@@ -1,0 +1,21 @@
+This is pdfTeX, Version 3.1415926-2.5-1.40.13 (TeX Live 2013/dev) (format=pdflatex 2013.11.17)  3 OCT 2014 13:59
+entering extended mode
+ restricted \write18 enabled.
+ %&-line parsing enabled.
+**myreferences.tex
+
+! Emergency stop.
+<*> myreferences.tex
+                    
+*** (job aborted, file error in nonstop mode)
+
+ 
+Here is how much of TeX's memory you used:
+ 3 strings out of 493515
+ 113 string characters out of 3144459
+ 47796 words of memory out of 3000000
+ 3401 multiletter control sequences out of 15000+200000
+ 3640 words of font info for 14 fonts, out of 3000000 for 9000
+ 953 hyphenation exceptions out of 8191
+ 0i,0n,0p,1b,6s stack positions out of 5000i,500n,10000p,200000b,50000s
+!  ==> Fatal error occurred, no output PDF file produced!
