@@ -9,7 +9,8 @@ entity sigmoid is
 	Port (
 		clk 	: in std_logic;
 		x 		: in  ufixed (7 downto -8);
-		y 		: out ufixed(7 downto -8));
+		y 		: out ufixed(7 downto -8)
+	);
 end sigmoid;
  
 architecture Behavioral of sigmoid is
