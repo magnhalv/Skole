@@ -14,9 +14,10 @@ entity mac is
 			clk 			: in std_logic;
 			reset 		: in std_logic;		
 			weight_we 	: in std_logic;
-			weight_data : in ufixed(INT_WIDTH-1 downto -FRAC_WIDTH);
+			weight_in 	: in ufixed(INT_WIDTH-1 downto -FRAC_WIDTH);
 			multi_value : in ufixed(INT_WIDTH-1 downto -FRAC_WIDTH);
 			acc_value 	: in ufixed(INT_WIDTH-1 downto -FRAC_WIDTH);
+			weight_out	: out ufixed(INT_WIDTH-1 downto -FRAC_WIDTH);
 			result 		: out ufixed(INT_WIDTH-1 downto -FRAC_WIDTH)
 		);
 end mac;
@@ -29,13 +30,15 @@ architecture Behavioral of mac is
 	
 begin	
 	
+	weight_out <= weight_reg;
+	
 	weight_register : process(clk) 
 	begin
 		if rising_edge(clk) then
 			if (reset = '1') then
 				weight_reg <= (others => '0');
 			elsif(weight_we = '1') then
-				weight_reg <= weight_data;
+				weight_reg <= weight_in;
 			end if;
 		end if;
 	end process;

@@ -1,4 +1,4 @@
-	library IEEE;
+library IEEE;
 use IEEE.STD_LOGIC_1164.ALL;
 use IEEE.NUMERIC_STD.ALL;
 use IEEE.STD_LOGIC_UNSIGNED.ALL;
@@ -11,27 +11,44 @@ entity conv_controller is
 	port (
 		clk 				: in  std_logic;
 		conv_en 			: in  std_logic;
-		output_valid 	: out std_logic;
-		final_pixel		: out std_logic
+		output_valid 	: out std_logic
 	);
 end conv_controller;
 
 architecture Behavioral of conv_controller is
 
-	signal nof_cycles 				: integer := 0;
+	signal row_num 				: integer range 0 to IMAGE_DIM := 0;
+	signal column_num 			: integer range 0 to IMAGE_DIM := 0;
+	signal reached_valid_row 		: std_logic;
+	
+	signal conv_en_buf	: std_logic;
+	
 	signal output_valid_buf			: std_logic;
-	constant CYCLES_BEFORE_VALID 	: integer := (IMAGE_DIM*(KERNEL_DIM-1)) + KERNEL_DIM - 1;
 	constant TOTAL_NOF_CYCLES		: integer := (IMAGE_DIM*IMAGE_DIM)+1;
 	constant INVALID_INTERVAL		: integer := KERNEL_DIM-1;
 
 begin
+
+
 	count_pixels : process (clk)
 	begin
 		if rising_edge(clk) then
+			conv_en_buf <= conv_en;
 			if conv_en = '1' then
-				nof_cycles <= nof_cycles + 1;
+				if (column_num = IMAGE_DIM) then
+					column_num <= 1;
+					row_num <= row_num + 1;
+				else
+					column_num <= column_num + 1;
+				end if;
+				
+				if (row_num = KERNEL_DIM) then
+					reached_valid_row <= '1';
+				end if;
 			else
-				nof_cycles <= 0;
+				row_num <= 1;
+				column_num <= 0;
+				reached_valid_row <= '0';
 			end if;
 		end if;
 	end process;
@@ -39,11 +56,9 @@ begin
 	is_output_valid : process(clk)
 	begin
 		if rising_edge(clk) then
-			if nof_cycles > CYCLES_BEFORE_VALID 	
-				and nof_cycles < TOTAL_NOF_CYCLES 
-				and ((nof_cycles mod IMAGE_DIM) > INVALID_INTERVAL 
-						or (nof_cycles mod IMAGE_DIM) = 0) 
-				then
+			if conv_en_buf = '1'
+			and reached_valid_row = '1' 
+			and (column_num >= KERNEL_DIM) then
 				output_valid_buf <= '1';
 			else 
 				output_valid_buf <= '0';
@@ -52,7 +67,6 @@ begin
 	end process;
 	
 	output_valid <= output_valid_buf;
-	final_pixel <= (output_valid_buf) and (not conv_en); 
 
 end Behavioral;
 

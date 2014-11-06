@@ -22,16 +22,18 @@ entity ufixed_buffer is
 end ufixed_buffer;
 
 architecture Behavioral of ufixed_buffer is
-
+	signal stored_value : ufixed(INT_WIDTH-1 downto -FRAC_WIDTH);
 begin
 
+	data_out <= stored_value;
+	
 	write_data : process(clk)
 	begin
 		if rising_edge(clk) then
 			if (reset ='1') then
-				data_out <= (others => '0');
+				stored_value <= (others => '0');
 			elsif (we='1') then
-				data_out <= data_in;
+				stored_value <= data_in;
 			end if;
 		end if;
 	end process;
