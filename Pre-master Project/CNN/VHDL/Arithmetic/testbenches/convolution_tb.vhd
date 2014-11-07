@@ -45,15 +45,15 @@ ARCHITECTURE behavior OF convolution_tb IS
 	constant four 	: ufixed(INT_WIDTH-1 downto -FRAC_WIDTH) := "0000010000000000";
 	constant five 	: ufixed(INT_WIDTH-1 downto -FRAC_WIDTH) := "0000010100000000";
 	
-	constant result0 	: ufixed(INT_WIDTH-1 downto -FRAC_WIDTH) := to_ufixed(73, 7, -8);
-	constant result1 	: ufixed(INT_WIDTH-1 downto -FRAC_WIDTH) := to_ufixed(79, 7, -8);
-	constant result2 	: ufixed(INT_WIDTH-1 downto -FRAC_WIDTH) := to_ufixed(38, 7, -8);
-	constant result3 	: ufixed(INT_WIDTH-1 downto -FRAC_WIDTH) := to_ufixed(44, 7, -8);
-	constant result4 	: ufixed(INT_WIDTH-1 downto -FRAC_WIDTH) := to_ufixed(61, 7, -8);
-	constant result5 	: ufixed(INT_WIDTH-1 downto -FRAC_WIDTH) := to_ufixed(47, 7, -8);
-	constant result6 	: ufixed(INT_WIDTH-1 downto -FRAC_WIDTH) := to_ufixed(42, 7, -8);
-	constant result7 	: ufixed(INT_WIDTH-1 downto -FRAC_WIDTH) := to_ufixed(79, 7, -8);
-	constant result8 	: ufixed(INT_WIDTH-1 downto -FRAC_WIDTH) := to_ufixed(71, 7, -8);
+	constant result0 	: ufixed(INT_WIDTH-1 downto -FRAC_WIDTH) := to_ufixed(74, 7, -8);
+	constant result1 	: ufixed(INT_WIDTH-1 downto -FRAC_WIDTH) := to_ufixed(80, 7, -8);
+	constant result2 	: ufixed(INT_WIDTH-1 downto -FRAC_WIDTH) := to_ufixed(39, 7, -8);
+	constant result3 	: ufixed(INT_WIDTH-1 downto -FRAC_WIDTH) := to_ufixed(45, 7, -8);
+	constant result4 	: ufixed(INT_WIDTH-1 downto -FRAC_WIDTH) := to_ufixed(62, 7, -8);
+	constant result5 	: ufixed(INT_WIDTH-1 downto -FRAC_WIDTH) := to_ufixed(48, 7, -8);
+	constant result6 	: ufixed(INT_WIDTH-1 downto -FRAC_WIDTH) := to_ufixed(43, 7, -8);
+	constant result7 	: ufixed(INT_WIDTH-1 downto -FRAC_WIDTH) := to_ufixed(80, 7, -8);
+	constant result8 	: ufixed(INT_WIDTH-1 downto -FRAC_WIDTH) := to_ufixed(72, 7, -8);
 	
 	
 	type img_array is array (24 downto 0) of ufixed(INT_WIDTH-1 downto -FRAC_WIDTH);
@@ -75,9 +75,9 @@ ARCHITECTURE behavior OF convolution_tb IS
 		);
 		
 	signal result : conv_array := (
-		result0, result1, result2,
-		result3, result4, result5,
-		result6, result7, result8);
+		result8, result7, result6,
+		result5, result4, result3,
+		result2, result1, result0);
 		 
 
 	signal clk				: std_logic;
@@ -90,6 +90,7 @@ ARCHITECTURE behavior OF convolution_tb IS
 	signal pixel_out 		: ufixed(INT_WIDTH-1 downto -FRAC_WIDTH);
 	
 	constant clk_period : time := 1 ns;
+	signal nof_outputs : integer := 0;
 
 BEGIN
 
@@ -144,15 +145,30 @@ BEGIN
 		wait; -- will wait forever
 	END PROCESS;
 	
---	assert_output : process(clk)
---
---	begin
---		if rising_edge(clk) then
---			if (output_valid ='1') then
---				nof_outputs := nof_outputs + 1;
---			end if;
---		end if;
---	end process;
+	assert_outputs : process(clk)
+	begin
+		if rising_edge(clk) then
+			if (output_valid ='1') then
+				assert pixel_out = result(nof_outputs)
+					report "Output nr. " & integer'image(nof_outputs) & ". Expected value: " &
+						to_string(result(nof_outputs)) & ". Actual value: " & to_string(pixel_out) & "."
+					severity error;	
+				nof_outputs <= nof_outputs + 1;
+			end if;
+		end if; 
+	end process;
+	
+	assert_correct_nof_outputs : process
+	begin
+		if (nof_outputs = 9) then
+				report "Test done.";
+				wait for 100*clk_period;
+				assert nof_outputs = 9
+					report "More values was set as valid outputs than expected!"
+					severity error;
+				wait;
+			end if;
+	end process;
 --  End Test Bench 
 
 END;
