@@ -41,19 +41,20 @@ architecture Behavioral of convolution is
 		);
 	end component;
 	
-	component fifo
-		Generic (
-			constant FIFO_DEPTH 	: positive := IMAGE_DIM-KERNEL_DIM;
-			constant FRAC_WIDTH	: positive := FRAC_WIDTH;
-			constant INT_WIDTH	: positive := INT_WIDTH
+	component ufixed_buffer is
+		generic (
+			INT_WIDTH 	: positive := INT_WIDTH;
+			FRAC_WIDTH 	: positive := FRAC_WIDTH
 		);
 		Port ( 
-			clk     	: in  STD_LOGIC;                                       
-			conv_en 	: in  STD_LOGIC;                                       
-			data_in 	: in  ufixed (INT_WIDTH - 1 downto -FRAC_WIDTH);      
-			data_out : out ufixed (INT_WIDTH - 1 downto -FRAC_WIDTH)     
+			clk 		: in std_logic;
+			reset		: in std_logic;
+			we 		: in std_logic;
+			data_in 	: in ufixed(INT_WIDTH-1 downto -FRAC_WIDTH);
+			data_out : out ufixed(INT_WIDTH-1 downto -FRAC_WIDTH)
 		);
 	end component;
+
 	
 	component conv_controller
 		generic (	
@@ -69,11 +70,14 @@ architecture Behavioral of convolution is
 	
 	type ufixed_acc_array is array (KERNEL_DIM - 1 downto 0, KERNEL_DIM downto 0) of ufixed(INT_WIDTH-1 downto -FRAC_WIDTH);
 	type ufixed_weight_array is array (KERNEL_DIM - 1 downto 0, KERNEL_DIM-1 downto 0) of ufixed(INT_WIDTH-1 downto -FRAC_WIDTH);
+	type ufixed_shift_reg_array is array (KERNEL_DIM - 2 downto 0, IMAGE_DIM-KERNEL_DIM-1 downto 0) of ufixed(INT_WIDTH-1 downto -FRAC_WIDTH);
 	
-	signal acc_value 		: ufixed_acc_array;
-	signal weight_values : ufixed_weight_array;
-	signal final_result 	: ufixed(INT_WIDTH downto -FRAC_WIDTH);
-	signal bias				: ufixed(INT_WIDTH-1 downto -FRAC_WIDTH);
+	
+	signal acc_value 			: ufixed_acc_array;
+	signal weight_values 	: ufixed_weight_array;
+	signal shift_reg_values : ufixed_shift_reg_array;
+	signal final_result 		: ufixed(INT_WIDTH downto -FRAC_WIDTH);
+	signal bias					: ufixed(INT_WIDTH-1 downto -FRAC_WIDTH);
 	
 		
 	
@@ -91,7 +95,7 @@ begin
 		begin
 			mac_first_leftmost : if j = 0 and i = 0 generate
 			begin
-				maci : mac port map (
+				mac_f_lm : mac port map (
 					clk => clk,
 					reset => reset,
 					weight_we => weight_we,
@@ -105,7 +109,7 @@ begin
 			
 			mac_other_leftmost : if j = 0 and i > 0 generate
 			begin
-				macx : mac port map (
+				mac_o_lm : mac port map (
 					clk => clk,
 					reset => reset,
 					weight_we => weight_we,
@@ -119,7 +123,7 @@ begin
 			
 			mac_others : if j > 0 and j < KERNEL_DIM-1 generate
 			begin
-				macx : mac port map (
+				mac_o : mac port map (
 					clk => clk,
 					reset => reset,
 					weight_we => weight_we,
@@ -133,7 +137,7 @@ begin
 			
 			mac_rightmost : if j = KERNEL_DIM-1 generate
 			begin
-				macx : mac port map (
+				mac_rm : mac port map (
 					clk => clk,
 					reset => reset,
 					weight_we => weight_we,
@@ -145,15 +149,55 @@ begin
 				);
 			end generate;
 			
-			gen_fifo : if i < KERNEL_DIM-1 and j = KERNEL_DIM-1 generate
-			begin
-				fifox : fifo port map (
-						clk => clk,
-						conv_en => conv_en,
-						data_in => acc_value(i,KERNEL_DIM),                                       
-						data_out => acc_value(i+1, 0)
-				);
+--			gen_fifo : if i < KERNEL_DIM-1 and j = KERNEL_DIM-1 generate
+--			begin
+--				fifox : fifo port map (
+--						clk => clk,
+--						conv_en => conv_en,
+--						data_in => acc_value(i,KERNEL_DIM),                                       
+--						data_out => acc_value(i+1, 0)
+--				);
+--			end generate;
+			
+			gen_shift_regs : if i < KERNEL_DIM-1 and j = KERNEL_DIM-1 generate
+				gen_regs_loop : for x in 0 to IMAGE_DIM-KERNEL_DIM-1 generate
+				begin
+					first_reg : if x = 0 generate
+					begin
+						shift_reg : ufixed_buffer port map (
+							clk 		=> clk,
+							reset		=> reset,
+							we 		=> conv_en,
+							data_in 	=> acc_value(i, KERNEL_DIM),
+							data_out => shift_reg_values(i, 0)
+						);
+					end generate;
+					
+					last_reg : if x = IMAGE_DIM-KERNEL_DIM-1 generate
+					begin
+						shift_reg : ufixed_buffer port map (
+							clk 		=> clk,
+							reset		=> reset,
+							we 		=> conv_en,
+							data_in 	=> shift_reg_values(i, x-1),
+							data_out => acc_value(i+1, 0)
+						);
+					end generate;
+					
+					
+					other_reg : if x > 0 and x < IMAGE_DIM-KERNEL_DIM-1 generate
+					begin
+						shift_reg : ufixed_buffer port map (
+							clk 		=> clk,
+							reset		=> reset,
+							we 		=> conv_en,
+							data_in 	=> shift_reg_values(i, x-1),
+							data_out => shift_reg_values(i, x)
+						);
+					end generate;
+				end generate;
 			end generate;
+			
 		end generate;
 	end generate;
 	

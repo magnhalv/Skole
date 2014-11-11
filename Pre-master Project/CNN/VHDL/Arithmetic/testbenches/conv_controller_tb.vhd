@@ -24,8 +24,7 @@ ARCHITECTURE behavior OF conv_controller_tb IS
     PORT(
          clk 				: in  std_logic;
          conv_en 			: in  std_logic;
-         output_valid 	: out  std_logic;
-			final_pixel 	: out std_logic
+         output_valid 	: out  std_logic
         );
     END COMPONENT;
     
@@ -36,7 +35,6 @@ ARCHITECTURE behavior OF conv_controller_tb IS
 
  	--Outputs
    signal output_valid 	: std_logic;
-	signal final_pixel	: std_logic;
 
    -- Clock period definitions
    constant clk_period : time := 1 ns;
@@ -49,8 +47,7 @@ BEGIN
    uut: conv_controller PORT MAP (
           clk => clk,
           conv_en => conv_en,
-          output_valid => output_valid,
-			 final_pixel => final_pixel
+          output_valid => output_valid
         );
 
    -- Clock process definitions
@@ -97,15 +94,7 @@ BEGIN
 			severity error;
       wait;
 		
-		assert final_pixel ='1'
-			report "Final_pixel was 0. Should be 1."
-			severity error;
-		
 		wait for clk_period;
-		
-		assert final_pixel ='0'
-			report "Final_pixel was 0. Should be 1."
-			severity error;
    end process;
 
 END;

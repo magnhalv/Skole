@@ -158,16 +158,15 @@ BEGIN
 		end if; 
 	end process;
 	
-	assert_correct_nof_outputs : process
+	assert_correct_nof_outputs : process(clk)
 	begin
-		if (nof_outputs = 9) then
-				report "Test done.";
-				wait for 100*clk_period;
+		if rising_edge(clk) then
+			if (nof_outputs >= 9) then
 				assert nof_outputs = 9
 					report "More values was set as valid outputs than expected!"
 					severity error;
-				wait;
 			end if;
+		end if;
 	end process;
 --  End Test Bench 
 

@@ -1,4 +1,4 @@
-This is pdfTeX, Version 3.1415926-2.5-1.40.14 (TeX Live 2013/Debian) (format=pdflatex 2014.10.28)  7 NOV 2014 14:54
+This is pdfTeX, Version 3.1415926-2.5-1.40.14 (TeX Live 2013/Debian) (format=pdflatex 2014.10.28)  8 NOV 2014 20:44
 entering extended mode
  restricted \write18 enabled.
  %&-line parsing enabled.
@@ -267,12 +267,26 @@ Missing character: There is no Â in font cmr10!
 Missing character: There is no   in font cmr10!
 Missing character: There is no Â in font cmr10!
 Missing character: There is no   in font cmr10!
-) [9]
+Missing character: There is no Â in font cmr10!
+Missing character: There is no   in font cmr10!
+Missing character: There is no Â in font cmr10!
+Missing character: There is no   in font cmr10!
+Missing character: There is no Â in font cmr10!
+Missing character: There is no   in font cmr10!
+
+Overfull \hbox (7.11674pt too wide) in paragraph at lines 28--30
+[]\OT1/cmr/m/n/10 REWRITE FIRST PART \OT1/cmr/bx/n/10 The subsample/max-pooling
+ mod-ule \OT1/cmr/m/n/10 (SS/MP)
+ []
+
+Missing character: There is no Â in font cmr10!
+Missing character: There is no   in font cmr10!
+) [9] [10]
 \openout2 = `result.aux'.
 
  (./result.tex
 Chapter 5.
-) [10
+) [11
 
 
 
@@ -281,7 +295,7 @@ Chapter 5.
 
  (./discussion.tex
 Chapter 6.
-) [11
+) [12
 
 
 
@@ -290,21 +304,21 @@ Chapter 6.
 
  (./conclusion.tex
 Chapter 7.
-) [12
+) [13
 
 
 
-] (./template_Report.bbl) [13
+] (./template_Report.bbl) [14
 
 
 ] (./template_Report.aux (./introduction.aux) (./related_work.aux) (./backgroun
 d.aux) (./method.aux) (./result.aux)
 (./discussion.aux) (./conclusion.aux)) ) 
 Here is how much of TeX's memory you used:
- 2187 strings out of 495028
- 29355 string characters out of 6181496
+ 2188 strings out of 495028
+ 29373 string characters out of 6181496
  90730 words of memory out of 5000000
- 5332 multiletter control sequences out of 15000+600000
+ 5333 multiletter control sequences out of 15000+600000
  11200 words of font info for 40 fonts, out of 8000000 for 9000
  14 hyphenation exceptions out of 8191
  37i,6n,23p,1260b,226s stack positions out of 5000i,500n,10000p,200000b,80000s
@@ -324,10 +338,10 @@ nts/type1/public/amsfonts/cm/cmr5.pfb></usr/share/texlive/texmf-dist/fonts/type
 /amsfonts/cm/cmsy10.pfb></usr/share/texlive/texmf-dist/fonts/type1/public/amsfo
 nts/cm/cmsy7.pfb></usr/share/texlive/texmf-dist/fonts/type1/public/amsfonts/cm/
 cmti10.pfb>
-Output written on template_Report.pdf (15 pages, 229911 bytes).
+Output written on template_Report.pdf (16 pages, 233899 bytes).
 PDF statistics:
- 118 PDF objects out of 1000 (max. 8388607)
- 83 compressed objects within 1 object stream
+ 121 PDF objects out of 1000 (max. 8388607)
+ 85 compressed objects within 1 object stream
  0 named destinations out of 1000 (max. 500000)
  6 words of extra memory for PDF output out of 10000 (max. 10000000)
 
