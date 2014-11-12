@@ -14,6 +14,12 @@ The overall architecture of the convolution layer is separated into four modules
 \vspace*{1\baselineskip}
 \textbf{The convolution module} (CM) is inspired by \cite{Farabet2009}. The input is a $ n \times n $ image \textit{I}, and the output is a $ (n-k+1) \times (n-k+1) $ convolved image \textit{C}, using a $ k \times k $ kernel \textit{K}. Every clock cycle the module takes in a pixel as input, and after a certain delay it will output a processed pixel almost every cycle. Each pixel is inputted once, left to right, one row at a time. 
 
+\begin{figure}[h!]
+  \centering
+      \includegraphics[width=1.0\textwidth]{Figures/Method/Convolver}
+  \caption{The convolution module. Example $ n = 3 $ and $ k = 2 $.}
+\end{figure}
+
 It consists of 2D grid of multiply and accumulate (MAC) units which represents the convolution kernel. Thus the grid dimension is equal to the kernel dimension. In every MAC unit there is a register that contains the respective kernel weight. In every clock cycle the MAC units multiply the input pixel with its weight, and then accumulates the result from the previous cycle of the MAC unit to the left. 
 
 At the end of each row of MACs there is $ n - k $ shift registers. The result of the last MAC in each row is stored in the first shift register, and the first MAC in each row takes the value of the last shift register of the previous row as accumulation input. The exception being the absolute first and last MAC unit. Every clock cycle the values in the shift registers are shifted to the right. 
@@ -23,6 +29,12 @@ By providing this delay you only have to input each pixel once during the convol
 The delay these shift registers cause are the reason for the delay before valid output pixels are produced. Thus from when the convolution starts, the module will start outputting when $ k-1 $ rows of the image have been processed. And for every new image row, there will be a $ k-1 $ cycle delay before output is valid. This is demonstrated by the fact that the input image is a $ n \times n $matrix, while the output matrix is a $ (n-k+1) \times (n-k+1) $ matrix. 
 
 The loading of the weights takes $ k \times k $ clock cycles, and the processing of the image takes $ n \times n $ clock cycles. Thus the total number of cycles it takes to perform a full convolution of an image is $ n \times n + k \times k $. But \textit{n} tends to be larger than \textit{k}. e.g. $ n = 32 $ and $ k = 5 $is a fairly normal problem size (FIND SOURCES FOR THIS!), which makes the weight loading take 25 clock cycles and the image processing 1024 cycles. This means that the execution time of the CM is mostly bounded by the size of the image. Though it is important to note that the CM is resource expensive, in that it requires $ k \times k $ DSP slices on the FPGA.
+
+\begin{figure}[h!]
+  \centering
+      \includegraphics[width=1.0\textwidth]{Figures/Method/Conv_example}
+  \caption{Example showing the five first clock cycle of an convolution. ADD IMAGE SHOWING THE EXAMPLE MATRICES!}
+\end{figure}
 
 \vspace*{1\baselineskip}
 REWRITE FIRST PART

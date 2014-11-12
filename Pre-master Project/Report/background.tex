@@ -4,7 +4,7 @@ In this chapter we will go through the fundamental mathematics and concepts behi
 
 \section{Artificial Neural Networks}
 
-An \textit{Artificial Neural Network} (ANN) is a computational model that is used for machine learning and pattern recognition. It is used in The name and basic concept is inspired by how the animal brain uses a network of neurons to recognize and classify objects. 
+An \textit{Artificial Neural Network} (ANN) is a computational model that is used for machine learning and pattern recognition. The name and basic concept is inspired by how the animal brain uses a network of neurons to recognize and classify objects. 
 
 An ANN can intuitively be viewed as a probabilistic classifier. Depending on the input data it will output the probability that the data belongs to a certain \textit{class} (e.g. an object in an image or an investment decision). As the brain it can be trained to recognize different classes by being provided a set of labeled training data, e.g. a set of faces and a set of non-faces. It can then learn to decide whether a image contains a face or not. This is called supervised learning. The network can also be trained unsupervised, by providing it with a set of unlabeled images. It will then learn to recognize a set of classes, but will be unable to label them.  
 
@@ -113,17 +113,41 @@ Now, combining \textit{gradient decent} and the \textit{backpropagation algorith
 
 \textit{Convolutional Neural Network}\cite{LeCun1998} (CNN) is a variation of the \textit{Artificial Neural Network} model, which is mainly used for object recognition in images. It addresses three major problems the standard ANN model faces when it comes to object recognition. First, even small images contains a large amount of pixels/inputs, e.g. a $ 32 \times 32 $ image contains 1024 pixels/inputs. A fully connected network with 100 hidden units would then end up with $ 1024 \times 100 $ weights that needs to be calculated in the first layer! Making it computationally infeasible and not scalable. Second, objects of the same class are seldom exactly alike, something the network has to take into consideration. While possible, the network would have to be very large, would probably contain several neurons with similar weight vectors positioned at different places in the network, and would require a very large number of training samples. Third, a fully connected ANN does not take into consideration the topology of the input. An image has a strong 2D spatial locality correlation, which makes it possible to combine low-order features (edges, end-points etc.) into higher-order features.  
 
-The CNN model adds two additional types of layers, in addition to the standard ANN layers: a convolution layer and a pooling/subsampling layer.
-
-The idea behind the two new layers is to exploit the strong 2D local structure of images, i.e. pixels close to each other are highly correlated. By using local correlation one can extract and combine small local features (e.g. edges, corners, points) into higher-order features (e.g. nose, mouths, forehead), which can in the end be recognized as an object (e.g. a face). Intuitively, the convolution layer performs the feature extraction by applying a convolution $ n \times n $ filter (kernel) on the whole image, and puts the result in a feature map. If the filter e.g. extracts vertical edges, only the vertical edges from the original image would be represented in the resulting feature map. Thus you can extract different features by having several feature maps with different filters.  
-
-Once you have detected a feature, the exact position become less important
 
 \begin{figure}[h!]
   \centering
       \includegraphics[width=1.0\textwidth]{Figures/Background/convnet}
   \caption{An example CNN, the LeNet-5\cite{LeCun1998}. }
 \end{figure}
+
+The CNN model adds two additional types of layers, in addition to the standard ANN layers: a convolution layer and a pooling/subsampling layer.
+
+The idea behind the two new layers is to exploit the strong 2D local structure of images, i.e. pixels close to each other are highly correlated. By using local correlation one can extract and combine small local features (e.g. edges, corners, points) into higher-order features (e.g. nose, mouths, forehead), which can in the end be recognized as an object (e.g. a face). 
+
+Intuitively, the convolution layer performs the feature extraction by applying a filter (kernel) on the whole image, and puts the result in a corresponding feature map. E.g. if the filter extracts vertical edges, only the vertical edges from the original image would remain in the resulting feature map. Thus you can extract different features by having several feature maps with different filters.  
+
+Formally we can define a 2D convolution as follows. Let $ x_{ij} $ denote a value of the input matrix, $ w_{mn} $ denotes a value in a $ k \times k $ kernel matrix, and $ o_{ij} $ denotes a value of the output matrix. Then we get the following formula:
+
+\begin{equation*}
+o_{ij} = \sum_{m=1}^{k}\sum_{n=1}^{k} x_{i+m, j+n}w_{mn}
+\end{equation*}
+
+
+Once you have detected a feature, the exact position become less important. For example, the distance between the mouth and the eyes tend to vary between persons. So in order to make the \textit{CNN} not too sensitive to the relative placement of features, the accuracy of the feature map needs to be reduced. This can be done by partitioning the feature map into equal sized non-overlapping matrices, and then perform a pooling operation on each respective matrix. There are two types of pooling operations which are used for CNNs: 
+
+\begin{itemize}
+	\item \textit{Max-pooling} extracts the maximum value of the matrix.
+	\item \textit{Average-pooling} extracts the average value of all the elements in the matrix.
+\end{itemize}
+
+\begin{figure}[h!]
+  \centering
+      \includegraphics[width=1.0\textwidth]{Figures/Background/Convolution-Maxpooling}
+  \caption{Illustration of the convolution and subsampling/max-pool layers. First the input image is convolved with the kernel, then the resulting feature map is subsampled/max-pooled.}
+\end{figure}
+
+
+
 
 
 
