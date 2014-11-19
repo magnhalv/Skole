@@ -17,12 +17,14 @@ entity convolution is
 	port ( 
 		clk					: in std_logic;
 		reset					: in std_logic;
-		conv_en				: in std_logic;
+		conv_en_in			: in std_logic;
 		weight_we			: in std_logic;
 		weight_data 		: in ufixed(INT_WIDTH-1 downto -FRAC_WIDTH);
 		pixel_in 			: in ufixed(INT_WIDTH-1 downto -FRAC_WIDTH);
       output_valid		: out std_logic; 
-		pixel_out 			: out ufixed(INT_WIDTH-1 downto -FRAC_WIDTH)
+		conv_en_out			: out std_logic;
+		pixel_out 			: out ufixed(INT_WIDTH-1 downto -FRAC_WIDTH);
+		bias_out				: out ufixed(INT_WIDTH-1 downto -FRAC_WIDTH)
 	);
 end convolution;
 
@@ -63,7 +65,7 @@ architecture Behavioral of convolution is
 		);
 		port (
 			clk 					: in  std_logic;
-			conv_en		 		: in  std_logic;
+			conv_en			 	: in  std_logic;
 			output_valid 		: out  std_logic
 		);
 	end component;
@@ -86,7 +88,7 @@ begin
 
 	controller : conv_controller port map (
 		clk => clk,
-		conv_en => conv_en,
+		conv_en => conv_en_in,
 		output_valid => output_valid
 	);
 	
@@ -153,7 +155,7 @@ begin
 --			begin
 --				fifox : fifo port map (
 --						clk => clk,
---						conv_en => conv_en,
+--						conv_en_in => conv_en_in,
 --						data_in => acc_value(i,KERNEL_DIM),                                       
 --						data_out => acc_value(i+1, 0)
 --				);
@@ -167,7 +169,7 @@ begin
 						shift_reg : ufixed_buffer port map (
 							clk 		=> clk,
 							reset		=> reset,
-							we 		=> conv_en,
+							we 		=> conv_en_in,
 							data_in 	=> acc_value(i, KERNEL_DIM),
 							data_out => shift_reg_values(i, 0)
 						);
@@ -178,7 +180,7 @@ begin
 						shift_reg : ufixed_buffer port map (
 							clk 		=> clk,
 							reset		=> reset,
-							we 		=> conv_en,
+							we 		=> conv_en_in,
 							data_in 	=> shift_reg_values(i, x-1),
 							data_out => acc_value(i+1, 0)
 						);
@@ -190,7 +192,7 @@ begin
 						shift_reg : ufixed_buffer port map (
 							clk 		=> clk,
 							reset		=> reset,
-							we 		=> conv_en,
+							we 		=> conv_en_in,
 							data_in 	=> shift_reg_values(i, x-1),
 							data_out => shift_reg_values(i, x)
 						);
@@ -210,9 +212,16 @@ begin
 		end if;
 	end process;
 	
+	conv_register : process(clk)
+	begin
+		if rising_edge(clk) then
+			conv_en_out <= conv_en_in;
+		end if;
+	end process;
+	
+	bias_out <= bias;
 	acc_value(0, 0) <= (others => '0');
-	final_result <= acc_value(KERNEL_DIM-1,KERNEL_DIM)+bias;
-	pixel_out <= (others => '1') when final_result(8) = '1' else final_result(INT_WIDTH-1 downto -FRAC_WIDTH);
+	pixel_out <= acc_value(KERNEL_DIM-1,KERNEL_DIM);
 	
 
 end Behavioral;

@@ -86,7 +86,9 @@ begin
 	
 	read_buffer : process(clk)
 	begin
-		doutb_buffer <= to_ufixed(doutb, doutb_buffer);
+		if rising_edge(clk) then
+			doutb_buffer <= to_ufixed(doutb, doutb_buffer);
+		end if;
 	end process;
 	
 	update_index : process(clk)
@@ -119,7 +121,7 @@ begin
 		end if;
 	end process;
 	
-	add_pixels : process(pixel_in, looped, doutb)
+	add_pixels : process(pixel_in, looped, doutb, doutb_buffer)
 		variable pixel_sum_temp : ufixed(INT_WIDTH downto -FRAC_WIDTH);
 	begin
 		if looped then
