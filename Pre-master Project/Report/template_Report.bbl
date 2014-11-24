@@ -8,6 +8,19 @@ Dan~C Cires, Ueli Meier, Jonathan Masci, and Luca~M Gambardella.
   conference on Artificial Intelligence - Volume Volume Two}, pages 1237--1242,
   2011.
 
+\bibitem{Ciresan2012}
+Dan Cireşan, Ueli Meier, Jonathan Masci, and J\"{u}rgen Schmidhuber.
+\newblock {Multi-column deep neural network for traffic sign classification.}
+\newblock {\em Neural networks : the official journal of the International
+  Neural Network Society}, 32:333--8, August 2012.
+
+\bibitem{DanC.Ciresan2012}
+{Dan C. Ciresan}, Alessandro Giusti, Luca~M. Gambardella, and J\"{u}rgen
+  Schmidhuber.
+\newblock {Deep neural networks segment neuronal membranes in electron
+  microscopy images}.
+\newblock {\em Advances in neural \ldots}, pages 1--9, 2012.
+
 \bibitem{Farabet2009}
 Cl\'{e}ment Farabet, Cyril Poulet, Jefferson~Y. Han, and Yann LeCun.
 \newblock {CNP: An FPGA-based processor for Convolutional Networks}.
