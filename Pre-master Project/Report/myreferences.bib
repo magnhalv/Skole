@@ -1,7 +1,28 @@
+@article{Chakradhar2010,
+address = {New York, New York, USA},
+author = {Chakradhar, Srimat and Sankaradas, Murugan and Jakkula, Venkata and Cadambi, Srihari},
+doi = {10.1145/1815961.1815993},
+file = {:home/magnus/Github/Skole/Pre-master Project/References/ADynamicConfigCoprocessorForCNN.pdf:pdf},
+isbn = {9781450300537},
+journal = {Proceedings of the 37th annual international symposium on Computer architecture - ISCA '10},
+pages = {247},
+publisher = {ACM Press},
+title = {{A dynamically configurable coprocessor for convolutional neural networks}},
+url = {http://portal.acm.org/citation.cfm?doid=1815961.1815993},
+year = {2010}
+}
+@article{Cires2003,
+author = {Cires, Dan C and Meier, Ueli and Masci, Jonathan and Gambardella, Luca M},
+file = {:home/magnus/.local/share/data/Mendeley Ltd./Mendeley Desktop/Downloaded/Cires et al. - 2011 - Flexible , High Performance Convolutional Neural Networks for Image Classification.pdf:pdf},
+journal = {IJCAI'11 Proceedings of the Twenty-Second international joint conference on Artificial Intelligence - Volume Volume Two},
+pages = {1237--1242},
+title = {{Flexible , High Performance Convolutional Neural Networks for Image Classification}},
+year = {2011}
+}
 @article{Farabet2009,
 abstract = {Convolutional networks (ConvNets) are biologically inspired hierarchical architectures that can be trained to perform a variety of detection, recognition and segmentation tasks. ConvNets have a feed-forward architecture consisting of multiple linear convolution filters interspersed with pointwise non-linear squashing functions. This paper presents an efficient implementation of ConvNets on a low-end DSP-oriented field programmable gate array (FPGA). The implementation exploits the inherent parallelism of ConvNets and takes full advantage of multiple hardware multiply accumulate units on the FPGA. The entire system uses a single FPGA with an external memory module, and no extra parts. A network compiler software was implemented, which takes a description of a trained ConvNet and compiles it into a sequence of instructions for the ConvNet Processor (CNP). A ConvNet face detection system was implemented and tested. Face detection on a 512 times 384 frame takes 100 ms (10 frames per second), which corresponds to an average performance of 3.4 times 10<sup>9</sup> connections per second for this 340 million connection network. The design can be used for low-power, lightweight embedded vision systems for micro-UAVs and other small robots.},
 author = {Farabet, Cl\'{e}ment and Poulet, Cyril and Han, Jefferson Y. and LeCun, Yann},
-file = {:home/magnus/Github/Skole/Pre-master Project/References/ConvolutionNetworkOnFpga.pdf:pdf},
+file = {:home/magnus/.local/share/data/Mendeley Ltd./Mendeley Desktop/Downloaded/Farabet et al. - 2009 - CNP An FPGA-based processor for Convolutional Networks.pdf:pdf},
 isbn = {9781424438921},
 journal = {FPL 09: 19th International Conference on Field Programmable Logic and Applications},
 number = {1},
@@ -10,57 +31,82 @@ title = {{CNP: An FPGA-based processor for Convolutional Networks}},
 volume = {1},
 year = {2009}
 }
-@article{Garcia2004,
-abstract = {In this paper, we present a novel face detection approach based on a convolutional neural architecture, designed to robustly detect highly variable face patterns, rotated up to +/-20 degrees in image plane and turned up to +/-60 degrees, in complex real world images. The proposed system automatically synthesizes simple problem-specific feature extractors from a training set of face and nonface patterns, without making any assumptions or using any hand-made design concerning the features to extract or the areas of the face pattern to analyze. The face detection procedure acts like a pipeline of simple convolution and subsampling modules that treat the raw input image as a whole. We therefore show that an efficient face detection system does not require any costly local preprocessing before classification of image areas. The proposed scheme provides very high detection rate with a particularly low level of false positives, demonstrated on difficult test sets, without requiring the use of multiple networks for handling difficult cases. We present extensive experimental results illustrating the efficiency of the proposed approach on difficult test sets and including an in-depth sensitivity analysis with respect to the degrees of variability of the face patterns.},
-author = {Garcia, Christophe and Delakis, Manolis},
-file = {:home/magnus/Github/Skole/Pre-master Project/References/ConvolutionFaceFinder.pdf:pdf},
-journal = {IEEE Transactions on Pattern Analysis and Machine Intelligence},
-keywords = {Convolutional networks,Face detection,Machine learning,Neural networks},
-number = {11},
-pages = {1408--1423},
-title = {{Convolutional face finder: A neural architecture for fast and robust face detection}},
-volume = {26},
-year = {2004}
+@article{Paper,
+author = {Gokhale, Vinayak and Jin, Jognhoon and Dundar, Aysegul and Martini, Berin and Culurciello, Eugenio},
+file = {:home/magnus/.local/share/data/Mendeley Ltd./Mendeley Desktop/Downloaded/Gokhale et al. - 2014 - A 240 G-ops s Mobile Coprocessor for Deep Neural Networks.pdf:pdf},
+journal = {2014 IEEE Conference on Computer Vision and Pattern Recognition Workshops},
+pages = {682--687},
+title = {{A 240 G-ops / s Mobile Coprocessor for Deep Neural Networks}},
+year = {2014}
 }
 @article{Jarrett2009,
 abstract = {In many recent object recognition systems, feature extraction stages are generally composed of a filter bank, a non-linear transformation, and some sort of feature pooling layer. Most systems use only one stage of feature extraction in which the filters are hard-wired, or two stages where the filters in one or both stages are learned in supervised or unsupervised mode. This paper addresses three questions: 1. How does the non-linearities that follow the filter banks influence the recognition accuracy? 2. does learning the filter banks in an unsupervised or supervised manner improve the performance over random filters or hardwired filters? 3. Is there any advantage to using an architecture with two stages of feature extraction, rather than one? We show that using non-linearities that include rectification and local contrast normalization is the single most important ingredient for good accuracy on object recognition benchmarks. We show that two stages of feature extraction yield better accuracy than one. Most surprisingly, we show that a two-stage system with random filters can yield almost 63\% recognition rate on Caltech-101, provided that the proper non-linearities and pooling layers are used. Finally, we show that with supervised refinement, the system achieves state-of-the-art performance on NORB dataset (5.6\%) and unsupervised pre-training followed by supervised refinement produces good accuracy on Caltech-101 (\&amp;gt; 65\%), and the lowest known error rate on the undistorted, unprocessed MNIST dataset (0.53\%).},
 author = {Jarrett, Kevin and Kavukcuoglu, Koray and Ranzato, Marc'Aurelio and LeCun, Yann},
-file = {:home/magnus/Github/Skole/Pre-master Project/References/BestArchitectureForObjectRecognition.pdf:pdf},
+file = {:home/magnus/.local/share/data/Mendeley Ltd./Mendeley Desktop/Downloaded/Jarrett et al. - 2009 - What is the best multi-stage architecture for object recognition.pdf:pdf},
 journal = {Proceedings of the IEEE International Conference on Computer Vision},
 pages = {2146--2153},
 title = {{What is the best multi-stage architecture for object recognition?}},
 year = {2009}
 }
-@book{Jordan2006,
-abstract = {Methods of dimensionality reduction provide a way to understand and visualize the structure of complex data sets. Traditional methods like principal component analysis and classical metric multidimensional scaling suffer from being based on linear models. Until recently, very few methods were able to reduce the data dimensionality in a nonlinear way. However, since the late nineties, many new methods have been developed and nonlinear dimensionality reduction, also called manifold learning, has become a hot topic. New advances that account for this rapid growth are, e.g. the use of graphs to represent the manifold topology, and the use of new metrics like the geodesic distance. In addition, new optimization schemes, based on kernel techniques and spectral decomposition, have lead to spectral embedding, which encompasses many of the recently developed methods. This book describes existing and advanced methods to reduce the dimensionality of numerical databases. For each method, the description starts from intuitive ideas, develops the necessary mathematical details, and ends by outlining the algorithmic implementation. Methods are compared with each other with the help of different illustrative examples. The purpose of the book is to summarize clear facts and ideas about well-known methods as well as recent developments in the topic of nonlinear dimensionality reduction. With this goal in mind, methods are all described from a unifying point of view, in order to highlight their respective strengths and shortcomings. The book is primarily intended for statisticians, computer scientists and data analysts. It is also accessible to other practitioners having a basic background in statistics and/or computational learning, like psychologists (in psychometry) and economists.},
-author = {Jordan, M and Kleinberg, J},
-booktitle = {Pattern Recognition},
-editor = {Jordan, Michael and Kleinberg, Jon M and Scholkopf, Bernhard},
-file = {:home/magnus/Github/Skole/Pre-master Project/References/Bishop - Pattern Recognition and Machine Learning.pdf:pdf},
-isbn = {9780387310732},
-number = {356},
-pages = {791--799},
-publisher = {Springer New York},
-title = {{Information Science and Statistics}},
-url = {http://www.library.wisc.edu/selectedtocs/bg0137.pdf},
-volume = {4},
-year = {2006}
-}
 @article{Le2011,
 author = {Le, Quoc V and Coates, Adam and Prochnow, Bobby and Ng, Andrew Y},
-file = {:home/magnus/Github/Skole/Pre-master Project/References/ICML2011Le\_210.pdf:pdf},
+file = {:home/magnus/.local/share/data/Mendeley Ltd./Mendeley Desktop/Downloaded/Le et al. - 2011 - On Optimization Methods for Deep Learning.pdf:pdf},
 title = {{On Optimization Methods for Deep Learning}},
 year = {2011}
 }
 @article{LeCun1998,
 author = {LeCun, Yann and Bottou, L\'{e}on and Bengio, Yoshua and Haffner, Patrick.},
-file = {:home/magnus/Github/Skole/Pre-master Project/References/GradientBasedLearning.pdf:pdf},
+file = {:home/magnus/.local/share/data/Mendeley Ltd./Mendeley Desktop/Downloaded/LeCun et al. - 1998 - Gradient-Based Learning Applied to Document Recognition.pdf:pdf},
 journal = {Proceedings of the IEEE International Conference on Computer Vision},
 title = {{Gradient-Based Learning Applied to Document Recognition}},
 year = {1998}
 }
-@article{Paper,
-author = {Paper, Invited},
-file = {:home/magnus/Github/Skole/Pre-master Project/References/Gokhale\_A\_240\_G-opss\_2014\_CVPR\_paper.pdf:pdf},
-title = {{A 240 G-ops / s Mobile Coprocessor for Deep Neural Networks}}
+@article{Napocensis2009,
+author = {Napocensis, Acta Technica},
+file = {:home/magnus/Github/Skole/Pre-master Project/References/SigmoidApproximation.pdf:pdf},
+keywords = {fpga implementation,sigmoid approximation,system generator},
+number = {2},
+pages = {15--20},
+title = {{Digital implementation of the sigmoid function for fpga circuits}},
+volume = {50},
+year = {2009}
+}
+@article{Sankaradas2009,
+author = {Sankaradas, Murugan and Jakkula, Venkata and Cadambi, Srihari and Chakradhar, Srimat and Durdanovic, Igor and Cosatto, Eric and Graf, Hans Peter},
+doi = {10.1109/ASAP.2009.25},
+file = {:home/magnus/.local/share/data/Mendeley Ltd./Mendeley Desktop/Downloaded/Sankaradas et al. - 2009 - A Massively Parallel Coprocessor for Convolutional Neural Networks.pdf:pdf},
+journal = {2009 20th IEEE International Conference on Application-specific Systems, Architectures and Processors},
+month = jul,
+pages = {53--60},
+publisher = {Ieee},
+title = {{A Massively Parallel Coprocessor for Convolutional Neural Networks}},
+url = {http://ieeexplore.ieee.org/lpdocs/epic03/wrapper.htm?arnumber=5200010},
+year = {2009}
+}
+@article{Fukushima1980,
+author = {Fukushima, Kunihiko},
+file = {:home/magnus/Github/Skole/Pre-master Project/References/Fukushima1980.pdf:pdf},
+title = {{Biological Cybernetics 9}},
+volume = {202},
+year = {1980}
+}
+@article{Fukushima1982,
+author = {Fukushima, Kunihiko and Miyake, Sei},
+doi = {10.1016/0031-3203(82)90024-3},
+file = {:home/magnus/Github/Skole/Pre-master Project/References/Fukushima\_Miyake1981.pdf:pdf},
+issn = {00313203},
+journal = {Pattern Recognition},
+month = jan,
+number = {6},
+pages = {455--469},
+title = {{Neocognitron: A new algorithm for pattern recognition tolerant of deformations and shifts in position}},
+url = {http://linkinghub.elsevier.com/retrieve/pii/0031320382900243},
+volume = {15},
+year = {1982}
+}
+@article{Simard2000,
+author = {Simard, Patrice Y and Steinkraus, Dave and Platt, John C and Way, One Microsoft},
+file = {:home/magnus/Github/Skole/Pre-master Project/References/bestPracticeCNN.pdf:pdf},
+title = {{Best Practices for Convolutional Neural Networks Applied to Visual Document Analysis}},
+year = {2003}
 }

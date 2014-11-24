@@ -69,32 +69,50 @@ BEGIN
 	
 	create_input : PROCESS
 	BEGIN
+		wait for 100 ns;
 		wait for clk_period*10;
-		input_valid <= '1';
 		conv_en_in <= '1';
-		for i in 1 to 8 loop
+		for i in 1 to 12 loop
+			input_valid <= '1';
 			pixel_in <= to_ufixed(i, pixel_in);
 			wait for clk_period;
+			if (i=4 or i = 8) then
+				input_valid <= '0';
+				wait for clk_period*5;
+			end if;
 		end loop;
+		
+		input_valid <= '0';
+		conv_en_in <= '0';
 	
+		
 		wait;
 	end process;
 	
 	assert_output : process
 	begin
-		wait for clk_period*12;
+		wait for 100 ns;
+		wait for clk_period*11;
 		
-		for i in 1 to 8 loop
+		for i in 1 to 12 loop
 			if i < 5 then
 				assert pixel_out = to_ufixed(i, 7, -8)
-					report "Pixel_out was: " & to_string(pixel_out) & ". Should be: " & to_string(to_ufixed(i, 7, -8)) & "."
+					report "Test: " & integer'image(i) & ". Pixel_out was: " & to_string(pixel_out) & ". Should be: " & to_string(to_ufixed(i, 7, -8)) & "."
 					severity error;
-			else
+			elsif i < 9 then
 				assert pixel_out = to_ufixed(i+(i-4), 7, -8)
-					report "Pixel_out was: " & to_string(pixel_out) & ". Should be: " & to_string(to_ufixed(i+(i-4), 7, -8)) & "."
+					report "Test: " & integer'image(i) & ". Pixel_out was: " & to_string(pixel_out) & ". Should be: " & to_string(to_ufixed(i+(i-4), 7, -8)) & "."
+					severity error;
+				
+			else
+				assert pixel_out = to_ufixed(i+((i-8)*2)+4, 7, -8)
+					report "Test: " & integer'image(i) & ". Pixel_out was: " & to_string(pixel_out) & ". Should be: " & to_string(to_ufixed(i+((i-8)*2)+4, 7, -8)) & "."
 					severity error;
 			end if;
 			wait for clk_period;
+			if (i = 4 or i=8) then
+				wait for clk_period*5;
+			end if;
 		end loop;
 		wait;
 	end process;
