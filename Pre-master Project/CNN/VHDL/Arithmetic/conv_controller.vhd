@@ -1,4 +1,4 @@
-library IEEE;
+	library IEEE;
 use IEEE.STD_LOGIC_1164.ALL;
 use IEEE.NUMERIC_STD.ALL;
 use IEEE.STD_LOGIC_UNSIGNED.ALL;
@@ -35,15 +35,22 @@ begin
 		if rising_edge(clk) then
 			conv_en_buf <= conv_en;
 			if conv_en = '1' then
-				if (column_num = IMAGE_DIM) then
+				if (column_num = IMAGE_DIM and row_num = IMAGE_DIM) then
 					column_num <= 1;
-					row_num <= row_num + 1;
-				else
-					column_num <= column_num + 1;
-				end if;
+					row_num <= 1;
+					reached_valid_row <= '0';
 				
-				if (row_num = KERNEL_DIM) then
-					reached_valid_row <= '1';
+				else
+					if (column_num = IMAGE_DIM) then
+						column_num <= 1;
+						row_num <= row_num + 1;
+					else
+						column_num <= column_num + 1;
+					end if;
+					
+					if (row_num = KERNEL_DIM) then
+						reached_valid_row <= '1';
+					end if;
 				end if;
 			else
 				row_num <= 1;

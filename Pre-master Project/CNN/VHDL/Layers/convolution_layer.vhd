@@ -72,7 +72,7 @@ architecture Behavioral of convolution_layer is
 	
 	component conv_img_buffer is
 		generic (
-			IMG_SIZE		: integer := (((IMG_DIM-KERNEL_DIM+1)/MAX_POOL_DIM)-(KERNEL_DIM+1))*(((IMG_DIM-KERNEL_DIM+1)/MAX_POOL_DIM)-(KERNEL_DIM+1));
+			IMG_SIZE		: integer := (IMG_DIM-KERNEL_DIM+1)*(IMG_DIM-KERNEL_DIM+1);--(((IMG_DIM-KERNEL_DIM+1)/MAX_POOL_DIM)-(KERNEL_DIM+1))*(((IMG_DIM-KERNEL_DIM+1)/MAX_POOL_DIM)-(KERNEL_DIM+1));
 			INT_WIDTH 	: positive := INT_WIDTH;
 			FRAC_WIDTH 	: positive := FRAC_WIDTH
 		);

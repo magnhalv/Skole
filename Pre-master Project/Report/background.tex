@@ -1,6 +1,6 @@
 \chapter{Background}
 
-In this chapter we will go through the fundamental mathematics and concepts behind the \textit{Convolutional Neural Network} (CNN) model, in order to be able to recognize which operations that can be hardware-accelerated. It gives a basic introduction to both general neural networks and \textit{CNNs}.  
+In this chapter we will go through the fundamental mathematics and concepts behind the \textit{Convolutional Neural Network} (CNN) model, in order to be able to recognize which operations that can be hardware-accelerated. It gives a basic introduction to both general neural networks and \textit{CNNs}. The last section gives an overview of the research and state-of-the-art hardware implementations of CNNs. 
 
 \section{Artificial Neural Networks}
 
@@ -91,7 +91,7 @@ Now, combining \textit{gradient decent} and the \textit{backpropagation algorith
 
 \begin{enumerate}
 	\item Initialize the weights $ \mathbf{w}^{(l)} $ and $ b^{l} $ for all \textit{l}.
-	\item Do steps 3 to 5 until the $ Cost(\mathbf{w}, b; x, y) $ function is low enough or converges.
+	\item Do steps 3 to 5 until the $ Cost(\mathbf{w}, b; x, y) $ function is low enough or converges. This is referred to as an \textit{epoch}. 
 	\item Set $ \Delta\mathbf{w}^{(l)} := 0 $ and $ \Delta b^{(l)} := 0 $ for all \textit{l}.
 	\item For i = 1 to m,
 		\begin{enumerate}
@@ -108,6 +108,8 @@ Now, combining \textit{gradient decent} and the \textit{backpropagation algorith
 			b^{(l)} = b^{(l)} - \alpha[\frac{1}{m}\Delta b^{(l)}]
 		\end{equation*}
 \end{enumerate}
+
+
 
 \section{Convolutional Neural Network}
 
@@ -151,6 +153,14 @@ o_{ij} = max(x_{})
       \includegraphics[width=1.0\textwidth]{Figures/Background/Convolution-Maxpooling}
   \caption{Illustration of the convolution and subsampling/max-pool layers. First the input image is convolved with the kernel, then the resulting feature map is subsampled/max-pooled.}
 \end{figure}
+
+\section{Related Work}
+The mathematical fundamentals for Convolutional Neural Networks was introduced as early as in the 1980s by Kunihiko Fukushima\cite{Fukushima1980}\cite{Fukushima1982}, in form of the \textit{neocognitron} model. The model was later improved in 1998 by  Yann LeCun, Léon Bottou, Yoshua Bengio, and Patrick Haffner - who introduced the \textit{Convolutional Neural Network} model. In 2003 the model was simplified by Patrice Simard, David Steinkraus, and John C. Platt \cite{Simard2000}, in an attempt to make it easier to implement. The paper also mentions two of the main issues with CNNs, size of the training set and time spent training. In order to achieve high enough accuracy a CNN requires thousands of training samples, which needs to be labeled. Processing all of these samples and fine-tuning the networks takes a great amount of processing power, causing training to take days or weeks. These issues are the ones that caused CNNs not to gain popularity before mid-2000. The rise of the Internet, digital cameras, and Big Data have provided us with vast amounts of images which can be used for training, and improvement in the speed and sophistication of computer hardware have reduced the training time from days/weeks to hours. E.g. \cite{Cires2003} purposes a GPU implementations which reduced the epoch training time from 35 hours to 35 minutes. 
+
+These recent advancements have renewed the interest in neural networks, and increased the research done on the field. As a result CNNs have become a leading model within pattern recognition for computer vision. This can be illustrated by the fact that CNNs implementations have won several pattern recognition contests in the period 2009-2012, including IJCNN 2011 Traffic Sign Recognition Competition\cite{Ciresan2012} and the ISBI 2012 Segmentation of Neuronal Structures in Electron Microscopy Stacks challenge\cite{DanC.Ciresan2012}.
+
+
+In \cite{Farabet2009} a CNN was implemented on a Virtex-4 SX35 FPGA from Xilinx. In this implementation all the fundamental computations was hard-wired, and controlled by a 32bit soft processor using macro-instructions. Training was done offline, and a representation of the network was provided to the soft processor. With this implementation they were able to process a $ 512 \times 384 $ grayscale image in 100\textit{ms}, i.e. 10 frames per second. 
 
 
 

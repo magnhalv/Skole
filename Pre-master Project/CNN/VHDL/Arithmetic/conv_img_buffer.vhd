@@ -40,15 +40,11 @@ architecture Behavioral of conv_img_buffer is
 	end component;
 	
 	signal write_addr 		: integer range 0 to IMG_SIZE-1;
-	signal write_addr_buf 		: integer range 0 to IMG_SIZE-1;
 	signal read_addr 			: integer range 0 to IMG_SIZE-1;
 	
 	
 	signal looped				: boolean;
 	signal pixel_sum			: ufixed(INT_WIDTH-1 downto -FRAC_WIDTH);
-	
-	signal pixel_sum_buf		: ufixed(INT_WIDTH-1 downto -FRAC_WIDTH);
-	signal input_valid_buf	: std_logic_vector(0 downto 0);
 	
 	signal doutb_buffer		: ufixed(INT_WIDTH-1 downto -FRAC_WIDTH);
 	signal doutb 				: std_logic_vector(15 downto 0);
@@ -57,36 +53,27 @@ architecture Behavioral of conv_img_buffer is
 	
 begin
 
-	addra <= std_logic_vector(to_unsigned(write_addr_buf, 7));
+	addra <= std_logic_vector(to_unsigned(write_addr, 7));
 	addrb <= std_logic_vector(to_unsigned(read_addr, 7));
 	
 	img_buffer : dual_block_mem port map(
 		clka 	=> clk,
-		wea 	=> input_valid_buf,
+		wea(0)=> input_valid,
 		addra	=> addra,
-		dina 	=> to_slv(pixel_sum_buf),
+		dina 	=> to_slv(pixel_sum),
 		clkb 	=> clk,
 		addrb => addrb,
 		doutb => doutb
 		
 	);
 	
-	pixel_out <= pixel_sum_buf;
-	output_valid <= input_valid_buf(0);
-	
-	write_buffer : process(clk)
-	begin
-		if rising_edge(clk) then
-			pixel_sum_buf <= pixel_sum;
-			input_valid_buf(0) <= input_valid;
-			conv_en_out <= conv_en_in;
-			write_addr_buf <= write_addr;
-		end if;
-	end process;
+	output_valid <= input_valid;
+	pixel_out <= pixel_sum;
+	conv_en_out <= conv_en_in;
 	
 	read_buffer : process(clk)
 	begin
-		if rising_edge(clk) then
+		if rising_edge(clk) and input_valid = '1' then
 			doutb_buffer <= to_ufixed(doutb, doutb_buffer);
 		end if;
 	end process;
@@ -97,26 +84,27 @@ begin
 		if rising_edge(clk) then
 			if (conv_en_in = '0' and input_valid='0') then
 				looped <= false;
-				read_addr <= 1;
+				read_addr <= 2;
 				write_addr <= 0;
 				one_cycle_delayed := false;
 			elsif (input_valid = '1') then
 			
 				if not one_cycle_delayed then
 					one_cycle_delayed := true;
-				elsif (write_addr = IMG_SIZE-1) then
-					write_addr <= 0;
-					looped <= true;
 				else
-					write_addr <= write_addr + 1;
+					if (write_addr = IMG_SIZE-1) then
+						write_addr <= 0;
+						looped <= true;
+					else
+						write_addr <= write_addr + 1;
+					end if;
+					
+					if (read_addr = IMG_SIZE-1) and one_cycle_delayed then
+						read_addr <= 0;
+					else
+						read_addr <= read_addr + 1;
+					end if;
 				end if;
-				
-				if (read_addr = IMG_SIZE-1) then
-					read_addr <= 0;
-				else
-					read_addr <= read_addr + 1;
-				end if;
-				
 			end if;
 		end if;
 	end process;
