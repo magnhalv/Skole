@@ -1,15 +1,23 @@
 \chapter{Method}
 
-My special method. 
-
+In this chapter the 
 \section{Architecture}
+
+
+
 
 \subsection {Convolution layer}
 
-A convolution layer takes \textit{n} images as input, $ I_1, I_2, \dots, I_n $, and produces \textit{m} intermediate outputs, $O_1, O_2, \dots, O_m $. It also contains \textit{m} kernels, $ K_1, K_2, \dots, K_m $. Each kernel $ K_i $ is convolved with all the input images, and each respective pixel from each convolution is then summed, added a bias to, and sent through a non-linear function. Afterwards the resulting matrix is subsampled/max-pooled, where it is divided into $ p \times p $ non-overlapping neighborhoods, from which the maximum value is extracted. The result of the max-pool operation the output image $ O_i $. 
+The convolution layer takes \textit{n} images as input, $ I_1, I_2, \dots, I_n $, and produces \textit{m} intermediate outputs, $O_1, O_2, \dots, O_m $. It also contains \textit{m} kernels, $ K_1, K_2, \dots, K_m $. Each kernel $ K_i $ is convolved with all the input images, and each respective pixel from each convolution is then summed, added a bias to, and sent through a non-linear function. Afterwards the resulting matrix is subsampled/max-pooled, where it is divided into $ p \times p $ non-overlapping neighborhoods, from which the maximum value is extracted. The result of the max-pool operation the output image $ O_i $. 
 In the first layer of the network there is only one input image (i.e. $ n = 1 $), thus no summation is needed. 
 
-The overall architecture of the convolution layer is separated into four modules. A convolution module, a summation buffer, a non-linear function module and a subsample/max-pool module.
+\begin{figure}[h!]
+  \centering
+      \includegraphics[width=1.0\textwidth]{Figures/Method/conv_layer_arch}
+  \caption{The convolution module, when $ n = 3 $ and $ k = 2 $.}
+\end{figure}
+
+The overall architecture of the convolution layer is separated into four modules. A convoluter module, an intermediate image buffer, a sigmoid module and a subsample/max-pool module.
 
 \vspace*{1\baselineskip}
 \textbf{The convolution module} (CM) is inspired by \cite{Farabet2009}. The input is a $ n \times n $ image \textit{I}, and the output is a $ (n-k+1) \times (n-k+1) $ convolved image \textit{C}, using a $ k \times k $ kernel \textit{K}. Every clock cycle the module takes in a pixel as input, and after a certain delay it will output a processed pixel almost every cycle. Each pixel is inputted once, left to right, one row at a time. 
