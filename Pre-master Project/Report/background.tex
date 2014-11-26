@@ -2,7 +2,7 @@
 
 In this chapter we will go through the fundamental mathematics and concepts behind the \textit{Convolutional Neural Network} (CNN) model, in order to be able to recognize which operations that can be hardware-accelerated. It gives a basic introduction to both general neural networks and \textit{CNNs}. The last section gives an overview of the research and state-of-the-art hardware implementations of CNNs. 
 
-\section{Artificial Neural Networks}
+\section{Artificial Neural Networks}\label{ann}
 
 An \textit{Artificial Neural Network} (ANN) is a computational model that is used for machine learning and pattern recognition. The name and basic concept is inspired by how the animal brain uses a network of neurons to recognize and classify objects. 
 
@@ -111,7 +111,7 @@ Now, combining \textit{gradient decent} and the \textit{backpropagation algorith
 
 
 
-\section{Convolutional Neural Network}
+\section{Convolutional Neural Network}\label{cnn}
 
 \textit{Convolutional Neural Network}\cite{LeCun1998} (CNN) is a variation of the \textit{Artificial Neural Network} model, which is mainly used for object recognition in images. It addresses three major problems the standard ANN model faces when it comes to object recognition. First, even small images contains a large amount of pixels/inputs, e.g. a $ 32 \times 32 $ image contains 1024 pixels/inputs. A fully connected network with 100 hidden units would then end up with $ 1024 \times 100 $ weights that needs to be calculated in the first layer! Making it computationally infeasible and not scalable. Second, objects of the same class are seldom exactly alike, something the network has to take into consideration. While possible, the network would have to be very large, would probably contain several neurons with similar weight vectors positioned at different places in the network, and would require a very large number of training samples. Third, a fully connected ANN does not take into consideration the topology of the input. An image has a strong 2D spatial locality correlation, which makes it possible to combine low-order features (edges, end-points etc.) into higher-order features.  
 
@@ -128,7 +128,7 @@ The idea behind the two new layers is to exploit the strong 2D local structure o
 
 Intuitively, the convolution layer performs the feature extraction by applying a filter (kernel) on the whole image, and puts the result in a corresponding feature map. E.g. if the filter extracts vertical edges, only the vertical edges from the original image would remain in the resulting feature map. Thus you can extract different features by having several feature maps with different filters.  
 
-Formally we can define a 2D convolution as follows. Let $ x_{ij} $ denote a value of the input matrix, $ w_{mn} $ denotes a value in a $ k \times k $ kernel matrix, and $ o_{ij} $ denotes a value of the output matrix. Then we get the following formula:
+Formally we can define a 2D convolution as follows. Let $ x_{ij} $ denote a value of the input matrix, $ w_{mn} $ denotes a value in a $ k \times k $ kernel matrix, and $ o_{ij} $ denotes a value of the output matrix. Then we get the following formula:
 
 \begin{equation*}
 o_{ij} = \sum_{m=1}^{k}\sum_{n=1}^{k} x_{i+m, j+n}w_{mn}
@@ -142,10 +142,16 @@ Once you have detected a feature, the exact position become less important. For 
 	\item \textit{Average-pooling} extracts the average value of all the elements in the matrix.
 \end{itemize}
 
-In our solution we have opted for the max-pooling model, since its implementation is both easier and requires less resources. Formally it can be defined as:
+Formally they can be defined respectively as:
 
 \begin{equation*}
-o_{ij} = max(x_{})
+o_{ij} = max(x_{i+p, j+q}) \qquad\qquad q,p \in 1, 2, \dots, k
+\end{equation*}
+
+and
+
+\begin{equation*}
+o_{ij} = \frac{1}{k^2} \sum_{p=1}^{k}\sum_{q=1}^{k} x_{i+p, j+q}) 
 \end{equation*}
 
 \begin{figure}[h!]
@@ -154,13 +160,7 @@ o_{ij} = max(x_{})
   \caption{Illustration of the convolution and subsampling/max-pool layers. First the input image is convolved with the kernel, then the resulting feature map is subsampled/max-pooled.}
 \end{figure}
 
-\section{Related Work}
-The mathematical fundamentals for Convolutional Neural Networks was introduced as early as in the 1980s by Kunihiko Fukushima\cite{Fukushima1980}\cite{Fukushima1982}, in form of the \textit{neocognitron} model. The model was later improved in 1998 by  Yann LeCun, Léon Bottou, Yoshua Bengio, and Patrick Haffner - who introduced the \textit{Convolutional Neural Network} model. In 2003 the model was simplified by Patrice Simard, David Steinkraus, and John C. Platt \cite{Simard2000}, in an attempt to make it easier to implement. The paper also mentions two of the main issues with CNNs, size of the training set and time spent training. In order to achieve high enough accuracy a CNN requires thousands of training samples, which needs to be labeled. Processing all of these samples and fine-tuning the networks takes a great amount of processing power, causing training to take days or weeks. These issues are the ones that caused CNNs not to gain popularity before mid-2000. The rise of the Internet, digital cameras, and Big Data have provided us with vast amounts of images which can be used for training, and improvement in the speed and sophistication of computer hardware have reduced the training time from days/weeks to hours. E.g. \cite{Cires2003} purposes a GPU implementations which reduced the epoch training time from 35 hours to 35 minutes. 
 
-These recent advancements have renewed the interest in neural networks, and increased the research done on the field. As a result CNNs have become a leading model within pattern recognition for computer vision. This can be illustrated by the fact that CNNs implementations have won several pattern recognition contests in the period 2009-2012, including IJCNN 2011 Traffic Sign Recognition Competition\cite{Ciresan2012} and the ISBI 2012 Segmentation of Neuronal Structures in Electron Microscopy Stacks challenge\cite{DanC.Ciresan2012}.
-
-
-In \cite{Farabet2009} a CNN was implemented on a Virtex-4 SX35 FPGA from Xilinx. In this implementation all the fundamental computations was hard-wired, and controlled by a 32bit soft processor using macro-instructions. Training was done offline, and a representation of the network was provided to the soft processor. With this implementation they were able to process a $ 512 \times 384 $ grayscale image in 100\textit{ms}, i.e. 10 frames per second. 
 
 
 
