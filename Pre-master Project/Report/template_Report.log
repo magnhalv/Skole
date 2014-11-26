@@ -1,4 +1,4 @@
-This is pdfTeX, Version 3.1415926-2.5-1.40.14 (MiKTeX 2.9) (preloaded format=pdflatex 2014.1.18)  16 NOV 2014 19:54
+This is pdfTeX, Version 3.1415926-2.5-1.40.14 (MiKTeX 2.9) (preloaded format=pdflatex 2014.1.18)  22 NOV 2014 00:41
 entering extended mode
 **template_Report.tex
 ("D:\Github\Skole\Pre-master Project\Report\template_Report.tex"
@@ -217,40 +217,46 @@ input line 151.
 Maxpooling.png>]
 ("D:\Github\Skole\Pre-master Project\Report\method.tex"
 Chapter 4.
-<Figures/Method/Convolver.jpg, id=50, 744.7825pt x 433.62pt>
+<Figures/Method/conv_layer_arch.jpg, id=50, 2007.5pt x 573.14125pt>
+File: Figures/Method/conv_layer_arch.jpg Graphic file (type jpg)
+
+<use Figures/Method/conv_layer_arch.jpg>
+Package pdftex.def Info: Figures/Method/conv_layer_arch.jpg used on input line 
+9.
+(pdftex.def)             Requested size: 345.0pt x 98.4909pt.
+ [8
+
+
+
+ <D:/Github/Skole/Pre-master Project/Report/Figures/Method/conv_layer_arch.jpg>
+]
+<Figures/Method/Convolver.jpg, id=54, 744.7825pt x 433.62pt>
 File: Figures/Method/Convolver.jpg Graphic file (type jpg)
 
 <use Figures/Method/Convolver.jpg>
-Package pdftex.def Info: Figures/Method/Convolver.jpg used on input line 19.
+Package pdftex.def Info: Figures/Method/Convolver.jpg used on input line 26.
 (pdftex.def)             Requested size: 345.0pt x 200.87032pt.
+Missing character: There is no Â in font cmr10!
+Missing character: There is no   in font cmr10!
+Missing character: There is no Â in font cmr10!
+Missing character: There is no   in font cmr10!
+Missing character: There is no Â in font cmr10!
+Missing character: There is no   in font cmr10!
+Missing character: There is no Â in font cmr10!
+Missing character: There is no   in font cmr10!
+ [9 <D:/Github/Skole/Pre-master Project/Report/Figures/Method/Convolver.jpg>]
+Missing character: There is no Â in font cmr10!
+Missing character: There is no   in font cmr10!
+Missing character: There is no Â in font cmr10!
+Missing character: There is no   in font cmr10!
+Missing character: There is no Â in font cmr10!
+Missing character: There is no   in font cmr10!
 
-
-LaTeX Warning: `!h' float specifier changed to `!ht'.
-
-[8
-
-
-
-]
-Missing character: There is no Â in font cmr10!
-Missing character: There is no   in font cmr10!
-Missing character: There is no Â in font cmr10!
-Missing character: There is no   in font cmr10!
-Missing character: There is no Â in font cmr10!
-Missing character: There is no   in font cmr10!
-Missing character: There is no Â in font cmr10!
-Missing character: There is no   in font cmr10!
-Missing character: There is no Â in font cmr10!
-Missing character: There is no   in font cmr10!
-Missing character: There is no Â in font cmr10!
-Missing character: There is no   in font cmr10!
-Missing character: There is no Â in font cmr10!
-Missing character: There is no   in font cmr10!
- <Figures/Method/Conv_example.jpg, id=54, 1573.88pt x 1899.095pt>
+<Figures/Method/Conv_example.jpg, id=58, 1573.88pt x 1899.095pt>
 File: Figures/Method/Conv_example.jpg Graphic file (type jpg)
 
 <use Figures/Method/Conv_example.jpg>
-Package pdftex.def Info: Figures/Method/Conv_example.jpg used on input line 35.
+Package pdftex.def Info: Figures/Method/Conv_example.jpg used on input line 42.
 
 (pdftex.def)             Requested size: 345.0pt x 416.26637pt.
 
@@ -260,17 +266,15 @@ LaTeX Warning: `!h' float specifier changed to `!ht'.
 Missing character: There is no Â in font cmr10!
 Missing character: There is no   in font cmr10!
 
-Overfull \hbox (7.11674pt too wide) in paragraph at lines 40--42
+Overfull \hbox (7.11674pt too wide) in paragraph at lines 47--49
 []\OT1/cmr/m/n/10 REWRITE FIRST PART \OT1/cmr/bx/n/10 The subsample/max-pooling
  mod-ule \OT1/cmr/m/n/10 (SS/MP)
  []
 
-[9 <D:/Github/Skole/Pre-master Project/Report/Figures/Method/Convolver.jpg>]
-[10 <D:/Github/Skole/Pre-master Project/Report/Figures/Method/Conv_example.jpg>
-]
 Missing character: There is no Â in font cmr10!
 Missing character: There is no   in font cmr10!
-) [11] ("D:\Github\Skole\Pre-master Project\Report\result.tex"
+) [10] [11 <D:/Github/Skole/Pre-master Project/Report/Figures/Method/Conv_examp
+le.jpg>] ("D:\Github\Skole\Pre-master Project\Report\result.tex"
 Chapter 5.
 ) [12
 
@@ -301,13 +305,13 @@ Chapter 7.
 ("D:\Github\Skole\Pre-master Project\Report\discussion.aux")
 ("D:\Github\Skole\Pre-master Project\Report\conclusion.aux")) ) 
 Here is how much of TeX's memory you used:
- 1865 strings out of 493921
- 24957 string characters out of 3154497
+ 1870 strings out of 493921
+ 25131 string characters out of 3154497
  81628 words of memory out of 3000000
- 5117 multiletter control sequences out of 15000+200000
+ 5121 multiletter control sequences out of 15000+200000
  11200 words of font info for 40 fonts, out of 3000000 for 9000
  841 hyphenation exceptions out of 8191
- 27i,6n,21p,1260b,223s stack positions out of 5000i,500n,10000p,200000b,50000s
+ 27i,6n,21p,1260b,227s stack positions out of 5000i,500n,10000p,200000b,50000s
 <D:/MiKTeX/fonts
 /type1/public/amsfonts/cm/cmbx10.pfb><D:/MiKTeX/fonts/type1/public/amsfonts/cm/
 cmbx12.pfb><D:/MiKTeX/fonts/type1/public/amsfonts/cm/cmbx5.pfb><D:/MiKTeX/fonts
@@ -320,9 +324,9 @@ ype1/public/amsfonts/cm/cmr12.pfb><D:/MiKTeX/fonts/type1/public/amsfonts/cm/cmr
 1/public/amsfonts/cm/cmr7.pfb><D:/MiKTeX/fonts/type1/public/amsfonts/cm/cmsy10.
 pfb><D:/MiKTeX/fonts/type1/public/amsfonts/cm/cmsy7.pfb><D:/MiKTeX/fonts/type1/
 public/amsfonts/cm/cmti10.pfb>
-Output written on template_Report.pdf (17 pages, 475145 bytes).
+Output written on template_Report.pdf (17 pages, 529512 bytes).
 PDF statistics:
- 127 PDF objects out of 1000 (max. 8388607)
+ 128 PDF objects out of 1000 (max. 8388607)
  0 named destinations out of 1000 (max. 500000)
- 21 words of extra memory for PDF output out of 10000 (max. 10000000)
+ 26 words of extra memory for PDF output out of 10000 (max. 10000000)
 

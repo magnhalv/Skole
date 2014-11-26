@@ -4,6 +4,13 @@ My special method.
 
 \section{Architecture}
 
+\begin{figure}[h!]
+  \centering
+      \includegraphics[width=1.0\textwidth]{Figures/Method/conv_layer_arch}
+  \caption{The convolution module, when $ n = 3 $ and $ k = 2 $.}
+\end{figure}
+
+
 \subsection {Convolution layer}
 
 A convolution layer takes \textit{n} images as input, $ I_1, I_2, \dots, I_n $, and produces \textit{m} intermediate outputs, $O_1, O_2, \dots, O_m $. It also contains \textit{m} kernels, $ K_1, K_2, \dots, K_m $. Each kernel $ K_i $ is convolved with all the input images, and each respective pixel from each convolution is then summed, added a bias to, and sent through a non-linear function. Afterwards the resulting matrix is subsampled/max-pooled, where it is divided into $ p \times p $ non-overlapping neighborhoods, from which the maximum value is extracted. The result of the max-pool operation the output image $ O_i $. 
