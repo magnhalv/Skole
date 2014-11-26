@@ -1,24 +1,24 @@
 \chapter{Background}
 
-In this chapter we will go through the fundamental mathematics and concepts behind the \textit{Convolutional Neural Network} (CNN) model, in order to be able to recognize which operations that can be hardware-accelerated. It gives a basic introduction to both general neural networks and \textit{CNNs}. The last section gives an overview of the research and state-of-the-art hardware implementations of CNNs. 
+In this chapter we will go through the fundamental mathematics and concepts behind the \textit{Convolutional Neural Network} (CNN) model, in order to be able to recognize which operations that can be hardware-accelerated. It gives a basic introduction to both general neural networks and \textit{CNNs}.
 
 \section{Artificial Neural Networks}\label{ann}
 
 An \textit{Artificial Neural Network} (ANN) is a computational model that is used for machine learning and pattern recognition. The name and basic concept is inspired by how the animal brain uses a network of neurons to recognize and classify objects. 
 
-An ANN can intuitively be viewed as a probabilistic classifier. Depending on the input data it will output the probability that the data belongs to a certain \textit{class} (e.g. an object in an image or an investment decision). As the brain it can be trained to recognize different classes by being provided a set of labeled training data, e.g. a set of faces and a set of non-faces. It can then learn to decide whether a image contains a face or not. This is called supervised learning. The network can also be trained unsupervised, by providing it with a set of unlabeled images. It will then learn to recognize a set of classes, but will be unable to label them.  
+An ANN can intuitively be viewed as a probabilistic classifier. Depending on the input data it will output the probability that the data belongs to a certain \textit{class} (e.g. an object in an image or an investment decision). The network can be trained to recognize different classes by being provided a set of labeled training data, e.g. a set of faces and a set of non-faces. It can then learn to decide whether a image contains a face or not. This is called supervised learning. The network can also be trained unsupervised, by providing it with a set of unlabeled images. It will then learn to recognize a set of classes, but will be unable to label them.  
 
-The topology of an ANN is a number of layers containing a set of so-called neurons. A neuron takes as in a set of inputs (e.g. image pixels), where each input is associated with a respective weight. The input and the weight are then multiplied and summed, and the result is used to calculate a non-linear activation function. More formally a neuron is defined as follows: 
+An ANN  consists of a number of layers containing a set of so-called \textit{neurons}, also known as \textit{units}. A neuron takes in a set of values as input (e.g. image pixels), where each value is associated with a respective weight. The input and the weights are multiplied and summed, and the result is used to calculate a non-linear activation function. More formally a neuron is defined as follows: 
 
 \begin{equation*}
 Input: \{x_1, x_2,\dots, x_n\} = \mathbf{x} 
 \end{equation*}
 
 \begin{equation*}
-Output: f(\mathbf{w^{T}x)} = f(\sum_{i=1}^{n}w_i x_i + b)
+Output: f(\mathbf{w^{T}x)} = f(\sum_{i=1}^{n}w_i x_i + b) = o
 \end{equation*}
 
-\textbf{w} is the connection weights, b is the neuron bias and \textit{f(...)} is the activation function. \textit{f(...)} tends to be either:
+Where \textbf{w} is the connection weights, b is the neuron bias and \textit{f(...)} is the activation function. \textit{f(...)} tends to be either:
 
 \begin{equation*}
 Sigmoid: f(z) = \frac{1}{1 - e^{-z}}, \in [0,1]
@@ -30,48 +30,61 @@ or
 Hyperbolic tagent: f(z) = tanh(z) = \frac{e^z - e^{-z}}{e^z + e^{-z}}, \in [-1,1]
 \end{equation*}
 
-An ANN consist of $ n_l $ layers, each containing a set of neurons. The first layer is \textit{the input layer}, and the last layer is \textit{the output layer}. The layers in between are called \textit{the hidden layers}. Each layer uses the previous layer output as input. The input layer is provided with the initial input and calculates its activation functions (one for each neuron). The result is propagated to the first hidden layer, and continues up until it reaches the output layer - which provides the final output. This is known as a \textit{feedforward neural network.}
+\begin{figure}[h!]
+  \centering
+      \includegraphics[width=1.0\textwidth]{Figures/Background/Neuron}
+  \caption{A single neuron with three inputs. }
+\end{figure}
 
-The network takes in two parameters, $ (\mathbf{W, b}) = (\mathbf{w^{(1)}, b^{(1)}}, 
-\mathbf{w^{(2)}, b^{(2)}}, \dots , 
-\mathbf{w^{(n_l)}, b^{(n_l)}}) $. Then $ w_{ij}^l $ denotes the weight between neuron j in layer l, and neuron i in layer l+1. $ b_i^l $ denotes the bias associated with neuron i in layer l+1.
+An ANN consist of $ n_l $ layers, each containing a set of neurons. The first layer is \textit{the input layer}, and the last layer is \textit{the output layer}. The layers in between are called \textit{the hidden layers}. Each layer uses the previous layer's output as input. The input layer is provided with the initial input and uses it to calculate the activation function for each of its neurons. The result is propagated to the first hidden layer, and continues up until it reaches the output layer - which provides the final output. This is known as a \textit{feedforward neural network.}
 
-During the training of the network it is the parameters $ (\mathbf{W, b}) $ that are altered in order to adapt the network to the training data. This is done by providing the network with a set of training examples, where we provide an input and an expected output. We then use a cost function to compute the error of the actual output. Our goal is to minimize the cost function, so the actual output is as close as possible to the expected output. This can be done by a technique called gradient decent. 
+The network takes in two parameters, $ (\mathbf{W, b}) = (\mathbf{w}^{(1)}, b^{(1)}, 
+\mathbf{w}^{(2)}, b^{(2)}, \dots , 
+\mathbf{w}^{(n_l)}, b^{(n_l)}) $. $ w_{ij}^l $ denotes the weight between neuron j in layer l, and neuron i in layer l+1. $ b_i^l $ denotes the bias associated with the neurons in layer l+1. Note that upper case bold is a matrix, lower case bold is a vector, and lower case not bold is a scalar. 
+
+
+\begin{figure}[h!]
+  \centering
+      \includegraphics[width=1.0\textwidth]{Figures/Background/ann}
+  \caption{An Artificial Neural Network.}
+\end{figure}
+
+During the training of the network it is the parameters $ (\mathbf{W, b}) $ that are altered in order to adapt the network to the training data. This is done by providing the network with a set of training samples, where we provide an input and an expected output. By using a cost function we can then figure out how we should tune our weights and biases in order to reduce the error rate. In other words, our goal is to minimize a cost function over a set of training samples. This can be done by a technique called \textit{gradient decent}. 
 
 Let the cost function for a single training example $(x,y)$ be defined as follows:
 
 \begin{equation*}
-	Cost(\mathbf{w},b; x, y) = \frac{1}{2}(h_{\mathbf{w},b}(x) - y)^2
+	Cost(\mathbf{W},\mathbf{b}; x, y) = \frac{1}{2}(h_{\mathbf{W},\mathbf{b}}(x) - y)^2
 \end{equation*}
 
-Where $ x $ is the input, $ h_{\mathbf{w},b}(x) $ is the actual output of the ANN and \textit{y} is the correct output.
+Where $ x $ is the input, $ h_{\mathbf{w},b}(x) $ is the actual output of our network and \textit{y} is the correct output.
 Then the cost function for \textit{m} training examples $ ((x^{1}, y^{1}), (x^{2}, y^{2}), \dots, (x^{m}, y^{m})) $ is:
 
 \begin{equation*}
-	Cost(\mathbf{w},b) = \frac{1}{m}\sum_{i=1}^{m}Cost(\mathbf{w},b;x^{(i)},y^{(i)}) + \frac{\lambda}{2}
+	Cost(\mathbf{W},\mathbf{b}) = \frac{1}{m}\sum_{i=1}^{m}Cost(\mathbf{W},\mathbf{b};x^{(i)},y^{(i)}) + \frac{\lambda}{2}
 	\sum_{l=1}^{n_l-1}\sum_{i=1}^{s_l}\sum_{j=1}^{s_l+1}
 	(\mathbf{w}_{ji}^{l})^2
 \end{equation*}
  
-The first term is simply the average sum-of-squares error term. The second term is the \textit{text}regularization term, or \textit{weight decay term}, which tends to reduce \textit{overfitting}.
+The first term is simply the average sum-of-squares error. The second term is the \textit{regularization term}, or \textit{weight decay term}, which tends to reduce \textit{overfitting}.
 
 Based on this we can use \textit{gradient decent} to compute how we should alter the weights in order to reduce the cost function. One iteration of gradient descent updates \textbf{w} and \textit{b} as follows:
 
 \begin{equation*}
-	\mathbf{w}_{ij}^{(l)} = \mathbf{w}_{ij}^{(l)} - \alpha\frac{\partial}{\partial\mathbf{w}_{ij}^{(l)} }Cost(\mathbf{w},b)
+	w_{ij}^{(l)} = w_{ij}^{(l)} - \alpha\frac{\partial}{\partial w_{ij}^{(l)} }Cost(\mathbf{W},\mathbf{b})
 \end{equation*}
 
 \begin{equation*}
-	\mathbf{b}_{i}^{(l)} = \mathbf{b}_{i}^{(l)} - \alpha\frac{\partial}{\partial\mathbf{b}_{i}^{(l)} }Cost(\mathbf{w},b)
+	b^{(l)} = b^{(l)} - \alpha\frac{\partial}{\partial b_{i}^{(l)} }Cost(\mathbf{W},\mathbf{b})
 \end{equation*}
 
 Where $ \alpha $ is the learning rate, which is a predetermined constant. Note that this would only make us able to compute the gradient for the output layer. In order to perform gradient decent on the hidden layers, we need to propagate the error from the output layer backwards, to the hidden layers. For this we use the \textit{backpropagation algorithm}. Let $ o_i^{(l)} $ denote the output of the $i$th neuron in layer $l$, and $z_k^{(l)}$ is the weighted sum of the inputs plus the bias for the $k$th neuron in layer l. Then the \textit{backpropagation algorithm} can be formalized as follows: 
 
 \begin{enumerate}
 	\item Perform a feedforward pass, computing the output of every layer.
-	\item For each output neuron k in the output layer, compute: 
+	\item For each output neuron k in the output layer, compute \textit{the error term}: 
 	\begin{equation*}
-		\delta_k = \frac{\partial}{\partial z_{k}^{(n_l)} }Cost(\mathbf{w},b; x, y) = -o_k^{n_l}(1-o_k^{n_l})(y_k-o_k^{n_l})
+		\delta_k = \frac{\partial}{\partial z_{k}^{(n_l)} }Cost(\mathbf{W,b}; x, y) = -o_k^{n_l}(1-o_k^{n_l})(y_k-o_k^{n_l})
 	\end{equation*} 
 	\item For each hidden layer $ l = n_l - 1, n_l - 2,\dots, 2 $ compute: 
 	\begin{equation*}
@@ -79,25 +92,25 @@ Where $ \alpha $ is the learning rate, which is a predetermined constant. Note t
 	\end{equation*}
 	\item Compute the partial derivative for each weight and bias:
 	\begin{equation*}
-		\frac{\partial}{\partial\mathbf{w}_{ij}^{(l)} }Cost(\mathbf{w},b; x, y) = o_j^{(l)}\delta_i^{(l+1)}
+		\frac{\partial}{\partial w_{ij}^{(l)} }Cost(\mathbf{W,b}; x, y) = o_j^{(l)}\delta_i^{(l+1)}
 	\end{equation*}
 	
 	\begin{equation*}
-		\frac{\partial}{\partial\mathbf{b}_{i}^{(l)} }Cost(\mathbf{w},b; x, y) = \delta_i^{(l+1)}
+		\frac{\partial}{\partial b^{(l)} }Cost(\mathbf{W,b}; x, y) = \delta_i^{(l+1)}
 	\end{equation*}
 \end{enumerate}
 	
 Now, combining \textit{gradient decent} and the \textit{backpropagation algorithm} we can describe an algorithm to train our network: 
 
 \begin{enumerate}
-	\item Initialize the weights $ \mathbf{w}^{(l)} $ and $ b^{l} $ for all \textit{l}.
-	\item Do steps 3 to 5 until the $ Cost(\mathbf{w}, b; x, y) $ function is low enough or converges. This is referred to as an \textit{epoch}. 
+	\item Initialize the weights $ \mathbf{w}^{(l)} $ and $ b^{l} $ to random values for every layer \textit{l}.
+	\item Do steps 3 to 5 until the $ Cost(\mathbf{W, b}) $ function is low enough or converges. This is referred to as an \textit{epoch}. 
 	\item Set $ \Delta\mathbf{w}^{(l)} := 0 $ and $ \Delta b^{(l)} := 0 $ for all \textit{l}.
 	\item For i = 1 to m,
 		\begin{enumerate}
-			\item Use the backpropagation algorithm to compute $ \nabla_\mathbf{w^{(l)}}Cost(\mathbf{w}, b;x,y) $ and $ \nabla_b^{(l)}Cost(\mathbf{w}, b;x,y) $.
-			\item  Set $ \Delta\mathbf{w}^{(l)} := \Delta\mathbf{w}^{(l)} + \nabla_\mathbf{w^{(l)}}Cost(\mathbf{w}, b;x,y) $. 
-			\item  Set $ \Delta b^{(l)} := \Delta b^{(l)} + \nabla_{b^{(l)}}Cost(\mathbf{w}, b;x,y) $. 
+			\item Use the backpropagation algorithm to compute $ \nabla_\mathbf{w^{(l)}}Cost(\mathbf{W, b};x,y) $ and $ \nabla_b^{(l)}Cost(\mathbf{W, b};x,y) $ for every layer \textit{l}.
+			\item  Set $ \Delta\mathbf{w}^{(l)} := \Delta\mathbf{w}^{(l)} + \nabla_\mathbf{w^{(l)}}Cost(\mathbf{W, b};x,y) $. 
+			\item  Set $ \Delta b^{(l)} := \Delta b^{(l)} + \nabla_{b^{(l)}}Cost(\mathbf{W, b};x,y) $. 
 		\end{enumerate}
 	\item Update the parameters:
 		\begin{equation*}
