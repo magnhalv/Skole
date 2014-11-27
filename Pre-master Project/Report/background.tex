@@ -6,7 +6,7 @@ In this chapter we will go through the fundamental mathematics and concepts behi
 
 An \textit{Artificial Neural Network} (ANN) is a computational model that is used for machine learning and pattern recognition. The name and basic concept is inspired by how the animal brain uses a network of neurons to recognize and classify objects. 
 
-An ANN can intuitively be viewed as a probabilistic classifier. Depending on the input data it will output the probability that the data belongs to a certain \textit{class} (e.g. an object in an image or an investment decision). The network can be trained to recognize different classes by being provided a set of labeled training data, e.g. a set of faces and a set of non-faces. It can then learn to decide whether a image contains a face or not. This is called supervised learning. The network can also be trained unsupervised, by providing it with a set of unlabeled images. It will then learn to recognize a set of classes, but will be unable to label them.  
+An ANN can intuitively be viewed as a probabilistic classifier. Depending on the input data it will calculate the probability that the data belongs to a certain \textit{class} (e.g. an object in an image or an investment decision). The network can be trained to recognize different classes by being provided a set of labeled training data, e.g. a set of faces and a set of non-faces. It can then learn to decide whether a image contains a face or not. This is called supervised learning. The network can also be trained unsupervised, by providing it with a set of unlabeled images. It will then learn to recognize a set of classes, but will be unable to label them.  
 
 An ANN  consists of a number of layers containing a set of so-called \textit{neurons}, also known as \textit{units}. A neuron takes in a set of values as input (e.g. image pixels), where each value is associated with a respective weight. The input and the weights are multiplied and summed, and the result is used to calculate a non-linear activation function. More formally a neuron is defined as follows: 
 
@@ -49,6 +49,8 @@ The network takes in two parameters, $ (\mathbf{W, b}) = (\mathbf{w}^{(1)}, b^{(
   \caption{An Artificial Neural Network.}
 \end{figure}
 
+
+\paragraph{Training} \hfill \break
 During the training of the network it is the parameters $ (\mathbf{W, b}) $ that are altered in order to adapt the network to the training data. This is done by providing the network with a set of training samples, where we provide an input and an expected output. By using a cost function we can then figure out how we should tune our weights and biases in order to reduce the error rate. In other words, our goal is to minimize a cost function over a set of training samples. This can be done by a technique called \textit{gradient decent}. 
 
 Let the cost function for a single training example $(x,y)$ be defined as follows:
@@ -148,30 +150,66 @@ o_{ij} = \sum_{m=1}^{k}\sum_{n=1}^{k} x_{i+m, j+n}w_{mn}
 \end{equation*}
 
 
-Once you have detected a feature, the exact position become less important. For example, the distance between the mouth and the eyes tend to vary between persons. So in order to make the \textit{CNN} not too sensitive to the relative placement of features, the accuracy of the feature map needs to be reduced. This can be done by partitioning the feature map into equal sized non-overlapping matrices, and then perform a pooling operation on each respective matrix. There are two types of pooling operations which are used for CNNs: 
+Once you have detected a feature, the exact position become less important. For example, the distance between the mouth and the eyes tend to vary between persons. So in order to make the \textit{CNN} not too sensitive to the relative placement of features, the accuracy of the feature map needs to be reduced. This can be done by partitioning the feature map into $ s \times s $ non-overlapping matrices, and then perform a pooling operation on each respective matrix. There are two types of pooling operations which are used for CNNs: 
 
 \begin{itemize}
 	\item \textit{Max-pooling} extracts the maximum value of the matrix.
 	\item \textit{Average-pooling} extracts the average value of all the elements in the matrix.
 \end{itemize}
 
+\begin{figure}[h!]
+  \centering
+      \includegraphics[width=1.0\textwidth]{Figures/Background/Convolution-Maxpooling}
+  \caption{Illustration of the convolution and subsampling/max-pool layers. First the input image is convolved with the kernel, then the resulting feature map is subsampled/max-pooled. For better illustration the sigmoid function and adding of bias is ignored.}
+\end{figure}
+
+\hfill \break
+
 Formally they can be defined respectively as:
 
 \begin{equation*}
-o_{ij} = max(x_{i+p, j+q}) \qquad\qquad q,p \in 1, 2, \dots, k
+o_{ij} = max(x_{i \times s+p, j \times s+q}) \qquad\qquad q,p \in 1, 2, \dots, s
 \end{equation*}
 
 and
 
 \begin{equation*}
-o_{ij} = \frac{1}{k^2} \sum_{p=1}^{k}\sum_{q=1}^{k} x_{i+p, j+q}) 
+o_{ij} = \frac{1}{s^2} \sum_{p=1}^{s}\sum_{q=1}^{s} x_{i+p, j+q}
 \end{equation*}
 
-\begin{figure}[h!]
-  \centering
-      \includegraphics[width=1.0\textwidth]{Figures/Background/Convolution-Maxpooling}
-  \caption{Illustration of the convolution and subsampling/max-pool layers. First the input image is convolved with the kernel, then the resulting feature map is subsampled/max-pooled.}
-\end{figure}
+
+
+\paragraph{Training} \hfill \break
+As mentioned, a CNN consists of three types of layers: a convolution layer, a subsampling/pooling layer and fully connected layer. The latter is trained as described in the previous section, using backpropagation and gradient decent. The two other layers uses the same general algorithm, but the error $ \delta^l $ and the gradient of $ Cost(\mathbf{W,b}; x, y) $ is calculated differently. . 
+
+Since the backpropagation aglorithm starts at the last layer and work its way backwards, the error is first calculated for the fully connected layer, then provided to the subsampling/pooling layer, and finally to the convolution layer. Thus we first need to calculate the error for the subsampling/pooling layer, so we can propegate it to the convolution layer. 
+
+The subsampling/pooling layer does not contain any weight, and can therefore not be tuned, so it only needs to propegate the error it receives. Depending on which pooling operation is used, there are two respective methods for this:
+
+For max pooling, the error is simply propegated to the neuron that was chosen as the maximum value, while the rest are set to zero. Wheras for average-pooling we have to distrubute the error evenly between all the responsible neurons. We therefore define the function \textit{upsample(...)}, which performs the correct propegation operation depending on the type of pooler. 
+
+We can now formally define how to calculate the error and the gradient by simply replacing the equations in step 3 and 4 in the backpropagation algorithm with the following equations. For simplicity we assume that convolution and subsampling/pooling is done in a single layer \textit{l}.
+
+
+
+
+\begin{equation*}
+	\delta_{k}^{l} =  upsample( (\mathbf{w}_{k}^l)^T \mathbf{\delta}_{k}^{l+1})\cdot f'(z_k^l)
+\end{equation*}
+
+Where $  \mathbf{w}_{k}^l)^T $ is weight vector for the $ k $'th kernel in layer \textit{l}, $  \mathbf{\delta}_{j}^{l+1} $ is the error vector for layer $ l + 1 $ connected to kernel \textit{k}. $ f'(z_k^l) $ is simply a vector containing the derivative of the activation function for every neuron in the feature map produced by kernel \textit{k}. I.e. it contains $ o_{i}^l(1-o_{i}^l) $ for every neuron \textit{i} produced by kernel \textit{k} in layer \textit{l}. 
+
+Using this we can calculate the gradient:
+
+\begin{equation*}
+	\frac{\partial}{\partial \mathbf{w}_k^{(l)} }Cost(\mathbf{W,b}; x, y) = \sum_{i=1}^{m}(\mathbf{o}_i^{(l)})*\delta_k^{(l+1)}
+\end{equation*}
+
+\begin{equation*}
+	\frac{\partial}{\partial b_k^{(l)} }Cost(\mathbf{W,b}; x, y) = \sum\delta_k^{(l+1)}
+\end{equation*}
+
+
 
 
 
