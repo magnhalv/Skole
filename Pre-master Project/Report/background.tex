@@ -4,12 +4,12 @@ In this chapter we will go through the fundamental mathematics and concepts behi
 
 \section{Artificial Neural Networks}\label{ann}
 
-An \textit{Artificial Neural Network} (ANN) is a computational model that is used for machine learning and pattern recognition. The name and basic concept is inspired by how the animal brain uses a network of neurons to recognize and classify objects. Depending on the input different neurons \textit{activate} (or \textit{fire}), making the brain able to decide what kind of pattern it is detecting. 
+An \textit{Artificial Neural Network} (ANN) \cite{Minsky1969}\cite{Bishop2006} is a computational model that is used for machine learning and pattern recognition. The name and basic concept is inspired by how the animal brain uses a network of neurons to recognize and classify objects. Depending on the input different neurons \textit{activate} (or \textit{fire}), making the brain able to decide what kind of pattern it is detecting. 
 
 An ANN can intuitively be viewed as a probabilistic classifier. Depending on the input data it will calculate the probability that the data belongs to a certain \textit{class} (e.g. an object in an image or an investment decision). The network can be trained to recognize different classes by being provided a set of labeled training data, e.g. a set of faces and a set of non-faces. It can then learn to decide whether a image contains a face or not. This is called supervised learning. The network can also be trained unsupervised, by providing it with a set of unlabeled images. It will then learn to recognize a set of classes, but will be unable to label them.  
 
 \subsection{Definition} \hfill \break
-An ANN  consists of a number of layers containing a set of so-called \textit{neurons}, also known as \textit{units}. A neuron takes in a set of values as input (e.g. image pixels), where each value is associated with a respective weight. The input and the weights are multiplied and summed, and the result is used to calculate a non-linear \textit{activation function}. Formally a neurons input and output is defined in Equations \ref{eq_neuron_in} and \ref{eq_neuron_out}
+An ANN  consists of a number of layers containing a set of so-called \textit{neurons}, also known as \textit{units}. A neuron takes in a set of values as input (e.g. image pixels), where each value is associated with a respective weight. The input and the weights are multiplied and summed, and the result is used to calculate a non-linear \textit{activation function}. Formally a neurons input and output is defined as:
 
 
 \begin{equation}\label{eq_neuron_in}
@@ -58,7 +58,7 @@ The network takes in two parameters, $ (\mathbf{W, b}) = (\mathbf{w}^{(1)}, b^{(
 
 
 \subsection{Training} \label{sec_ann_training}
-During the training of the network it is the parameters $ (\mathbf{W, b}) $ that are altered in order to adapt the network to the training data. This is done by providing the network with a set of training samples, where we provide an input and an expected output. By using a cost function we can then figure out how we should tune our weights and biases in order to reduce the error rate. In other words, our goal is to minimize a cost function over a set of training samples. This can be done by using \textit{gradient decent} and the \textit{backpropagation algorithm} \cite{LeCun1998} ADD TWO SOURCES HERE! 
+During the training of the network it is the parameters $ (\mathbf{W, b}) $ that are altered in order to adapt the network to the training data. This is done by providing the network with a set of training samples, where we provide an input and an expected output. By using a cost function we can then figure out how we should tune our weights and biases in order to reduce the error rate. In other words, our goal is to minimize a cost function over a set of training samples. This can be done by using \textit{gradient decent} and the \textit{backpropagation algorithm} \cite{Rumelhart1986}\cite{Leonard1990}\cite{LeCun1998}. 
 
 Let the cost function for a single training example $(x,y)$ be defined as:
 
@@ -117,18 +117,18 @@ Now, combining \textit{gradient decent} and the \textit{backpropagation algorith
 	\item Set $ \Delta\mathbf{w}^{(l)} := 0 $ and $ \Delta b^{(l)} := 0 $ for all \textit{l}.
 	\item For i = 1 to m,
 		\begin{enumerate}
-			\item Use the backpropagation algorithm to compute $ \nabla_\mathbf{w^{(l)}}Cost(\mathbf{W, b};x,y) $ and $ \nabla_b^{(l)}Cost(\mathbf{W, b};x,y) $ for every layer \textit{l}.
-			\item  Set $ \Delta\mathbf{w}^{(l)} := \Delta\mathbf{w}^{(l)} + \nabla_\mathbf{w^{(l)}}Cost(\mathbf{W, b};x,y) $. 
-			\item  Set $ \Delta b^{(l)} := \Delta b^{(l)} + \nabla_{b^{(l)}}Cost(\mathbf{W, b};x,y) $. 
+			\item Use the backpropagation algorithm to compute $ \nabla_\mathbf{w^{(l)}}Cost(\mathbf{W, b};x^{(i)},y^{(i)}) $ and $ \nabla_b^{(l)}Cost(\mathbf{W, b};x^{(i)},y^{(i)}) $ for every layer \textit{l}.
+			\item  Set $ \Delta\mathbf{w}^{(l)} := \Delta\mathbf{w}^{(l)} + \nabla_\mathbf{w^{(l)}}Cost(\mathbf{W, b};x^{(i)},y^{(i)}) $. 
+			\item  Set $ \Delta b^{(l)} := \Delta b^{(l)} + \nabla_{b^{(l)}}Cost(\mathbf{W, b};x^{(i)},y^{(i)}) $. 
 		\end{enumerate}
 	\item Update the parameters:
-		\begin{equation}
+		\begin{equation*}
 			\mathbf{w}^{(l)} = \mathbf{w}^{(l)} - \alpha[(\frac{1}{m}\Delta\mathbf{w}^{(l)}) + \lambda\mathbf{w}^{(l)}]
-		\end{equation}
+		\end{equation*}
 		
-		\begin{equation}
+		\begin{equation*}
 			b^{(l)} = b^{(l)} - \alpha[\frac{1}{m}\Delta b^{(l)}]
-		\end{equation}
+		\end{equation*}
 \end{enumerate}
 
 \subsection{Issues with object recognition}\label{ann_issues}
