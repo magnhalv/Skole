@@ -9,7 +9,7 @@ For simplicity we will refer to both the layer performing convolution and the la
 \subsection {Convolution layer}
 
 The convolution layer takes \textit{n} images as input, $ I_1, I_2, \dots, I_n $, and produces \textit{m} intermediate outputs, $O_1, O_2, \dots, O_m $. It also contains \textit{m} kernels, $ K_1, K_2, \dots, K_m $. Each kernel $ K_i $ is convolved with all the input images, and each respective pixel from each convolution is then summed, added a bias to, and sent through a non-linear function. Afterwards the resulting matrix is subsampled/max-pooled, where it is divided into $ p \times p $ non-overlapping neighborhoods, from which the maximum value is extracted. The result of the max-pool operation the output image $ O_i $. 
-In the first layer of the network there is only one input image (i.e. $ n = 1 $), thus no summation is needed. 
+ 
 
 
 \begin{figure}[h!]
@@ -24,7 +24,7 @@ The overall architecture of the convolution layer is separated into five modules
 
 \begin{itemize}
 	\item \textbf{The convoluter}, performs the convolution operation on the input.
-	\item \textbf{The intermediate feature map buffer}. Since the resulting feature map is the sum of the convolutions of all the input images, this buffer is needed to store the results from the previous convolution, so that it can be added to the current convolution. 
+	\item \textbf{The intermediate feature map buffer}. Since the resulting feature map is the sum of the convolutions of all the input images, this buffer is needed to store the results from the previous convolution, so that it can be added to the current convolution. In the first layer of the network there is only one input image (i.e. $ n = 1 $), thus no summation is needed.
 	\item \textbf{Bias register}. Contains the bias value, and adds it to each convoluted pixel. 
 	\item \textbf{Sigmoid}. Performs the non-linear function sigmoid on the feature maps.
 	\item \textbf{Subsample/max-pooler}. Performs the subsample/max-pool operation on the feature maps. 
@@ -33,7 +33,7 @@ The overall architecture of the convolution layer is separated into five modules
 \begin{figure}[h!]
   \centering
       \includegraphics[width=1.0\textwidth]{Figures/Method/conv_layer_arch}
-  \caption{}
+  \caption{The architecture of the convolution layer.}
 \end{figure}
 
 
