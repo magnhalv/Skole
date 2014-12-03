@@ -243,10 +243,10 @@ We can now formally define how to calculate the error and the gradient by simply
 
 
 \begin{equation}
-	\delta_{k}^{l} =  upsample( (\mathbf{w}_{k}^l)^T \mathbf{\delta}_{k}^{l+1})\cdot f'(z_k^l)
+	\delta_{k}^{l} =  upsample( (\mathbf{W}_{k}^l)^T \mathbf{\delta}_{k}^{l+1})\cdot f'(\mathbf{Z}_k^l)
 \end{equation}
 
-Where $  \mathbf{w}_{k}^l)^T $ is weight vector for the $ k $'th kernel in layer \textit{l}, $  \mathbf{\delta}_{j}^{l+1} $ is the error vector for layer $ l + 1 $ connected to kernel \textit{k}. $ f'(z_k^l) $ is simply a vector containing the derivative of the activation function for every neuron in the feature map produced by kernel \textit{k}. I.e. it contains $ o_{i}^l(1-o_{i}^l) $ for every neuron \textit{i} produced by kernel \textit{k} in layer \textit{l}. 
+Where $  (\mathbf{W}_{k}^l)^T $ is the weight matrix in layer \textit{l}, $  \mathbf{\delta}_{j}^{l+1} $ is the error matrix for layer $ l + 1 $, $ f'(\mathbf{Z}_k^l) $ is the matrix containing the derivative of the activation function, and k indexes the filter number. I.e. it contains $ o_{kij}^l(1-o_{kij}^l) $ for every neuron at index \textit{ij} in feature map \textit{k} in layer \textit{l}. 
 
 Using this we can calculate the gradient:
 
