@@ -187,11 +187,11 @@ Where $ x_{ij} $ is a value of the input matrix, $ w_{mn} $ is a value in the $ 
 This helps solve the first two issues from Section \ref{ann_issues}. The neurons in a feature map share the same kernel, thus the same weights, which greatly reduces the size of the network. The convolution operation applies a 2D filter on the image, which makes the network able to exploit the spatial correlation in the image. 
 
 \paragraph{Subsampling/pooling layer}  \hfill \break
-Once a feature have been detected, the exact position become less important. For example, the distance between the mouth and the eyes tend to vary between persons. So in order to make the CNN not too sensitive to the relative placement of features, the accuracy of the feature map needs to be reduced. This can be done by subsampling (i.e. partitioning) the feature map into $ s \times s $ non-overlapping matrices, and then perform a pooling operation on each respective matrix. There are two types of pooling operations which are used for CNNs: 
+Once a feature have been detected, the exact position become less important. For example, the distance between the mouth and the eyes tend to vary between persons. So in order to make the CNN not too sensitive to the relative placement of features, the accuracy of the feature map needs to be reduced. This can be done by subsampling (i.e. partitioning) the feature map into $ s \times s $ non-overlapping submatrices, and then perform a pooling operation on each respective matrix. There are two types of pooling operations which are used for CNNs: 
 
 \begin{itemize}
-	\item \textit{Max-pooling} extracts the maximum value of the matrix.
-	\item \textit{Average-pooling} extracts the average value of all the elements in the matrix.
+	\item \textit{Max-pooling} extracts the maximum value of the submatrix.
+	\item \textit{Average-pooling} extracts the average value of all the elements in the submatrix.
 \end{itemize}
 
 \begin{figure}[h!]
