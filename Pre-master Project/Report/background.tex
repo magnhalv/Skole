@@ -20,7 +20,7 @@ Input: \{x_1, x_2,\dots, x_n\} = \mathbf{x}
 Output: f(\mathbf{w^{T}x)} = f(\sum_{i=1}^{n}w_i x_i + b) = o
 \end{equation}
 
-Where \textbf{w} is the connection weights and b is the neuron bias. \textit{f(...)} is the activation function, which eumulates the activation of a neuron in the brain. It also causes the values in the network to have a reasonable value interval. \textit{f(...)} tends to be either:
+Where \textbf{w} is the vector containing connection weights and b is the neuron bias. \textit{f(...)} is the activation function, which eumulates the activation of a neuron in the brain. It also causes the values in the network to have a reasonable value interval. \textit{f(...)} tends to be either:
 
 \begin{equation}
 Sigmoid: f(z) = \frac{1}{1 - e^{-z}}
@@ -45,15 +45,18 @@ Figure \ref{fig_neuron} provides a visualization of the functionality of a neuro
 
 An ANN consist of $ n_l $ layers, each containing a set of neurons. The first layer is \textit{the input layer}, and the last layer is \textit{the output layer}. The layers in between are called \textit{the hidden layers}. Each layer uses the previous layer's output as input. The input layer is provided with the initial input and uses it to calculate the activation function for each of its neurons. The result is propagated to the first hidden layer, and continues up until it reaches the output layer, which provides the final output. This is known as a \textit{feedforward neural network.}
 
-The network takes in two parameters, $ (\mathbf{W, b}) = (\mathbf{w}^{(1)}, b^{(1)}, 
-\mathbf{w}^{(2)}, b^{(2)}, \dots , 
-\mathbf{w}^{(n_l)}, b^{(n_l)}) $. $ w_{ij}^l $ denotes the weight between neuron j in layer l, and neuron i in layer l+1. $ b_i^l $ denotes the bias associated with the neurons in layer l+1. Note that upper case bold is a matrix, lower case bold is a vector, and lower case not bold is a scalar. 
+The network takes in two parameters: 
 
+\begin{equation}
+	(\mathbf{W, b}) = (\mathbf{W}^{(1)}, b^{(1)}, \mathbf{W}^{(2)}, b^{(2)}, \dots , \mathbf{W}^{(n_l)}, b^{(n_l)})	
+\end{equation}
+ Where \textbf{W} is a 3-dimensional matrix containing the weight matrix for each level. $ \mathbf{W}^{(l)} $ contains the weight matrix for the weights going from layer \textit{l} to \textit{l+1}. E.g., in the case of Figure \ref{fig_ann}, $ \mathbf{W}^{(1)} \in \Re ^{3 \times 4}$ and $ \mathbf{W}^{(2)} \in \Re ^{4 \times 2}$. Let $ w_{ij}^l $ denote the weight between neuron j in layer l, and neuron i in layer l+1. Let $ b_i^l $ denote the bias associated with neuron \textit{i} in layer l+1. 
 
 \begin{figure}[h!]
   \centering
       \includegraphics[width=0.5\textwidth]{Figures/Background/ann}
   \caption{An Artificial Neural Network.}
+  \label{fig_ann}
 \end{figure}
 
 
@@ -133,7 +136,7 @@ Now, combining \textit{gradient decent} and the \textit{backpropagation algorith
 
 \subsection{Issues with object recognition}\label{ann_issues}
 
-The standard ANN model face three issues when it comes to object recognition in images \cite{LeCun1998}. 
+While the ANN model have proven useful is several applications, it falls short when it comes to object recognition in images. There are three major causes for this: \cite{LeCun1998}. 
 
 \begin{enumerate}
 
