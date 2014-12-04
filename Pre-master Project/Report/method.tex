@@ -1,6 +1,27 @@
 \chapter{Method}
 
-In this chapter the 
+The aim of this project was to investigate the possibility of creating hardware accelerator for a machine learning algorithm. Sadly, creating a module that provides the full functionality of a CNN requires more time than what was available for this project. But we were able to realize part of the network, the convolution and the subsampling/pooling layer. This chapter will describe the design and the reasoning behind it. 
+
+\section{Potential for parallism}
+
+A vast amount of the computation required by a CNN can be done in parallel, something that is illustrated by the fact that GPU implementations executes faster than a CPU by several factors. So, in order to accelerate the processing of the network it is important that these potential parallelizations are identified and exploited. The most obvious being:
+
+\begin{enumerate}
+	\item The computation of each of the invidual feature maps.
+	\item The subsampling/pooling of each of the feature maps. 
+	\item The activation of each neuron in the fully connected layer. 	
+\end{enumerate}
+
+Some of less obvious ones are within the mentioned parallelizaitions themselves. The convolution of a matrix $ n \times n $ using a $ k \times k $ kernel consists of $ n - k + 1 $ convolution operation, which each can be done in parallel. Thus convoluting the whole matrix could potentially take only the time it takes to perform one convolution operation, by doing all the operations in parallel. The subsampling/pooling operation can also be parallelized by pooling all of the submatrices at the same time.  
+	
+The activation of each neuron by itself is a bit harder to parallelize, since its basically a set of  \textit{n} multiply and accumulate operations. One option is to parallelize them by doing them in a binary-tree-like structure, which will reduce the time it takes from \textit{n} time to $ log_2 n $ time. But considering that vast amount of neuron activations that is to be computed, it might not be worth the increased complexity of the hardware accelerator. Unless you have unlimited hardware resources. 
+
+
+
+\section{Hardware}
+
+In this project we had a Spartan 6 LX16 development board at our disposal, something which provided us with 32 \textit{digital signal processors} (DSP). Since convolution is basically a series of multiply and accumulate (MAC), the DSPs are essential to accelerate the operation. Ideally, we would have several times as many DSPs in order to fully utilize the potential parallelism of the network.  
+
 \section{Architecture}
 
 
@@ -15,7 +36,7 @@ The convolution layer takes \textit{n} images as input, $ I_1, I_2, \dots, I_n $
 \begin{figure}[h!]
   \centering
       \includegraphics[width=1.0\textwidth]{Figures/Method/Convolution_subsample_pool}
-  \caption{A visual overview of the operations performed by the convolution layer. Yellow represents the convolution operation, and red represents the subsampling/max-pooling operation.}
+  \caption{A visual overview of the operations performed by the convolution layer. Yellow represents the convolution operation, and red represents the subsampling/max-pooling operation. Note that all the input images is used to produce a single entry in the feature map.}
 \end{figure}
 
 
@@ -67,11 +88,11 @@ REWRITE FIRST PART
 
 \begin{figure}[h!]
   \centering
-      \includegraphics[width=1.0\textwidth]{Figures/Method/submax}
+      \includegraphics[width=0.5\textwidth]{Figures/Method/submax}
   \caption{Architecture of the subsampler/max-pooler.}
 \end{figure}
 
-The module compares the input with the current max value, and updates the max value accordingly. It contains a set of \textit{(n-k+1)/p} shift registers. Since the image is divided into $ p \times p $ non-overlapping neighborhoods, the module needs to store the current maximum value of previous neighborhood when a pixel from a new neighborhood is inputted. To do this the module contains counters, \textit{row\_num} and \textit{column\_num}. When a new pixel is inputted the \textit{column\_num} counter is incremented, and when a new row is encountered the \textit{row\_num} counter is incremented. Every time $ column_num mod p = 0 $ the shift registers are shifted one to the right, and every time $ column_num mod p = 0 and row_num mod p = 0 $ a valid output is produced. 
+The module compares the input with the current max value, and updates the max value accordingly. It contains a set of \textit{(n-k+1)/p} shift registers. Since the image is divided into $ p \times p $ non-overlapping neighborhoods, the module needs to store the current maximum value of previous neighborhood when a pixel from a new neighborhood is inputted. To do this the module contains two counters, \textit{row\_num} and \textit{column\_num}. When a new pixel is inputted the \textit{column\_num} counter is incremented, and when a new row is encountered the \textit{row\_num} counter is incremented. Every time $ column_num mod p = 0 $ the shift registers are shifted one to the right, and every time $ column_num mod p = 0 and row_num mod p = 0 $ a valid output is produced. 
 
 The execution speed of the SS/MP module is bounded by the size of the input image, $ c \times c $ clock cycles, finishing one cycle after the last pixel has been inputted. 
 Thus by streaming the output of the CM to the SS/MP, both will finish only a few cycles apart, effectively running both jobs in parallel. The resource usage of the module is bounded by the size of the subsampling dimension, since it requires a number of shift registers equal to the size of the dimension. But essentially its resource usage is quite low.  
