@@ -1,6 +1,6 @@
 \chapter{Method}
 
-The aim of this project was to investigate the possibility of creating hardware accelerator for a machine learning algorithm. Sadly, creating a module that provides the full functionality of a CNN requires more time than what was available for this project. But we were able to realize part of the network, the convolution and the subsampling/pooling layer. This chapter will describe the design and the reasoning behind it. 
+The aim of this project was to investigate the possibility of creating hardware accelerator for a machine learning algorithm. Sadly, creating a module that provides the full functionality of a CNN requires more time than what was available for this project. But we were able to realize part of the network, the forward pass of the convolution and the subsampling/pooling layer. This chapter will describe the design and the reasoning behind it. 
 
 \section{Potential for parallism}
 
@@ -14,7 +14,7 @@ A vast amount of the computation required by a CNN can be done in parallel, some
 
 Some of less obvious ones are within the mentioned parallelizaitions themselves. The convolution of a matrix $ n \times n $ using a $ k \times k $ kernel consists of $ n - k + 1 $ convolution operation, which each can be done in parallel. Thus convoluting the whole matrix could potentially take only the time it takes to perform one convolution operation, by doing all the operations in parallel. The subsampling/pooling operation can also be parallelized by pooling all of the submatrices at the same time.  
 	
-The activation of each neuron by itself is a bit harder to parallelize, since its basically a set of  \textit{n} multiply and accumulate operations. One option is to parallelize them by doing them in a binary-tree-like structure, which will reduce the time it takes from \textit{n} time to $ log_2 n $ time. But considering that vast amount of neuron activations that is to be computed, it might not be worth the increased complexity of the hardware accelerator. Unless you have unlimited hardware resources. 
+The activation of each neuron by itself is a bit harder to parallelize, since its basically a set of  \textit{n} multiply and accumulate operations. One option is to parallelize them by doing them in a binary-tree-like structure, which will reduce the time it takes from \textit{n} time to $ log_2 n $ time. But considering that vast amount of neuron activations that is to be computed, it might not be worth the increased complexity of the hardware accelerator. Especially since there is a vast amount of neuron activations that needs to be calculated, it should be enough to do those calculations in parallel, unless you have unlimited hardware resources.
 
 
 
@@ -37,6 +37,7 @@ The convolution layer takes \textit{n} images as input, $ I_1, I_2, \dots, I_n $
   \centering
       \includegraphics[width=1.0\textwidth]{Figures/Method/Convolution_subsample_pool}
   \caption{A visual overview of the operations performed by the convolution layer. Yellow represents the convolution operation, and red represents the subsampling/max-pooling operation. Note that all the input images is used to produce a single entry in the feature map.}
+  \label{fig_visual_conv_ss_mp}
 \end{figure}
 
 
@@ -66,7 +67,7 @@ At the end of each row of MACs there is $ n - k $ shift registers. The result of
 
 \begin{figure}[h!]
   \centering
-      \includegraphics[width=1.0\textwidth]{Figures/Method/Convolver}
+      \includegraphics[width=0.7\textwidth]{Figures/Method/Convolver}
   \caption{The convolution module, when $ n = 3 $ and $ k = 2 $.}
 \end{figure}
 	
@@ -74,11 +75,11 @@ By providing this delay you only have to input each pixel once during the convol
 
 The delay these shift registers cause are the reason for the delay before valid output pixels are produced. Thus from when the convolution starts, the output will not be valid before $ k-1 $ rows of the image have been processed. And for every new image row, there will be a $ k-1 $ cycle delay before output is valid. This is demonstrated by the fact that the input image is a $ n \times n $ matrix, while the output matrix is a $ (n-k+1) \times (n-k+1) $ matrix. 
 
-The loading of the weights takes $ k \times k $ clock cycles, and the processing of the image takes $ n \times n $ clock cycles. Thus the total number of cycles it takes to perform a full convolution of an image is $ n \times n + k \times k $. But \textit{n} tends to be larger than \textit{k}. e.g. $ n = 32 $ and $ k = 5 $ is a fairly normal problem size, which makes the weight loading take 25 clock cycles and the image processing 1024 cycles. This means that the execution time of the Convoluter is mostly primairly by the size of the image. It is important to note that the Convoluter is resource expensive, in that it requires $ k \times k $ DSP slices on the FPGA.
+The loading of the weights takes $ k \times k $ clock cycles, and the processing of the image takes $ n \times n $ clock cycles. Thus the total number of cycles it takes to perform a full convolution of an image is $ n \times n + k \times k $. But based upon the papers refered to in Section \ref{sec_related_work} it seems that \textit{n} tends to be larger than \textit{k}. E.g. for the first layer in the LeNet-5 \cite{LeCun1998}, $ n = 32 $ and $ k = 5 $, the loading  of the weights take 25 clock cycles and the image processing 1024 cycles. This means that the execution time of the Convoluter is primairly bounded by the size of the image. But the size of the kernel decides the hardware resource cost of the module, since it requires $ k \times k $ DSP slices on the FPGA.
 
 \begin{figure}[h!]
   \centering
-      \includegraphics[width=1.0\textwidth]{Figures/Method/Conv_example}
+      \includegraphics[width=1.1\textwidth]{Figures/Method/Conv_example}
   \caption{Example showing the five first clock cycle of an convolution. The weights of the kernel is already loaded into the MAC units, and every cycle a new pixel from the image in inputted. In the last example you can see that 42 is provided as the first output.}
 \end{figure}
 
