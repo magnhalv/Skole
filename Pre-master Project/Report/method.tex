@@ -1,31 +1,14 @@
-\chapter{Method}
+\chapter{Architecture} \label{method_results}
 
-The aim of this project was to investigate the possibility of creating hardware accelerator for a machine learning algorithm. Sadly, creating a module that provides the full functionality of a CNN requires more time than what was available for this project. But we were able to realize part of the network, the forward pass of the convolution and the subsampling/pooling layer. This chapter will describe the design and the reasoning behind it. 
-
-\section{Potential for parallism}
-
-A vast amount of the computation required by a CNN can be done in parallel, something that is illustrated by the fact that GPU implementations executes faster than a CPU by several factors. So, in order to accelerate the processing of the network it is important that these potential parallelizations are identified and exploited. The most obvious being:
-
-\begin{enumerate}
-	\item The computation of each of the invidual feature maps.
-	\item The subsampling/pooling of each of the feature maps. 
-	\item The activation of each neuron in the fully connected layer. 	
-\end{enumerate}
-
-Some of less obvious ones are within the mentioned parallelizaitions themselves. The convolution of a matrix $ n \times n $ using a $ k \times k $ kernel consists of $ n - k + 1 $ convolution operation, which each can be done in parallel. Thus convoluting the whole matrix could potentially take only the time it takes to perform one convolution operation, by doing all the operations in parallel. The subsampling/pooling operation can also be parallelized by pooling all of the submatrices at the same time.  
-	
-The activation of each neuron by itself is a bit harder to parallelize, since its basically a set of  \textit{n} multiply and accumulate operations. One option is to parallelize them by doing them in a binary-tree-like structure, which will reduce the time it takes from \textit{n} time to $ log_2 n $ time. But considering that vast amount of neuron activations that is to be computed, it might not be worth the increased complexity of the hardware accelerator. Especially since there is a vast amount of neuron activations that needs to be calculated, it should be enough to do those calculations in parallel, unless you have unlimited hardware resources.
-
+The aim of this project was to investigate the possibility of creating hardware accelerator for a machine learning algorithm. Sadly, creating a module that provides the full functionality of a CNN requires more time than what was available for this project. But we were able to realize part of the network, the forward pass of the convolution and the subsampling/pooling layer. For future references we will refer to our architecture as \textit{Imagezor}. This chapter will describe its design and the reasoning behind it. 
 
 
 \section{Hardware}
 
-In this project we had a Spartan 6 LX16 development board at our disposal, something which provided us with 32 \textit{digital signal processors} (DSP). Since convolution is basically a series of multiply and accumulate (MAC), the DSPs are essential to accelerate the operation. Ideally, we would have several times as many DSPs in order to fully utilize the potential parallelism of the network.  
+In this project we had a Spartan 6 LX16 development board at our disposal, thus limiting our architecture to the hardware resources it provides. Since a convolution is basically a series of multiply and accumulate (MAC), \textit{digital signal processors} (DSP) are essential to accelerate the operation. The Spartan 6 is equipped with 32 DSP slices. Ideally, we would have had several times as many DSPs in order to fully utilize the potential parallelism of the network. E.g. the architectures in \cite{Farabet2009} \cite{Farabet2010} \cite{Chakradhar2010} and \cite{Paper} used FPGA platforms 1000 DSPs. This will greatly limit the speed of our implementation, as it makes us unable to exploit intra- and inter parallelism. 
 
 \section{Architecture}
 
-
-For simplicity we will refer to both the layer performing convolution and the layer performing subsampling/max-pooling as the convolution layer. 
 
 \subsection {Convolution layer}
 
@@ -45,17 +28,17 @@ The convolution layer takes \textit{n} images as input, $ I_1, I_2, \dots, I_n $
 The overall architecture of the convolution layer is separated into five modules:
 
 \begin{itemize}
-	\item \textbf{The convoluter}, performs the convolution operation on the input.
+	\item \textbf{The convoluter}. Performs the convolution operation on the input.
 	\item \textbf{The intermediate feature map buffer}. Since the resulting feature map is the sum of the convolutions of all the input images, this buffer is needed to store the results from the previous convolution, so that it can be added to the current convolution. In the first layer of the network there is only one input image (i.e. $ n = 1 $), thus no summation is needed.
 	\item \textbf{Bias register}. Contains the bias value, and adds it to each convoluted pixel. 
-	\item \textbf{Sigmoid}. Performs the non-linear function sigmoid on the feature maps.
+	\item \textbf{Sigmoid}. Performs the non-linear sigmoid function  on the feature maps.
 	\item \textbf{Subsample/max-pooler}. Performs the subsample/max-pool operation on the feature maps. 
 \end{itemize}
 
 \begin{figure}[h!]
   \centering
       \includegraphics[width=1.0\textwidth]{Figures/Method/conv_layer_arch}
-  \caption{The architecture of the convolution layer.}
+  \caption{The architecture of Imagezor.}
 \end{figure}
 
 
@@ -82,6 +65,10 @@ The loading of the weights takes $ k \times k $ clock cycles, and the processin
       \includegraphics[width=1.1\textwidth]{Figures/Method/Conv_example}
   \caption{Example showing the five first clock cycle of an convolution. The weights of the kernel is already loaded into the MAC units, and every cycle a new pixel from the image in inputted. In the last example you can see that 42 is provided as the first output.}
 \end{figure}
+
+\paragraph{The Intermediate image buffer}
+
+\paragraph{The Sigmoid} module is based upon \cite{Napocensis2009} using PLAN approximation. It takes input a single value \textit{x} and outputs an approximation of the sigmoid function.
 
 \vspace*{1\baselineskip}
 REWRITE FIRST PART

@@ -23,7 +23,7 @@ Output: f(\mathbf{w^{T}x)} = f(\sum_{i=1}^{n}w_i x_i + b) = o
 Where \textbf{w} is the vector containing connection weights and b is the neuron bias. \textit{f(...)} is the activation function, which eumulates the activation of a neuron in the brain. It also causes the values in the network to have a reasonable value interval. \textit{f(...)} tends to be either:
 
 \begin{equation}
-Sigmoid: f(z) = \frac{1}{1 - e^{-z}}
+Sigmoid: f(z) = \frac{1}{1 + e^{-z}}
 \end{equation}
 
 
@@ -260,6 +260,21 @@ Using this we can calculate the gradient:
 \begin{equation}
 	\frac{\partial}{\partial b_k^{(l)} }Cost(\mathbf{W,b}; x, y) = \sum\delta_k^{(l+1)}
 \end{equation}
+
+\section{Potential for parallism} 
+
+A vast amount of the computation required by a CNN can be parallelized. Thus, in order to accelerate the processing of the network it is important that these potential parallelizations are identified and exploited. The most obvious being:
+
+\begin{enumerate}
+	\item The computation of each of the individual feature maps and their corresponding subsampling/pooling. Which \cite{Chakradhar2010} referred to as \textit{inter-parallelism}.
+	\item It is also possible to parallelize the computation of the feature maps that take more than one matrix as input. Which is the case in the subsequent layers after the first. Which \cite{Chakradhar2010} referred to as \textit{intra-parallelism}.
+	\item The activation of each neuron in the fully connected layer. 	
+\end{enumerate}
+
+One can also parallelize the mentioned parallelizations themselves. The convolution of a matrix $ n \times n $ using a $ k \times k $ kernel consists of $ n - k + 1 $ convolution operation, which each can be done in parallel. Thus convoluting the whole matrix could potentially take only the time it takes to perform one convolution operation. The subsampling/pooling operation can also be parallelized by pooling all of the individual submatrices at the same time.  
+	
+It is also possible to compute the neuron activation function in parallel, since its a series of  \textit{n} multiply and accumulate operations. One option is to parallelize them by doing them in a tree-like structure, which will reduce the time it takes from \textit{n} time to $ log_2 n $ time. But considering the vast amount of activation functions that are to be computed, hardware resource are better spent on doing as many activation functions in parallel as possible. Unless you have an unlimited amount of hardware resources.   
+
 
 
 
