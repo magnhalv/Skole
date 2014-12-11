@@ -159,39 +159,44 @@ A \textit{Convolutional Neural Network} \cite{LeCun1998} (CNN) is an extension o
 
 \begin{figure}[h!]
   \centering
-      \includegraphics[width=1.0\textwidth]{Figures/Background/convnet}
-  \caption{An example CNN, the LeNet-5 \cite{LeCun1998}. It consists of two layers of convolution followed by subsampling, which are connected to a fully connected ANN with 10 output classes.}
+      \includegraphics[width=1.2\textwidth]{Figures/Background/convnet}
+  \caption{An example CNN, the LeNet-5 \cite{LeCun1998}. It consists of two convolution and subsampling/pooling layer pairs, which are connected to a fully connected ANN with 10 output classes.}
   \label{fig_cnn}
 \end{figure}
 
 \subsection{Definition}
 
-The CNN model adds two additional types of layers, in addition to the standard ANN layers: a \textit{convolution layer} and a \textit{subsampling/pooling layer}. The idea behind the two new layers is to exploit the strong 2D local structure of images, i.e. pixels close to each other are highly correlated. By using local correlation one can extract and combine small local features (e.g. edges, corners, points) into higher-order features (e.g. nose, mouths, forehead), which can in the end be recognized as an object (e.g. a face).  A full network is illustrated in Figure \ref{fig_cnn}
+The CNN model adds two additional types of layers, in addition to the standard ANN layers: a \textit{convolution layer} and a \textit{subsampling/pooling layer}. The idea behind the two new layers is to exploit the strong 2D local structure of images, i.e. pixels close to each other are highly correlated. By using local correlation one can extract and combine small local features (e.g. edges, corners, points) into higher-order features (e.g. nose, mouths, forehead), which can in the end be recognized as an object (e.g. a face).  A full network is illustrated in Figure \ref{fig_cnn}.
 
 
 \paragraph{Convolution layer}  \hfill \break
-The convolution layer performs the feature extraction by applying a filter on the whole image, and puts the result in a corresponding feature map. E.g. if the filter extracts vertical edges, only the vertical edges from the original image would remain in the resulting feature map. Thus different features can be extracted by having several feature maps with different filters. 
+Intuitively, the convolution layer performs the feature extraction by applying a filter on one or more images, and puts the result in a corresponding feature map. E.g. if the filter extracts vertical edges, only the vertical edges from the input images would remain in the resulting feature map. Thus different features can be extracted by having several feature maps with different filters. This is done by performing a \textit{convolution operation} on the image, using a kernel which acts like a filter. The kernel is a 2D matrix that contains a set of weights. Depending on values of the weights, convoluting the image with the kernel will have wide range of effects, e.g. sharpening, bluring, edge detection. By training our network we can configure the weights to extract the features we need in order to recognize our desired classes. 
 
-This is done by performing a \textit{convolution operation} on the image, using a kernel which acts like a filter. The kernel is a 2D matrix which contains a set of weights. Depending on values of the weights, convoluting the image with the kernel will have wide range of effects, e.g. sharpening, bluring, edge detection. By training our network we can configure the weight values to extract that features we need in order to recognize our desired classes.  
+After the convolution operation have been performed, a bias is added to every element in the feature map and the result is sent through a non-linear function, e.g. a sigmoid function.
 
-Formally we can define a 2D convolution as:
-
-\begin{equation}
-\mathbf{F} = \mathbf{X*W}
-\end{equation}
-
-Where \textbf{F} is the feature map matrix, X is the input matrix and \textbf{W} is the kernel matrix. Then the actual calculation can be defined as:
+Formally we can define the convolution layer as follows. The layer accepts \textit{n} images $ X_1, X_2, \dots, X_n $ as inputs, and produces \textit{m} feature maps, $F_1, F_2, \dots, F_m $. These feature maps are produced using a set of \textit{m} learned kernels $ W_1, W_2, \dots, W_m $.  Each feature map $ F_t $ is then produced by computing:
+ 
 
 \begin{equation}
-f_{ij} = \sum_{m=1}^{k}\sum_{n=1}^{k} x_{i+m, j+n}w_{mn}
+\mathbf{F}_t = Sigmoid(b+\sum_{i=1}^{n}\mathbf{X}_t*\mathbf{W_t})
 \end{equation}
 
-Where $ x_{ij} $ is a value of the input matrix, $ w_{mn} $ is a value in the $ k \times k $ kernel matrix, and $ f_{ij} $ is a value of the feature map matrix. Figure \ref{fig_conv_ss_mp} illustrates this operation.
+Where \textbf{F} is the resulting feature map, X is the input image, \textbf{W} is the kernel matrix, and \textit{b} is the bias. $ X * W $ is the convolution operation, which is defined as:
+
+\begin{equation}
+y_{ij} = \sum_{q=1}^{k}\sum_{p=1}^{k} x_{i+q, j+p}w_{qp}
+\end{equation}
+
+Where $ x_{ij} $ is a value of the input matrix, $ w_{mn} $ is a value in the $ k \times k $ kernel matrix, and $ y_{ij} $ is a value of the output matrix.
+
+E.g. consider the LeNet-5 in Figure \ref{fig_cnn}, in the first layer C1 the input is a single $ 32 \times 32 $ image which is convoluted with 6 kernels, producing 6 feature maps. Thus $ n = 1 $ and $ m = 6 $. The resulting feature maps are then further processed by a subsampling/pooling layer S2 (see next section), which are used as input to the next convolutional layer C3. The six processed feature maps are then convoluted with 16 kernels, producing 16 new feature maps. Thus in this layer $ n = 6 $ and $ m = 16 $. 
+
+
 
 This helps solve the first two issues from Section \ref{ann_issues}. The neurons in a feature map share the same kernel, thus the same weights, which greatly reduces the size of the network. The convolution operation applies a 2D filter on the image, which makes the network able to exploit the spatial correlation in the image. 
 
 \paragraph{Subsampling/pooling layer}  \hfill \break
-Once a feature has been detected, the exact position become less important. For example, the distance between the mouth and the eyes tend to vary between persons. So in order to make the CNN not too sensitive to the relative placement of features, the accuracy of the feature map needs to be reduced. This can be done by subsampling (i.e. partitioning) the feature map into $ s \times s $ non-overlapping submatrices, and then perform a pooling operation on each respective matrix. There are two types of pooling operations which are used for CNNs: 
+Once a feature has been detected, the exact position become less important. For example, the distance between the mouth and the eyes tend to vary between persons. So in order to make the CNN not too sensitive to the relative placement of features, the accuracy of the all feature maps needs to be reduced. This can be done by subsampling (i.e. partitioning) the feature map into $ s \times s $ non-overlapping submatrices, and then perform a pooling operation on each respective matrix. There are two types of pooling operations which are used for CNNs: 
 
 \begin{itemize}
 	\item \textit{Max-pooling} extracts the maximum value of the submatrix.
@@ -201,7 +206,7 @@ Once a feature has been detected, the exact position become less important. For 
 \begin{figure}[h!]
   \centering
       \includegraphics[width=1.0\textwidth]{Figures/Background/Convolution-Maxpooling}
-  \caption{Illustration of the convolution and subsampling/max-pooling operations. The leftmost matrix is convulted with a $ 2 \times 2 $ matrix, and the resulting matrix is subsampled into four non-overlapping areas where the max value is extracted.}
+  \caption{Illustration of the convolution and subsampling/max-pooling operations. The leftmost matrix is convulted with a $ 2 \times 2 $ kernel, and the resulting matrix is subsampled into four non-overlapping areas where the max value is extracted.}
   \label{fig_conv_ss_mp}
 \end{figure}
 
@@ -229,6 +234,15 @@ o_{ij} = \frac{1}{s^2} \sum_{p=1}^{s}\sum_{q=1}^{s} x_{i+p, j+q}
 Where $ o_{ij} $ is a value in the output matrix and $ f_{ij} $ is a value in the feature map, and \textit{s} is the dimension of the subsampling size. A max-pooling operation is illustrated in Figure \ref{fig_conv_ss_mp}.
 
 Thus, the subsample/pooling layer helps solve the two last issues from Section \ref{ann_issues}. By reducing the accuracy, the network is less sensitive to the difference between instances of a class. This also causes the network size to be smaller, since it does not require neurons to recognize the differences. 
+
+Figure \ref{fig_conv_ss_mp} illustrates the convolution operation without adding bias and applying the sigmoid function, while Figure \ref{fig_visual_conv_ss_mp} illustrates the full operation of the convolution and subsampling/pooling layer. 
+
+\begin{figure}[h!]
+  \centering
+      \includegraphics[width=1.3\textwidth]{Figures/Method/Convolution_subsample_pool}
+  \caption{A visual overview of the operations performed by the convolution layer and subsampling/pooling layer. Yellow represents the convolution operation, and red represents the subsampling/max-pooling operation. Note that all the input images is used to produce a single entry in the feature map.}
+  \label{fig_visual_conv_ss_mp}
+\end{figure}
 
 
 
@@ -262,7 +276,7 @@ Using this we can calculate the gradient:
 	\frac{\partial}{\partial b_k^{(l)} }Cost(\mathbf{W,b}; x, y) = \sum\delta_k^{(l+1)}
 \end{equation}
 
-\section{Potential for parallism} 
+\section{Potential for parallism} \label{sec_pot_parallelism} 
 
 A vast amount of the computation required by a CNN can be parallelized. Thus, in order to accelerate the processing of the network it is important that these potential parallelizations are identified and exploited. The most obvious being:
 
@@ -274,7 +288,7 @@ A vast amount of the computation required by a CNN can be parallelized. Thus, in
 
 One can also parallelize the mentioned parallelizations themselves. The convolution of a matrix $ n \times n $ using a $ k \times k $ kernel consists of $ n - k + 1 $ convolution operation, which each can be done in parallel. Thus convoluting the whole matrix could potentially take only the time it takes to perform one convolution operation. The subsampling/pooling operation can also be parallelized by pooling all of the individual submatrices at the same time.  
 	
-It is also possible to compute the neuron activation function in parallel, since its a series of  \textit{n} multiply and accumulate operations. One option is to parallelize them by doing them in a tree-like structure, which will reduce the time it takes from \textit{n} time to $ log_2 n $ time. But considering the vast amount of activation functions that are to be computed, hardware resource are better spent on doing as many activation functions in parallel as possible. Unless you have an unlimited amount of hardware resources.   
+It is also possible to compute the neuron activation function in parallel, since its a series of  \textit{n} multiply and accumulate operations. One option is to parallelize them by creating a binary tree multiplier, where you have \textit{n} units compute the product of the input and its respective weight, then you use $ \frac{n}{2} $ units to add two results each, and so on until you have a single value. This will reduce the time it takes from \textit{n} time to $ log_2 n $ time. But considering the vast amount of activation functions that are to be computed, hardware resource are better spent on computing as many activation functions in parallel as possible. Unless you have an unlimited amount of hardware resources.   
 
 
 
