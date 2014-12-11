@@ -6,10 +6,10 @@ In this chapter we will go through the fundamental mathematics and concepts behi
 
 An \textit{Artificial Neural Network} (ANN) \cite{Minsky1969}\cite{Bishop2006} is a computational model that is used for machine learning and pattern recognition. The name and basic concept is inspired by how the animal brain uses a network of neurons to recognize and classify objects. Depending on the input different neurons \textit{activate} (or \textit{fire}), making the brain able to decide what kind of pattern it is detecting. 
 
-An ANN can intuitively be viewed as a probabilistic classifier. Depending on the input data it will calculate the probability that the data belongs to a certain \textit{class} (e.g. an object in an image or an investment decision). The network can be trained to recognize different classes by being provided a set of labeled training data, e.g. a set of faces and a set of non-faces. It can then learn to decide whether a image contains a face or not. This is called supervised learning. The network can also be trained unsupervised, by providing it with a set of unlabeled images. It will then learn to recognize a set of classes, but will be unable to label them.  
+An ANN can intuitively be viewed as a probabilistic classifier. Depending on the input data it will calculate the probability that the data belongs to a certain \textit{class} (e.g. an object in an image or an investment decision). The network can be trained to recognize different classes by being provided a set of labeled training data, e.g. a set of faces and a set of non-faces. It can then learn to decide whether a image contains a face or not. This is called supervised learning. The network can also be trained unsupervised, by providing it with a set of unlabeled images. The latter technique is used to find hidden structures in the data, by learning the network to recreate the input. But for this project only supervised learning is relevant.  
 
 \subsection{Definition} \hfill \break
-An ANN  consists of a number of layers containing a set of so-called \textit{neurons}, also known as \textit{units}. A neuron takes in a set of values as input (e.g. image pixels), where each value is associated with a respective weight. The input and the weights are multiplied and summed, and the result is used to calculate a non-linear \textit{activation function}. Formally a neurons input and output is defined as:
+An ANN  consists of a number of layers containing a set of so-called \textit{neurons} (see Figure \ref{fig_neuron}), also known as \textit{units}. A neuron takes in a set of values as input (e.g. image pixels), where each value is associated with a respective weight. The input and the weights are multiplied and summed, and the result is used to calculate a non-linear \textit{activation function}. Formally a neurons input and output is defined as:
 
 
 \begin{equation}\label{eq_neuron_in}
@@ -20,7 +20,7 @@ Input: \{x_1, x_2,\dots, x_n\} = \mathbf{x}
 Output: f(\mathbf{w^{T}x)} = f(\sum_{i=1}^{n}w_i x_i + b) = o
 \end{equation}
 
-Where \textbf{w} is the vector containing connection weights and b is the neuron bias. \textit{f(...)} is the activation function, which eumulates the activation of a neuron in the brain. It also causes the values in the network to have a reasonable value interval. \textit{f(...)} tends to be either:
+Where \textbf{w} is the vector containing connection weights and b is the neuron bias. \textit{f(...)} is the activation function, which eumulates the activation of a neuron in the brain, i.e. it decides whether the neuron is on or off. It also causes the values in the network to have a reasonable value interval. \textit{f(...)} tends to be either:
 
 \begin{equation}
 Sigmoid: f(z) = \frac{1}{1 + e^{-z}}
@@ -32,9 +32,8 @@ Sigmoid: f(z) = \frac{1}{1 + e^{-z}}
 \text{Hyperbolic tagent:} f(z) = tanh(z) = \frac{e^z - e^{-z}}{e^z + e^{-z}}
 \end{equation}
 
-
-
-Figure \ref{fig_neuron} provides a visualization of the functionality of a neuron. 
+The reason these functions are used is that they have the non-linear property, which increases the expressivness of the network. Thus reducing the number of neurons the network needs to solve a given problem. In addition both function have ranges [0, 1] and [-1, 1], respectively, which translates well into probability computation. I.e. you can view the value of the activation function as the probability of that neuron activating.  
+ 
 
 \begin{figure}[h!]
   \centering
@@ -136,15 +135,15 @@ Now, combining \textit{gradient decent} and the \textit{backpropagation algorith
 
 \subsection{Issues with object recognition}\label{ann_issues}
 
-While the ANN model have proven useful is several applications, it falls short when it comes to object recognition in images. There are three major causes for this: \cite{LeCun1998}. 
+While the ANN model have proven useful is several applications, it falls short when it comes to object recognition in images. Accordring to \cite{LeCun1998} there are three major reasons for this: . 
 
 \begin{enumerate}
 
-	\item A fully connected ANN does not take into consideration the topology of the input. An image has a strong 2D spatial locality correlation, which makes it possible to combine low-order features (edges, end-points etc.) in the same area into higher-order features.  
+	\item \textbf{Topology}. A fully connected ANN does not take into consideration the topology of the input. An image has a strong 2D spatial locality correlation, which makes it possible to combine low-order features (edges, end-points etc.) in the same area into higher-order features.  
 	
-	\item Even small images contains a large amount of pixels/inputs, e.g. a $ 32 \times 32 $ image contains 1024 pixels/inputs. A fully connected network with 100 hidden units would then end up with $ 1024 \times 100 $ weights that needs to be calculated in the first layer, making harder to scale for larger images and inefficient .
+	\item \textbf{Scalability}. Even small images contains a large amount of pixels/inputs, e.g. a $ 32 \times 32 $ image contains 1024 pixels/inputs. A fully connected network with 100 hidden units would then end up with $ 1024 \times 100 $ weights that needs to be calculated in the first layer, making harder to scale for larger images and inefficient .
 	
-	\item While objects are similar enough on a higher level to be grouped together into a class, they can still be very different on a lower level. E.g. a human face have several features that are needed for it to be defined as a face, e.g. eyes, mouth, nose etc. But the size and shape of these features tend to be very different from person to person. While it is possible for a standard ANN to compensate for these internal differences within a class, the network would have to be very large, would probably contain several neurons with similar weight vectors positioned at different places in the network, and would require a very large number of training samples. 
+	\item \textbf{Object variance.}While objects are similar enough on a higher level to be grouped together into a class, they can still be very different on a lower level. E.g. a human face have several features that are needed for it to be defined as a face, e.g. eyes, mouth, nose etc. But the size and shape of these features tend to be very different from person to person. While it is possible for a standard ANN to compensate for these internal differences within a class, the network would have to be very large, would probably contain several neurons with similar weight vectors positioned at different places in the network, and would require a very large number of training samples. 
 	
 \end{enumerate}
 
@@ -155,23 +154,25 @@ While the ANN model have proven useful is several applications, it falls short w
 % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % 
 \section{Convolutional Neural Network}\label{cnn}
 
-A \textit{Convolutional Neural Network} \cite{LeCun1998} (CNN) is an extension of the \textit{Artificial Neural Network} model, which is made specificly for object recognition in images or speech recognition. It was made in order to solve the issues that the classic ANN model faced 
+A \textit{Convolutional Neural Network} \cite{LeCun1998} (CNN) is an extension of the \textit{Artificial Neural Network} model, which is made specifically for object recognition in images or speech recognition. It was made in order to solve the issues that the classic ANN model faced 
 
 
 \begin{figure}[h!]
   \centering
       \includegraphics[width=1.0\textwidth]{Figures/Background/convnet}
-  \caption{An example CNN, the LeNet-5 \cite{LeCun1998}. }
+  \caption{An example CNN, the LeNet-5 \cite{LeCun1998}. It consists of two layers of convolution followed by subsampling, which are connected to a fully connected ANN with 10 output classes.}
   \label{fig_cnn}
 \end{figure}
 
-\subsection{Definition} \hfill \break
+\subsection{Definition}
 
-The CNN model adds two additional types of layers, in addition to the standard ANN layers: a \text{convolution layer} and a \textit{subsampling/pooling layer}. The idea behind the two new layers is to exploit the strong 2D local structure of images, i.e. pixels close to each other are highly correlated. By using local correlation one can extract and combine small local features (e.g. edges, corners, points) into higher-order features (e.g. nose, mouths, forehead), which can in the end be recognized as an object (e.g. a face).  A full network is illustrated in Figure \ref{fig_cnn}
+The CNN model adds two additional types of layers, in addition to the standard ANN layers: a \textit{convolution layer} and a \textit{subsampling/pooling layer}. The idea behind the two new layers is to exploit the strong 2D local structure of images, i.e. pixels close to each other are highly correlated. By using local correlation one can extract and combine small local features (e.g. edges, corners, points) into higher-order features (e.g. nose, mouths, forehead), which can in the end be recognized as an object (e.g. a face).  A full network is illustrated in Figure \ref{fig_cnn}
 
 
 \paragraph{Convolution layer}  \hfill \break
-Intuitively, the convolution layer performs the feature extraction by applying a filter (kernel) on the whole image, and puts the result in a corresponding feature map. E.g. if the filter extracts vertical edges, only the vertical edges from the original image would remain in the resulting feature map. Thus different features can be extracted by having several feature maps with different filters.  
+The convolution layer performs the feature extraction by applying a filter on the whole image, and puts the result in a corresponding feature map. E.g. if the filter extracts vertical edges, only the vertical edges from the original image would remain in the resulting feature map. Thus different features can be extracted by having several feature maps with different filters. 
+
+This is done by performing a \textit{convolution operation} on the image, using a kernel which acts like a filter. The kernel is a 2D matrix which contains a set of weights. Depending on values of the weights, convoluting the image with the kernel will have wide range of effects, e.g. sharpening, bluring, edge detection. By training our network we can configure the weight values to extract that features we need in order to recognize our desired classes.  
 
 Formally we can define a 2D convolution as:
 
@@ -190,7 +191,7 @@ Where $ x_{ij} $ is a value of the input matrix, $ w_{mn} $ is a value in the $ 
 This helps solve the first two issues from Section \ref{ann_issues}. The neurons in a feature map share the same kernel, thus the same weights, which greatly reduces the size of the network. The convolution operation applies a 2D filter on the image, which makes the network able to exploit the spatial correlation in the image. 
 
 \paragraph{Subsampling/pooling layer}  \hfill \break
-Once a feature have been detected, the exact position become less important. For example, the distance between the mouth and the eyes tend to vary between persons. So in order to make the CNN not too sensitive to the relative placement of features, the accuracy of the feature map needs to be reduced. This can be done by subsampling (i.e. partitioning) the feature map into $ s \times s $ non-overlapping submatrices, and then perform a pooling operation on each respective matrix. There are two types of pooling operations which are used for CNNs: 
+Once a feature has been detected, the exact position become less important. For example, the distance between the mouth and the eyes tend to vary between persons. So in order to make the CNN not too sensitive to the relative placement of features, the accuracy of the feature map needs to be reduced. This can be done by subsampling (i.e. partitioning) the feature map into $ s \times s $ non-overlapping submatrices, and then perform a pooling operation on each respective matrix. There are two types of pooling operations which are used for CNNs: 
 
 \begin{itemize}
 	\item \textit{Max-pooling} extracts the maximum value of the submatrix.
@@ -234,11 +235,11 @@ Thus, the subsample/pooling layer helps solve the two last issues from Section \
 \paragraph{Training} \hfill \break
 As mentioned, a CNN consists of three types of layers: a convolution layer, a subsampling/pooling layer and fully connected layer. The latter is trained as described in the previous section, using backpropagation and gradient decent. The two other layers uses the same general algorithm, but the error $ \delta^l $ and the gradient of $ Cost(\mathbf{W,b}; x, y) $ is calculated differently. . 
 
-Since the backpropagation aglorithm starts at the last layer and work its way backwards, the error is first calculated for the fully connected layer, then provided to the subsampling/pooling layer, and finally to the convolution layer. Thus we first need to calculate the error for the subsampling/pooling layer, so we can propegate it to the convolution layer. 
+Since the backpropagation aglorithm starts at the last layer and work its way backwards, the error is first calculated for the fully connected layer, then provided to the subsampling/pooling layer, and finally to the convolution layer. Thus we first need to calculate the error for the subsampling/pooling layer, so we can propagate it to the convolution layer. 
 
-The subsampling/pooling layer does not contain any weight, and can therefore not be tuned, so it only needs to propegate the error it receives. Depending on which pooling operation is used, there are two respective methods for this:
+The subsampling/pooling layer does not contain any weight, and can therefore not be tuned, so it only needs to propagate the error it receives. Depending on which pooling operation is used, there are two respective methods for this:
 
-For max pooling, the error is simply propegated to the neuron that was chosen as the maximum value, while the rest are set to zero. Wheras for average-pooling we have to distrubute the error evenly between all the responsible neurons. We therefore define the function \textit{upsample(...)}, which performs the correct propegation operation depending on the type of pooler. 
+For max pooling, the error is simply propagated to the neuron that was chosen as the maximum value, while the rest are set to zero. Wheras for average-pooling we have to distrubute the error evenly between all the responsible neurons. We therefore define the function \textit{upsample(...)}, which performs the correct propegation operation depending on the type of pooler. 
 
 We can now formally define how to calculate the error and the gradient by simply replacing the equations in step 3 and 4 in the backpropagation algorithm with the following equations. For simplicity we assume that convolution and subsampling/pooling is done in a single layer \textit{l}.
 
