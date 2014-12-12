@@ -12,7 +12,16 @@ In this project we had a Spartan 6 LX16 development board at our disposal, thus 
 \section{Imagezors Architecture}
 
 
-Imagezor takes \textit{n} matrices as input, $ I_1, I_2, \dots, I_n $, and produces \textit{m} output matrices, $O_1, O_2, \dots, O_m $. It also contains \textit{m} kernels, $ K_1, K_2, \dots, K_m $.  Each kernel $ K_i $ is convolved with all the input images, and each respective pixel from each convolution is then summed, added a bias to, and sent through a non-linear function. Afterwards the resulting matrix is subsampled/max-pooled, where it is divided into $ p \times p $ non-overlapping neighborhoods, from which the maximum value is extracted. The result of the max-pool operation the output image $ O_i $. 
+Imagezor takes \textit{n} images as input, $ I_1, I_2, \dots, I_n $, a single kernel $ K $, and outputs a processed image $ O $.  Each image $ I_i $ is convolved with the kernel $ K $, and each respective pixel from each convolution is then summed, added a bias to, and sent through a non-linear function. Afterwards the resulting matrix is subsampled/max-pooled, where it is divided into $ p \times p $ non-overlapping neighborhoods, from which the maximum value is extracted. The result is the output image $ O $. Thus essentially Imagezor computes a single feature map based on the input images and a single kernel and performs a subsample/max-pool operation, and outputs the result. 
+
+Using this architecture one can compute the convolution layer and subsample/pooling layer one feature map at a time. The workflow would go like this:
+
+\begin{enumerate}
+	\item Load the kernel associated with the respective feature map into the module.
+	\item Load all the input images into a buffer the module can read from.
+	\item Enable the module to start processing.
+	\item Wait until 
+\end{enumerate}
 
 
 In order to support both of the layers, Imagezor takes in a control signal which determines which layer is currently is being processsed. 

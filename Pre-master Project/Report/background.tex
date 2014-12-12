@@ -170,7 +170,9 @@ The CNN model adds two additional types of layers, in addition to the standard A
 
 
 \paragraph{Convolution layer}  \hfill \break
-Intuitively, the convolution layer performs the feature extraction by applying a filter on one or more images, and puts the result in a corresponding feature map. E.g. if the filter extracts vertical edges, only the vertical edges from the input images would remain in the resulting feature map. Thus different features can be extracted by having several feature maps with different filters. This is done by performing a \textit{convolution operation} on the image, using a kernel which acts like a filter. The kernel is a 2D matrix that contains a set of weights. Depending on values of the weights, convoluting the image with the kernel will have wide range of effects, e.g. sharpening, bluring, edge detection. By training our network we can configure the weights to extract the features we need in order to recognize our desired classes. 
+The convolution layer extracts a set of features from a set of input images. For each feature, the respective feature is extracted from all the input images and put in a feature map. E.g. if the filter extracts vertical edges, only the vertical edges from all the input images would remain in the resulting feature map. Thus different features can be extracted by having several feature maps that extracts different features. 
+
+The extraction is done by performing a \textit{convolution operation} on the image, using a \textit{kernel} that acts like a filter. The kernel is a 2D matrix that contains a set of weights. Depending on values of the weights, convoluting the image with the kernel will have wide range of effects, e.g. sharpening, bluring, edge detection  and feature extraction. By training our network we can configure the weights to extract the features we need in order to recognize our desired classes. 
 
 After the convolution operation have been performed, a bias is added to every element in the feature map and the result is sent through a non-linear function, e.g. a sigmoid function.
 
@@ -276,7 +278,7 @@ Using this we can calculate the gradient:
 	\frac{\partial}{\partial b_k^{(l)} }Cost(\mathbf{W,b}; x, y) = \sum\delta_k^{(l+1)}
 \end{equation}
 
-\section{Potential for parallism} \label{sec_pot_parallelism} 
+\section{Potential for parallelism} \label{sec_pot_parallelism} 
 
 A vast amount of the computation required by a CNN can be parallelized. Thus, in order to accelerate the processing of the network it is important that these potential parallelizations are identified and exploited. The most obvious being:
 
