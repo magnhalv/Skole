@@ -164,7 +164,7 @@ A \textit{Convolutional Neural Network} \cite{LeCun1998} (CNN) is an extension o
   \label{fig_cnn}
 \end{figure}
 
-\subsection{Definition}
+\subsection{Definition} \label{sec_cnn_def}
 
 The CNN model adds two additional types of layers, in addition to the standard ANN layers: a \textit{convolution layer} and a \textit{subsampling/pooling layer}. The idea behind the two new layers is to exploit the strong 2D local structure of images, i.e. pixels close to each other are highly correlated. By using local correlation one can extract and combine small local features (e.g. edges, corners, points) into higher-order features (e.g. nose, mouths, forehead), which can in the end be recognized as an object (e.g. a face).  A full network is illustrated in Figure \ref{fig_cnn}.
 
@@ -211,8 +211,6 @@ Once a feature has been detected, the exact position become less important. For 
   \caption{Illustration of the convolution and subsampling/max-pooling operations. The leftmost matrix is convulted with a $ 2 \times 2 $ kernel, and the resulting matrix is subsampled into four non-overlapping areas where the max value is extracted.}
   \label{fig_conv_ss_mp}
 \end{figure}
-
-\hfill \break
 
 We can then formally define subsampling/pooling as:
 
