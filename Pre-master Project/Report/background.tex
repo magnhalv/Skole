@@ -239,15 +239,15 @@ Figure \ref{fig_conv_ss_mp} illustrates the convolution operation without adding
 
 \begin{figure}[h!]
   \centering
-      \includegraphics[width=1.3\textwidth]{Figures/Method/Convolution_subsample_pool}
+      \includegraphics[width=1.3\textwidth]{Figures/Background/Convolution_subsample_pool}
   \caption{A visual overview of the operations performed by the convolution layer and subsampling/pooling layer with four input images. Yellow represents the convolution operation, and red represents the subsampling/max-pooling operation.}
   \label{fig_visual_conv_ss_mp}
 \end{figure}
 
 
 
-\paragraph{Training} \hfill \break
-As mentioned, a CNN consists of three types of layers: a convolution layer, a subsampling/pooling layer and fully connected layer. The latter is trained as described in the previous section, using backpropagation and gradient decent. The two other layers uses the same general algorithm, but the error $ \delta^l $ and the gradient of $ Cost(\mathbf{W,b}; x, y) $ is calculated differently. . 
+\subsection{Training} \label{sec_cnn_training}
+As mentioned, a CNN consists of three types of layers: a convolution layer, a subsampling/pooling layer and fully connected layer. The latter is trained as described in Section \ref{sec_ann_training}, using backpropagation and gradient decent. The two other layers uses the same general algorithm, but the error $ \delta^l $ and the gradient of $ Cost(\mathbf{W,b}; x, y) $ is calculated differently. . 
 
 Since the backpropagation aglorithm starts at the last layer and work its way backwards, the error is first calculated for the fully connected layer, then provided to the subsampling/pooling layer, and finally to the convolution layer. Thus we first need to calculate the error for the subsampling/pooling layer, so we can propagate it to the convolution layer. 
 

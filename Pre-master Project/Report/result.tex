@@ -26,6 +26,10 @@ In addition the Intel Core uses 85 W, while the Spartan 6 uses about 1.5 W. Usin
 
 \section{Discussion}
 
-The results from the previous section makes a strong case for hardware accelerating the convolution and subsample/pooling layer in a Convolution Layer. We see that even with hardware that only supports a $ 5 \times 5 $ kernel and does not exploit intra- and inter-parallelism found in the network, the speedup is significant, and the energy effiency is up to 1000x better. 
+The results from the previous section makes a strong case for hardware accelerating the convolution and subsample/pooling layer in a CNN. We see that even without exploiting inter- and intra-parallelism, the speedup is significant, and the energy efficiency is up to 1000x better. 
 
-We see that the speedup scales with the size of the kernel. This makes sense since Imagezor primarly exploits the parallelism in the convolution operation, by computing effectively $ k \times k $ pixels at once. In addition the subsample/max-pooling does not take any additional time since it is able to process the pixels as fast as the convoluter module is able to deliver them.   
+We see that the speedup scales with the size of the kernel. This makes sense since Imagezor primarly exploits the parallelism in the convolution operation, by computing effectively $ k \times k $ pixels at once. In addition the subsample/max-pooling does not take any additional time since it is able to process the pixels as fast as the convoluter module is able to produce them.   
+
+A drawback in this report is that we have been unable to compare our module to a GPU, which is the common choice for computing ANNs and CNNs (see Chapter \ref{chap_related_work}). But based on the findings in Section \ref{sec_related_work_cnn} it is likely that the GPUs performance will be about the same or better, but will fall short when it comes to energy efficiency. 
+
+Thus hardware accelerating the network operations for applications that are energy and/or performance sensitive can be very worthwhile. Examples could be computer clusters that are dedicated artificial neural networks, where the primary cost is power. Another example would be embedded and/or real-time systems, where there is very little power available, but one still need good performance. 

@@ -9,7 +9,7 @@ Sadly, creating a module that provides the full functionality of a CNN requires 
 
 Imagezor takes \textit{n} images as input, $ I_1, I_2, \dots, I_n $, a single kernel $ K $, and outputs a processed image $ O $. Using the input images and the kernel it performs the operations of the convolution and subsampling/pooling layer for a single kernel. Thus the output $ O $ is a subsampled/pooled feature map that has been produced by convolution the images $ I_1, I_2, \dots, I_n $ with the kernel $ K $. 
 
-Imagezor can compute the convolution and subsample/pooling layer by doing the above computations for all the kernels in the respective layer. Thus one can exploit inter-parallelism by making several instances of the Imagezor architecture run in parallel. One can also exploit intra-parallelism, but then one need to connect the different Imagezor instances so they can add up the results from the convolutions without using the intermediate convolution buffer. 
+Imagezor can compute the convolution and subsample/pooling layer by doing the above computations for all the kernels in the respective layer. Thus one can exploit inter-parallelism by making several instances of the Imagezor architecture run in parallel. One can also exploit intra-parallelism, but then one need to connect the different Imagezor instances so they can add up the results from the convolutions without using the intermediate convolution buffer, as described in \cite{Chakradhar2010}.
 
 Imagezors pipeline consists of five major components (Figure \ref{fig_imagezor_architecture}):
 
@@ -30,7 +30,7 @@ Imagezors pipeline consists of five major components (Figure \ref{fig_imagezor_a
 
 The \textit{layer\_nr} signal is used to define if it is the first or the second layer. The input image in the first layer is bigger than in the second ($ 32 \times 32 $ vs $ 14 \times 14 $), which the convoluter and the max pooler need to compensate for (see Section \ref{sec_convoluter} and \ref{sec_max_pooler}). In addition in the second layer the intermediate convolution buffer needs to be activated so it accumulate and store all the convolutions needed to compute a single feature map. Thus the mux is needed to propagate the data directly from the convoluter in the first layer, and from the buffer in the second layer. 
 
-Using this design one can compute a subsampled/pooled feature map with a single macro instruction.
+Using this design one can compute a subsampled/pooled feature map with a single macro instruction. In the sections below we will provide a more detailed description of the convoluter, the sigmoid unit and the max pooler. 
 
 
 \subsection{The Convoluter} \label{sec_convoluter}
@@ -53,7 +53,7 @@ The delay these shift registers cause are the reason for the delay before valid 
 
 Since the two layers in the network have different image sizes, but uses the same kernel size, we can reuse the module for both of them. This is done by having the control signal \textit{layer\_nr} decide how many of the shift registers that are to be used during convolution. In the first layer all of the shift registers are used, but in the second only a subset is used. I.e. $ n-k+1 $ of shift registers are used in each row, where $ n $ is either 32 or 14. 
 
-The loading of the weights takes $ k \times k $ clock cycles, and the processing of the image takes $ n \times n $ clock cycles. Thus the total number of cycles it takes to perform a full convolution of an image is $ n \times n + k \times k $. But based upon the papers refered to in Section \ref{sec_related_work} it seems that \textit{n} tends to be larger than \textit{k}. E.g. for the first layer in the LeNet-5 \cite{LeCun1998}, $ n = 32 $ and $ k = 5 $, the loading  of the weights take 25 clock cycles and the image processing 1024 cycles. This means that the execution time of the Convoluter is primairly bounded by the size of the image. But the size of the kernel decides the hardware resource cost of the module, since it requires $ k \times k $ DSP slices on the FPGA. Thus the 32 DSPs on the Spartan 6 is enough in order to implement the LeNet-5. 
+The loading of the weights takes $ k \times k $ clock cycles, and the processing of the image takes $ n \times n $ clock cycles. Thus the total number of cycles it takes to perform a full convolution of an image is $ n \times n + k \times k $. But based upon the papers refered to in Section \ref{sec_related_work} it seems that \textit{n} tends to be larger than \textit{k}. E.g. for the first layer in the LeNet-5 \cite{LeCun1998}, $ n = 32 $ and $ k = 5 $, the loading  of the weights take 25 clock cycles and the image processing 1024 cycles. This means that the execution time of the convoluter is primairly bounded by the size of the image. But the size of the kernel decides the hardware resource cost of the module, since it requires $ k \times k $ DSP slices on the FPGA. Thus the 32 DSPs on the Spartan 6 is enough in order to implement the LeNet-5. 
 
 \begin{figure}[h!]
   \centering
@@ -84,7 +84,7 @@ This module is based upon \cite{Napocensis2009} using PLAN approximation. It tak
 \vspace*{1\baselineskip}
 \subsection{The Max Pooler} \label{sec_max_pooler}
 
-The Max Pooler performs the subsample/max-pooling operation described in Section \ref{sec_cnn_def}. The input is a $ (n-k+1) \times (n-k+1) $ feature map, and the output is a $ (n-k+1)/p \times (n-k+1)/p $ subsampled/max-pooled feature map, where \textit{p} is the dimension of subsample neighborhood. As with the convoluter, one pixel is streamed in every cycle, and streamed out whenever a valid pixel is ready. Designed this way the Max Pooler can process in parallel with the Convoluter, by directly streaming the output of the Convoluter into the Max Pooler module. In other words, the operations of convolution layer and subsampling/pooling layer is pipelined.
+The max pooler performs the subsample/max-pooling operation described in Section \ref{sec_cnn_def}. The input is a $ (n-k+1) \times (n-k+1) $ feature map, and the output is a $ (n-k+1)/p \times (n-k+1)/p $ subsampled/max-pooled feature map, where \textit{p} is the dimension of subsample neighborhood. As with the convoluter, one pixel is streamed in every cycle, and streamed out whenever a valid pixel is ready. Designed this way the max pooler can process in parallel with the convoluter, by directly streaming the output of the convoluter into the max pooler module. In other words, the operations of convolution layer and subsampling/pooling layer is pipelined.
 
 \begin{figure}[h!]
   \centering
@@ -96,5 +96,5 @@ The module compares the input with the current max value, and updates the max va
 
 
 
-The execution speed of the Max Pooler module is bounded by the size of the feature map, $ (n-k+1) \times (n-k+1) $ clock cycles, finishing one cycle after the last pixel has been inputted. 
-Thus by streaming the output of the Convoluter to the Max Pooler, both will finish only a few cycles apart, effectively running both jobs in parallel. The resource usage of the module is bounded by the size of the subsampling dimension, since it requires a number of shift registers equal to the size of the dimension. But essentially its resource usage is quite low.  
+The execution speed of the max pooler module is bounded by the size of the feature map, $ (n-k+1) \times (n-k+1) $ clock cycles, finishing one cycle after the last pixel has been inputted. 
+Thus by streaming the output of the convoluter to the max pooler, both will finish only a few cycles apart, effectively running both jobs in parallel. The resource usage of the module is bounded by the size of the subsampling dimension, since it requires a number of shift registers equal to the size of the dimension. But essentially its resource usage is quite low.  

@@ -1,31 +1,27 @@
 \chapter{Introduction}
 
 
-\section{The Assignment}
-The aim of this project is to explore the implementation of machine learning algorithms in hardware (e.g., FPGA) with the intention of improving energy efficiency over traditional implementation in software. The algorithm should be modularly developed so that it can be potentially used as an accelerator tile within a multi-core heterogeneous computing platform such as SHMAC.
+During the last decade it has become apparent that \textit{Moore's law} is coming to an end, due to the breakdown of \textit{Dennard scaling.} This has forced a paradigm shift  in the computing domain, from performance-centric serial computation to energy-efficient parallel computation \cite{Duranton2013}. This comes from the observation that many simpler and smaller parallel processors generally provides better energy-efficiency than a single high-performing superscalar one. Unfortunately this is not enough. The continued decline of Moore's law has led to a \textit{utilization wall} \cite{Venkatesh2010}, which causes the percentage of a chip one can actively use within a chip's power budget is dropping exponentially. Thus only a portion of the transistors on a chip can be powered at same time for a given power budget and a constant die
+area. This is referred to as the \textit{Dark Silicon effect}.
 
-For a given algorithm, e.g., a deep neural network, the student will:
+In order to reduce the effect of Dark Silicon there have been purposed two main strategies \cite{Olukotun2011}. First, mutli-core architectures can be made heterogeneous by including cores that represent different points in the power/performance design space. Thus the architecture must be able to decide which core should perform the computation based whether the goal is performance or energy efficiency, or a combination of both. The second is using hardware components that are specialized for a specific task, and thus does it preferably both fast and energy-efficient. If the tasks does not occur, the component can be turned off, preventing it from wasting energy. Such specialized components are known as \textit{hardware accelerators}. 
 
-\begin{enumerate}
-	
-	\item Explore the feasibility and expected efficiency gain over a general-purpose CPU (e.g., is there a need?)
-	
-	\item A literature survey on related techniques, hardware implementations, etc.
-	
-	\item Allocation of components between hardware and software (e.g., according to a HW/SW co-design methodology)
-	
-	\item If time permits, adapting the module for use as a SHMAC accelerator tile
-	
-\end{enumerate}
 
-\subsection{Assignment interpretation}
+The Single-ISA Heterogeneous MAny-core Computer(SHMAC) \cite{NTNU2014} project is an ongoing project at the Energy Efficient Computing Systems(EECS) research area at the Norwegian University of Science and Technology. The purpose of the project is to mitigate the Dark Silicon effect by using the techniques described in the previous paragraph. There have thus been an increasing interest in exploring what kind of applications are worth hardware-accelerating. 
 
-My 
+Machine learning is concept that is several decades old, but have been increasingly popular in recent years. There are two primary reasons for this. First, many machine learning algorithms require \textit{a lot} of data for learning, in order to be enough to be useful. This has been largely solved by the vast amount of data that has become available due to \textit{Big Data} and the Internet. Second, most machine learning algorithms are computationally expensive, making many of them previously infeasible to make use of. But with the advancement of processing power and sophistication of processor architectures, the execution time has come to a reasonable level. Especially the arrival of the \textit{Graphic Processcing Unit} (GPU) helped a lot, since they are able to exploit the parallel nature of many machine learning algorithms. 
 
-big data
+An machine learning algorithm that have become recently popular is the \textit{Convolution Neural Network} (CNN), which is an extension of the \textit{Artifical Neural Network} (ANN) algorithm. It is one of the state of the art techniques used for object recognition in images and sound. A technique that is used by Google and Facebook for face and object detection in their image databases. With the Internet-of-Things and an increasing amount of devices able to take pictures and film, the potential for CNNs have vastly increased. By making our devices able to recognize its surroundings one can create some very interesting applications.
 
-most efficient way of recognize objects in images
 
-internet of things
+\section{Assignment Interpretation}
 
-energy effiencey
+Based on the assignment description text, the following main tasks were
+identified:\\ \hfil \\ \hfil
+\textbf{Task 1 \textit{(mandatory)}} Determine if a hardware accelerator will provide significant performance and energy-efficiency gains. As a part for this we will start developing a module  \\ \hfil \\ \hfil
+\textbf{Task 2 \textit{(mandatory)}} Begin the development of a module which can be used to accelerate the computation of a Convolutional Neural Network.\\ \hfil \\ \hfil
+\textbf{Task 3 \textit{(mandatory)}} Provide an overview of the state of the art of software and hardware implementations of CNNs. \\ \hfil \\ \hfil
+\textbf{Task 3 \textit{(optional)}} Adapt the module to a SHMAC accelerator tile. \\ \hfil \\ \hfil
+
+
+
