@@ -2,17 +2,14 @@
 
 The aim of this project was to investigate the possibility of creating hardware accelerator for a machine learning algorithm. We decided to create an architecture implementing \textit{the LeNet-5} \cite{LeCun1998} (see Figure \ref{fig_cnn}). The main reason for this was simply that the implementation would be easier. The input image is relatively small compared to the other architectures mentioned in Chapter \ref{chap_related_work}, which greatly reduces the amount of intermediate storage needed on chip. In addition the size of the kernels are the same in both convolution layers, making us able to reuse the convolution hardware accelerator for both layers. 
 
-Sadly, creating a module that provides the full functionality of a CNN requires more time than what was available for this project. But we were able to realize part of the network, the forward pass of the convolution and the subsampling/pooling layer. For future references we will refer to our architecture as \textit{Imagezor}. This chapter will describe its design and the reasoning behind it. 
+Sadly, creating a module that provides the full functionality of a CNN requires more time than what was available for this project. But we were able to realize part of the network, the forward pass of the convolution and the subsampling/pooling layer, in simulation. For future references we will refer to our architecture as \textit{Imagezor}. This chapter will describe its design and the reasoning behind it. 
 
-
-\section{Hardware}
-
-In this project we had a Spartan 6 LX16 development board at our disposal, thus limiting our architecture to the hardware resources it provides. Since a convolution is basically a series of multiply and accumulate (MAC), \textit{digital signal processors} (DSP) are essential to accelerate the operation. The reason for this is that multiplication requires a lot of hardware resources on the FPGA, unless you uses a DSP, which is special-made-hardware for MAC operations. The Spartan 6 is equipped with 32 DSP slices. Ideally, we would have had several times as many DSPs in order to fully utilize the potential parallelism of the network. E.g. the architectures in \cite{Farabet2009} \cite{Farabet2010} \cite{Chakradhar2010} and \cite{Paper} used FPGA platforms with about 1000 DSPs. This will greatly limit the speed of our implementation, as it makes us unable to exploit intra- and inter parallelism (see Section \ref{sec_pot_parallelism}). But as we will see in laters sections, the 32 DSPs are enough to accelerate the convolution layer in the LeNet-5. 
 
 \section{Imagezors Architecture}
 
 Imagezor takes \textit{n} images as input, $ I_1, I_2, \dots, I_n $, a single kernel $ K $, and outputs a processed image $ O $. Using the input images and the kernel it performs the operations of the convolution and subsampling/pooling layer for a single kernel. Thus the output $ O $ is a subsampled/pooled feature map that has been produced by convolution the images $ I_1, I_2, \dots, I_n $ with the kernel $ K $. 
-Imagezor can thus compute the convolution and subsample/pooling layer by doing the above computations for all the kernels in the respective layer. 
+
+Imagezor can compute the convolution and subsample/pooling layer by doing the above computations for all the kernels in the respective layer. Thus one can exploit inter-parallelism by making several instances of the Imagezor architecture run in parallel. One can also exploit intra-parallelism, but then one need to connect the different Imagezor instances so they can add up the results from the convolutions without using the intermediate convolution buffer. 
 
 Imagezors pipeline consists of five major components (Figure \ref{fig_imagezor_architecture}):
 
@@ -32,6 +29,8 @@ Imagezors pipeline consists of five major components (Figure \ref{fig_imagezor_a
 \end{figure}
 
 The \textit{layer\_nr} signal is used to define if it is the first or the second layer. The input image in the first layer is bigger than in the second ($ 32 \times 32 $ vs $ 14 \times 14 $), which the convoluter and the max pooler need to compensate for (see Section \ref{sec_convoluter} and \ref{sec_max_pooler}). In addition in the second layer the intermediate convolution buffer needs to be activated so it accumulate and store all the convolutions needed to compute a single feature map. Thus the mux is needed to propagate the data directly from the convoluter in the first layer, and from the buffer in the second layer. 
+
+Using this design one can compute a subsampled/pooled feature map with a single macro instruction.
 
 
 \subsection{The Convoluter} \label{sec_convoluter}
@@ -62,12 +61,27 @@ The loading of the weights takes $ k \times k $ clock cycles, and the processin
   \caption{Example showing the five first clock cycle of an convolution. The weights of the kernel is already loaded into the MAC units, and every cycle a new pixel from the image in inputted. In the last example you can see that 42 is provided as the first output.}
 \end{figure}
 
-\paragraph{The Intermediate image buffer}
+\subsection{The Sigmoid} 
 
-\paragraph{The Sigmoid} module is based upon \cite{Napocensis2009} using PLAN approximation. It takes input a single value \textit{x} and outputs an approximation of the sigmoid function.
+This module is based upon \cite{Napocensis2009} using PLAN approximation. It takes input a single value \textit{x} and outputs a linear approximation of the sigmoid function. Using a lookup table (Table \ref{tab_sigmoid}) the module decides which linear approximation to use.
+
+
+\begin{table}
+	\centering
+    \begin{tabular}{| >{\centering\arraybackslash}m{2in} | >{\centering\arraybackslash}m{1.2in} |} 
+    \hline
+    PLAN(X) & Conditions \\ \hline
+    1 & $ |x| \geq 5 $ \\ \hline
+    $ 0.03125 \times |X| + 0.84375 $ & $ 2.375 \leq |x| \le 5 $\\ \hline
+    $ 0.0125 \times |X| + 0.625 $ & $ 1 \leq |x| \le 2.375 $\\ \hline
+   	$ 0.25 \times |X| + 0.5 $ & $ 0 \leq |x| \le 1 $\\ \hline
+    \end{tabular}
+    \caption{The PLAN approximation of the sigmoid function.}
+   	\label{tab_sigmoid}
+    
+\end{table}
 
 \vspace*{1\baselineskip}
-REWRITE FIRST PART
 \subsection{The Max Pooler} \label{sec_max_pooler}
 
 The Max Pooler performs the subsample/max-pooling operation described in Section \ref{sec_cnn_def}. The input is a $ (n-k+1) \times (n-k+1) $ feature map, and the output is a $ (n-k+1)/p \times (n-k+1)/p $ subsampled/max-pooled feature map, where \textit{p} is the dimension of subsample neighborhood. As with the convoluter, one pixel is streamed in every cycle, and streamed out whenever a valid pixel is ready. Designed this way the Max Pooler can process in parallel with the Convoluter, by directly streaming the output of the Convoluter into the Max Pooler module. In other words, the operations of convolution layer and subsampling/pooling layer is pipelined.
