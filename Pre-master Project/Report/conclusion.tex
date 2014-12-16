@@ -1,3 +1,21 @@
 \chapter{Conclusion}
 
-I HAVE CONCLUDED!
+The goal of this project was to investigate the feasibility of implementing a hardware accelerator for a machine learning algorithm, which was chosen be a Convolutional Neural Network. In this report we have introduced the mathematical model behind CNNs, and shown how these can be trained in order to recognize objects in images. We have presented the Imagezor, an accelerator for CNNs which can be used even if hardware resources are sparse, with significant performance and energy efficiency gains. Based on this and the results from papers in Chapter \ref{chap_related_work}, we conclude that it is definitively feasible to implement a hardware accelerator for CNNs.  
+
+
+In the introduction we defined five tasks which we wished to solve in this project. The results from solving each of the tasks are presented below: \\ \hfil \\ \hfil
+\textbf{Task 1. Choose a machine learning algorithm to investigate.} \\ \hfil \\ \hfil
+The algorithm that chosen was, as mentioned, the Convolutional Neural Network algorithm. A lot of effort have been put into researching and understanding the algorithm, and the result from this effort can be found in the Chapter \ref{chap_background} and \ref{chap_related_work}. \\ \hfil \\ \hfil
+\textbf{Task 2. Determine if a hardware accelerator will provide significant performance and energy-efficiency gains.}  \\ \hfil \\ \hfil
+The papers presented in Chapter \ref{chap_related_work} makes a strong case for this. Many of them provides architectures that are at almost the sample level in performance as GPU implementations, while being up to 20x mre energy efficient. In addition the results from simulating and comparing our design to a Intel Core i5 show significant performance and energy-efficiency gains. \\ \hfil \\ \hfil
+\textbf{Task 3. Begin the development of a hardware accelerator for the chosen machine learning algorithm.}\\ \hfil \\ \hfil
+Chapter \ref{architecture} presents our architecture Imagezor which can be used to accelerate the operations of a CNN. It has been shown to work in simulation, but have unfortunately not been tested on hardware. It has been designed in modular fashion, in order to make it easy as possible to adapt to a SHMAC tile. \\ \hfil \\ \hfil
+\textbf{Task 4. Provide an overview of the state of the art of software and hardware implementations of CNNs.} \\ \hfil \\ \hfil
+A literature survey of state of the art implementations have been presented in Chapter \ref{chap_related_work}.\\ \hfil \\ \hfil
+\textbf{Task 5. Adapt the module to a SHMAC accelerator tile.} \\ \hfil \\ \hfil
+As much effort went into researching CNNs, there was little time left for actual implementation. While an accelerator module was made, time did not permit it being extended to a SHMAC tile. \\ \hfil \\ \hfil
+Bottom line, this project has solved the assignment provided. 
+
+
+
+ 

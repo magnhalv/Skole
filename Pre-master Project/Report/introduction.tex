@@ -14,16 +14,19 @@ One of the applications that have been considered are \textit{machine learning a
 
 An machine learning algorithm that have become recently popular is the \textit{Convolution Neural Network} (CNN), which is an extension of the \textit{Artifical Neural Network} (ANN) algorithm. It is one of the state of the art techniques used for object recognition in images and sound. A technique that is used by Google and Facebook for face and object detection in their image databases. With the Internet-of-Things and an increasing amount of devices able to take pictures and film, the potential for CNNs have vastly increased. By making our devices able to recognize its surroundings one can create some very interesting applications.
 
-For the reasons mentioned above, we have in this project decided to explore the feasibility of hardware accelerating a CNN. 
+For the reasons mentioned above, we have in this project decided to explore the feasibility of hardware accelerating a Convolutional Neural Network. 
 
 \section{Assignment Interpretation}
 
 Based on the assignment description text, the following main tasks were
 identified:\\ \hfil \\ \hfil
-\textbf{Task 1 \textit{(mandatory)}} Determine if a hardware accelerator will provide significant performance and energy-efficiency gains.  \\ \hfil \\ \hfil
-\textbf{Task 2 \textit{(mandatory)}} Begin the development of a module which can be used to accelerate the computation of a Convolutional Neural Network.\\ \hfil \\ \hfil
-\textbf{Task 3 \textit{(mandatory)}} Provide an overview of the state of the art of software and hardware implementations of CNNs. \\ \hfil \\ \hfil
-\textbf{Task 4 \textit{(optional)}} Adapt the module to a SHMAC accelerator tile. \\ \hfil \\ \hfil
+\textbf{Task 1 \textit{(mandatory)}} Choose a machine learning algorithm to investigate.  \\ \hfil \\ \hfil
+\textbf{Task 2 \textit{(mandatory)}} Determine if a hardware accelerator will provide significant performance and energy-efficiency gains.  \\ \hfil \\ \hfil
+\textbf{Task 3 \textit{(mandatory)}} Begin the development of a hardware accelerator for the chosen machine learning algorithm. \\ \hfil \\ \hfil
+\textbf{Task 4 \textit{(mandatory)}} Provide an overview of the state of the art of software and hardware implementations of CNNs. \\ \hfil \\ \hfil
+\textbf{Task 5 \textit{(optional)}} Adapt the module to a SHMAC accelerator tile. \\ \hfil \\ \hfil
+
+We wish to note that task 1 goes beyond simply choosing an algorithm. Since the student have no background within artificial intelligence, a lot of effort will have to be put into learning and understanding the given algorithm. 
 
 
 \section{Report structure}
@@ -32,10 +35,10 @@ For the convinience of the reader, we will here provide a quick overview of the 
 
 \textbf{Chapter 2: Background} gives an introduction to the mathematical model of Artifical Neural Networks and Convolutional Neural Networks. \\ \hfil \\ \hfil
 \textbf{Chapter 3: Reelated Work} gives an overview of the state of the art CNNs, and the most relevant recent hardware implementations. \\ \hfil \\ \hfil
-\textbf{Chapter 4: Architecture} presents our suggested architecture for a  \\ \hfil \\ \hfil
-\textbf{Chapter 5:} \\ \hfil \\ \hfil
-\textbf{Chapter 6:} \\ \hfil \\ \hfil
-\textbf{Chapter 7:} \\ \hfil \\ \hfil
+\textbf{Chapter 4: Architecture} presents our suggested design for a hardware accelerator for a CNN.  \\ \hfil \\ \hfil
+\textbf{Chapter 5: Results and Discussion} compares our design with a equivalent implementation on a CPU, with respect to performance and energy efficiency. The chapter will also give our thought on the given results.  \\ \hfil \\ \hfil
+\textbf{Chapter 6: Future Work} presents how the design can be further improved. \\ \hfil \\ \hfil
+\textbf{Chapter 7: Conclusion} provides concluding remarks and a summary of which tasks we were able to complete.\\ \hfil \\ \hfil
 \textbf{Chapter 3:} \\ \hfil \\ \hfil
 \textbf{Chapter 3:} \\ \hfil \\ \hfil
 \textbf{Chapter 3:} \\ \hfil \\ \hfil
