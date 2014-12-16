@@ -11,6 +11,8 @@ Imagezor takes \textit{n} images as input, $ I_1, I_2, \dots, I_n $, a single ke
 
 Imagezor can compute the convolution and subsample/pooling layer by doing the above computations for all the kernels in the respective layer. Thus one can exploit inter-parallelism by making several instances of the Imagezor architecture run in parallel. One can also exploit intra-parallelism, but then one need to connect the different Imagezor instances so they can add up the results from the convolutions without using the intermediate convolution buffer, as described in \cite{Chakradhar2010}.
 
+In order to reduce resources spent and execution time, Imagezor uses Q8.8 fixed-point arithmetic, which is shown to give virtually the same network accuracy as floating-point. REFERENCES HERE: 
+
 Imagezors pipeline consists of five major components (Figure \ref{fig_imagezor_architecture}):
 
 \begin{itemize}
@@ -28,7 +30,7 @@ Imagezors pipeline consists of five major components (Figure \ref{fig_imagezor_a
   	\label{fig_imagezor_architecture}
 \end{figure}
 
-The \textit{layer\_nr} signal is used to define if it is the first or the second layer. The input image in the first layer is bigger than in the second ($ 32 \times 32 $ vs $ 14 \times 14 $), which the convoluter and the max pooler need to compensate for (see Section \ref{sec_convoluter} and \ref{sec_max_pooler}). In addition in the second layer the intermediate convolution buffer needs to be activated so it accumulate and store all the convolutions needed to compute a single feature map. Thus the mux is needed to propagate the data directly from the convoluter in the first layer, and from the buffer in the second layer. 
+The \textit{layer\_nr} signal is used to define if it is the first or the second layer that is being computed. The input image in the first layer is bigger than in the second ($ 32 \times 32 $ vs $ 14 \times 14 $), which the convoluter and the max pooler need to compensate for (see Section \ref{sec_convoluter} and \ref{sec_max_pooler}). In addition in the second layer the intermediate convolution buffer needs to be activated so it accumulate and store all the convolutions needed to compute a single feature map. Thus the mux is needed to propagate the data directly from the convoluter in the first layer, and from the buffer in the second layer. 
 
 Using this design one can compute a subsampled/pooled feature map with a single macro instruction. In the sections below we will provide a more detailed description of the convoluter, the sigmoid unit and the max pooler. 
 

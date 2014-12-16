@@ -10,7 +10,7 @@ We can thus define the performance of Imagezor as:
 \frac{f}{I\times(n \times n) + (k \times k) + 5} ~conv\_net\_op/s
 \end{equation}
 
-Where \textit{f} is the expected clock frequency of the architecture, and \textit{I} is the number of images that is required to compute a subsampled/pooled feature map. 
+Where \textit{f} is the expected clock frequency of the architecture, and \textit{I} is the number of images that is required to compute a subsampled/pooled feature map. Using the synthethis tools provided by ISE 12.4 from Xilinx, the expected clock frequency is 180 MHz.
 
 Using Equation \ref{eq_theoretical_performance} the Imagezor architecture was  compared  to a Intel Core i5-450. The CPU executed a C program which performed all the operations of the convolution and subsample/pooling layer. The program was run and timed 1000 times for each configuration of the input and kernel size, and the average time was used for comparison. We could then calculate the C program's conv\_net\_op/s by simply by dividing one second by the average time used.  In order to compare the scalability both different images sizes and kernel sizes was tested. The results from comparing the theoretical performance for Imagezor against the C program is shown in Figure \ref{fig_cpu_cmp_results}.
 \begin{figure}
@@ -22,14 +22,15 @@ Using Equation \ref{eq_theoretical_performance} the Imagezor architecture was  c
 
 As can be seen by the figure, Imagezor can be up to 170x faster than the CPU, i.e. was able to perform 170x more conv\_net\_ops per second. This makes a good case for accelerating the network operations in hardware. We can also see that even with limited hardware resources of the Spartan 6, only able to support a $ 5 \times 5 $ kernel, the speedup is still significant, up to 75x speedup.
 
-In addition the Intel Core uses 85 W, while the Spartan 6 uses about 1.5 W. Using this we can calculate conv\_net\_op/joule by dividing conv\_net\_op/s by the power usage. 
+
+In order to estimate the energy efficiency we can calculate calculate conv\_net\_op/joule by dividing conv\_net\_op/s by the power usage. The Intel Core uses 85 W, while the Spartan 6 uses about 1.5 W. Using this we get the results shown in Figure MAKE FIGUHRE, which shows Imagezor's conv\_net\_op/joule divided by the Intel Core's conv\_net\_op/joule, i.e. relative energy-efficency. 
 
 \section{Discussion}
 
-The results from the previous section makes a strong case for hardware accelerating the convolution and subsample/pooling layer in a CNN. We see that even without exploiting inter- and intra-parallelism, the speedup is significant, and the energy efficiency is up to 1000x better. 
+The results from the previous section makes a strong case for hardware accelerating the convolution and subsample/pooling layer in a CNN. We see that even without exploiting inter- and intra-parallelism, the speedup is significant, and the energy efficiency is up to 1000x better. This clearly shows that even with limited hardware resources, accelerating the convoltion layer and the subsampling/pooling layer in a CNN can be very beneficial. 
 
-We see that the speedup scales with the size of the kernel. This makes sense since Imagezor primarly exploits the parallelism in the convolution operation, by computing effectively $ k \times k $ pixels at once. In addition the subsample/max-pooling does not take any additional time since it is able to process the pixels as fast as the convoluter module is able to produce them.   
+We see that the speedup scales with the size of the kernel. This makes sense since Imagezor primarly exploits the parallelism in the convolution operation, by computing effectively $ k \times k $ pixels at once. In addition the subsample/max-pooling does not take any additional time since it is able to process the pixels as fast as the convoluter module is able to produce them. While on a CPU the convolution and subsampling/pooling has to be done serially.   
+
+Buttom line, hardware accelerating the network operations for applications that are energy and/or performance sensitive can be very worthwhile. Example applications could be computer clusters that are dedicated artificial neural networks (e.g. at Facebook or Google), where the primary cost is power. Another example would be embedded and/or real-time systems, which have a low power budget, but one still need good performance. 
 
 A drawback in this report is that we have been unable to compare our module to a GPU, which is the common choice for computing ANNs and CNNs (see Chapter \ref{chap_related_work}). But based on the findings in Section \ref{sec_related_work_cnn} it is likely that the GPUs performance will be about the same or better, but will fall short when it comes to energy efficiency. 
-
-Thus hardware accelerating the network operations for applications that are energy and/or performance sensitive can be very worthwhile. Examples could be computer clusters that are dedicated artificial neural networks, where the primary cost is power. Another example would be embedded and/or real-time systems, where there is very little power available, but one still need good performance. 
