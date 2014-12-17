@@ -5,13 +5,12 @@ The aim of this project was to investigate the possibility of creating a hardwar
 Sadly, creating a module that provides the full functionality of a CNN requires more time than what was available for this project. But we were able to realize part of the network, the forward pass of the convolution and the subsampling/pooling layer, in VHDL code. For future references we will refer to our architecture as \textit{Imagezor}. This chapter will describe its design and the reasoning behind it. 
 
 
-\section{Imagezors Architecture}
+\section{Imagezor's Architecture}
 
 Imagezor takes \textit{n} images as input, $ I_1, I_2, \dots, I_n $, a single kernel $ K $, and outputs a processed image $ O $. Using the input images and the kernel it performs the operations of the convolution and subsampling/pooling layer for a single kernel. Thus the output $ O $ is a subsampled/pooled feature map that has been produced by convolution the images $ I_1, I_2, \dots, I_n $ with the kernel $ K $. 
 
 Imagezor can compute the convolution and subsample/pooling layer by doing the above computations for all the kernels in the respective layer. Thus one can exploit inter-parallelism by making several instances of the Imagezor architecture run in parallel. One can also exploit intra-parallelism, but then one need to connect the different Imagezor instances so they can add up the results from the convolutions without using the intermediate convolution buffer, as described in \cite{Chakradhar2010}.
 
-In order to reduce resources spent and execution time, Imagezor uses Q8.8 fixed-point arithmetic, which is shown to give virtually the same network accuracy as floating-point. REFERENCES HERE: 
 
 Imagezors pipeline consists of five major components (Figure \ref{fig_imagezor_architecture}):
 
@@ -32,7 +31,12 @@ Imagezors pipeline consists of five major components (Figure \ref{fig_imagezor_a
 
 The \textit{layer\_nr} signal is used to define if it is the first or the second layer that is being computed. The input image in the first layer is bigger than in the second ($ 32 \times 32 $ vs $ 14 \times 14 $), which the convoluter and the max pooler need to compensate for (see Section \ref{sec_convoluter} and \ref{sec_max_pooler}). In addition in the second layer the intermediate convolution buffer needs to be activated so it accumulate and store all the convolutions needed to compute a single feature map. Thus the mux is needed to propagate the data directly from the convoluter in the first layer, and from the buffer in the second layer. 
 
-Using this design one can compute a subsampled/pooled feature map with a single macro instruction. In the sections below we will provide a more detailed description of the convoluter, the sigmoid unit and the max pooler. 
+Using this design one can compute a subsampled/pooled feature map with a single macro instruction. Thus it is the software's job to make the data available for the module in some kind of buffer, and then module will perform the actual computations.
+
+
+In order to reduce resources spent and execution time, Imagezor uses Q8.8 fixed-point arithmetic, which is shown to give virtually the same network accuracy as floating-point arithmetic\cite{Napocensis2009} \cite{Holt1993} \cite{Chen2014}. 
+
+In the sections below we will provide a more detailed description of the convoluter, the sigmoid unit and the max pooler. 
 
 
 \subsection{The Convoluter} \label{sec_convoluter}
@@ -46,12 +50,12 @@ At the end of each row of MACs there is $ n - k $ shift registers. The result of
 \begin{figure}[h!]
   \centering
       \includegraphics[width=0.7\textwidth]{Figures/Method/Convolver}
-  \caption{The convolution module, when $ n = 3 $ and $ k = 2 $.}
+  \caption[The convoluter ]{The convoluter, when $ n = 3 $ and $ k = 2 $.}
 \end{figure}
 	
-By providing this delay you only have to input each pixel once during the convolution. Generally every pixel is needed for $ k \times k $ convolution operations (the exception being the pixels close to the boarders of the image). Thus the shift registers are used to store the intermediate values of the convolutions until a pixel that is needed for the respective convolution operation is inputted. 
+By providing this delay you only have to input each pixel once during the convolution. Generally every pixel is needed for $ k \times k $ convolution operations (the exception being the pixels close to the boarders of the image). Thus the shift registers are used to store the intermediate values of the convolutions until a pixel that is needed for the respective convolution operation is inputted. 
 
-The delay these shift registers cause are the reason for the delay before valid output pixels are produced. Thus from when the convolution starts, the output will not be valid before $ k-1 $ rows of the image have been processed. And for every new image row, there will be a $ k-1 $ cycle delay before output is valid. This is demonstrated by the fact that the input image is a $ n \times n $ matrix, while the output matrix is a $ (n-k+1) \times (n-k+1) $ matrix. 
+The delay these shift registers cause are the reason for the delay before valid output pixels are produced. Thus from when the convolution starts, the output will not be valid before $ k-1 $ rows of the image have been processed. And for every new image row, there will be a $ k-1 $ cycle delay before the output is valid. This is demonstrated by the fact that the input image is a $ n \times n $ matrix, while the output matrix is a $ (n-k+1) \times (n-k+1) $ matrix. 
 
 Since the two layers in the network have different image sizes, but uses the same kernel size, we can reuse the module for both of them. This is done by having the control signal \textit{layer\_nr} decide how many of the shift registers that are to be used during convolution. In the first layer all of the shift registers are used, but in the second only a subset is used. I.e. $ n-k+1 $ of shift registers are used in each row, where $ n $ is either 32 or 14. 
 
@@ -60,7 +64,7 @@ The loading of the weights takes $ k \times k $ clock cycles, and the processin
 \begin{figure}[h!]
   \centering
       \includegraphics[width=1.1\textwidth]{Figures/Method/Conv_example}
-  \caption{Example showing the five first clock cycle of an convolution. The weights of the kernel is already loaded into the MAC units, and every cycle a new pixel from the image in inputted. In the last example you can see that 42 is provided as the first output.}
+  \caption[Convolution example]{Example showing the five first clock cycle of an convolution. The weights of the kernel is already loaded into the MAC units, and every cycle a new pixel from the image in inputted. In the last example you can see that 42 is provided as the first output.}
 \end{figure}
 
 \subsection{The Sigmoid} 
@@ -91,10 +95,10 @@ The max pooler performs the subsample/max-pooling operation described in Section
 \begin{figure}[h!]
   \centering
       \includegraphics[width=0.5\textwidth]{Figures/Method/submax}
-  \caption{Architecture of the subsampler/max-pooler.}
+  \caption{The max pooler.}
 \end{figure}
 
-The module compares the input with the current max value, and updates the max value accordingly. It contains a set of \textit{(n-k+1)/p} shift registers. Since the image is divided into $ p \times p $ non-overlapping neighborhoods, the module needs to store the current maximum value of previous neighborhood when a pixel from a new neighborhood is inputted. To do this the module contains two counters, \textit{row\_num} and \textit{column\_num}. When a new pixel is inputted the \textit{column\_num} counter is incremented, and when a new row is encountered the \textit{row\_num} counter is incremented. Every time $ column_num mod p = 0 $ the shift registers are shifted one to the right, and every time $ column_num mod p = 0 and row_num mod p = 0 $ a valid output is produced. 
+The module compares the input with the current max value, and updates the max value accordingly. It contains a set of \textit{(n-k+1)/p} shift registers. Since the image is divided into $ p \times p $ non-overlapping neighborhoods, the module needs to store the current maximum value of previous neighborhood when a pixel from a new neighborhood is inputted. To do this the module contains two counters, \textit{row\_num} and \textit{column\_num}. When a new pixel is inputted the \textit{column\_num} counter is incremented, and when a new row is encountered the \textit{row\_num} counter is incremented. Every time $ column\_num~mod~p = 0 $ the shift registers are shifted one to the right, and every time $ column\_num~mod~p = 0 $ and $ row\_num~mod~p = 0 $ a valid output is produced. 
 
 
 

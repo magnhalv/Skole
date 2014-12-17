@@ -14,7 +14,7 @@ One of the applications that have been considered are \textit{machine learning a
 
 An machine learning algorithm that have become recently popular is the \textit{Convolution Neural Network} (CNN), which is an extension of the \textit{Artifical Neural Network} (ANN) algorithm. It is one of the state of the art techniques used for object recognition in images and sound. A technique that is used by Google and Facebook for face and object detection in their image databases. With the Internet-of-Things and an increasing amount of devices able to take pictures and film, the potential for CNNs have vastly increased. By making our devices able to recognize its surroundings one can create various interesting applications.
 
-For the reasons mentioned above, we have in this project decided to explore the feasibility of hardware accelerating a Convolutional Neural Network. 
+For the reasons mentioned above, we have in this project decided to explore the feasibility of hardware accelerating a Convolutional Neural Network. In this report we will give an introduction to the mathematical model behind Artificial Neural Networks and Convolution Neural Network. We will give an overview of the latest research done on hardware accelerating such networks, and purpose a potential design that can be used on a Spartan 6 FPGA. Finally we will review the performance and energy-efficiency gain from this design.
 
 \section{Assignment Interpretation}
 
@@ -31,10 +31,9 @@ We wish to note that task 1 goes beyond simply choosing an algorithm. Since the 
 
 \section{Report structure}
 
-For the convinience of the reader, we will here provide a quick overview of the topic of the report's chapters. 
-
+For the convinience of the reader, we will here provide a quick overview of the topic of the report's chapters. \\ \hfil \\ \hfil
 \textbf{Chapter 2: Background} gives an introduction to the mathematical model of Artifical Neural Networks and Convolutional Neural Networks. \\ \hfil \\ \hfil
-\textbf{Chapter 3: Reelated Work} gives an overview of the state of the art CNNs, and the most relevant recent hardware implementations. \\ \hfil \\ \hfil
+\textbf{Chapter 3: Related Work} gives an overview of the state of the art CNNs, and the most relevant recent hardware implementations. \\ \hfil \\ \hfil
 \textbf{Chapter 4: Architecture} presents our suggested design for a hardware accelerator for a CNN.  \\ \hfil \\ \hfil
 \textbf{Chapter 5: Results and Discussion} compares our design with a equivalent implementation on a CPU, with respect to performance and energy efficiency. The chapter will also give our thought on the given results.  \\ \hfil \\ \hfil
 \textbf{Chapter 6: Future Work} presents how the design can be further improved. \\ \hfil \\ \hfil

@@ -10,11 +10,23 @@
 
 
 \begin{document}
-\maketitle
-
+%\maketitle
+\include{front}
+\setcounter{page}{0}
+\pagenumbering{roman}
 \include{assignment}
 \begin{abstract}
+The breakdown of Moore's Law and the effects of Dark Silicon have forced a paradigm shift from performance-centric serial computation to energy-efficient parallel computation. This has sparked an interest in heterogeneous computing, where the processor contains different cores and accelerators that are specialized for certain tasks. The SHMAC project aims to provide a research
+platform for heterogeneous systems research. This has led to a need of exploring what kind of applications are worth accelerating. 
+
+One such application is the Convolutional Neural Network algorithm, which is a state of the art technique for recognizing objects in images and sound. In this report we will explore the potential gains of creating a hardware accelerator for such a network. We will introduce the mathematical fundamentals behind the algorithm, provide an overview of the most recent suggested hardware architectures, and present our architecture, Imagezor.
+
 \end{abstract}
+\tableofcontents
+\listoffigures
+\listoftables
+\setcounter{page}{0}
+\pagenumbering{arabic}
 \include{introduction}
 \include{background}
 \include{related_work}
@@ -23,7 +35,7 @@
 \include{discussion}
 \include{future_work}
 \include{conclusion}
-\bibliographystyle{plain}
+\bibliographystyle{unsrt}
 \bibliography{myreferences.bib}
 
 

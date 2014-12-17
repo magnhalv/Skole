@@ -6,7 +6,7 @@ In this chapter we will go through the fundamental mathematics and concepts behi
 
 An \textit{Artificial Neural Network} (ANN) \cite{Minsky1969}\cite{Bishop2006} is a computational model that is used for machine learning and pattern recognition. The name and basic concept is inspired by how the animal brain uses a network of neurons to recognize and classify objects. Depending on the input different neurons \textit{activate} (or \textit{fire}), making the brain able to decide what kind of pattern it is detecting. 
 
-An ANN can intuitively be viewed as a probabilistic classifier. Depending on the input data it will calculate the probability that the data belongs to a certain \textit{class} (e.g. an object in an image or an investment decision). The network can be trained to recognize different classes by being provided a set of labeled training data, e.g. a set of faces and a set of non-faces. It can then learn to decide whether a image contains a face or not. This is called supervised learning. The network can also be trained unsupervised, by providing it with a set of unlabeled images. The latter technique is used to find hidden structures in the data, by learning the network to recreate the input. But for this project only supervised learning is relevant.  
+An ANN can intuitively be viewed as a probabilistic classifier. Depending on the input data it will calculate the probability that the data belongs to a certain \textit{class} (e.g. an object in an image or an investment decision). The network can be trained to recognize different classes by being provided a set of labeled training data, e.g. a set of faces and a set of non-faces. It can then learn to decide whether an image contains a face or not. This is called supervised learning. The network can also be trained unsupervised, by providing it with a set of unlabeled images. The latter technique is used to find hidden structures in the data, by learning the network to recreate the input. But for this project only supervised learning is relevant.  
 
 \subsection{Definition} \hfill \break
 An ANN  consists of a number of layers containing a set of so-called \textit{neurons} (see Figure \ref{fig_neuron}), also known as \textit{units}. A neuron takes in a set of values as input (e.g. image pixels), where each value is associated with a respective weight. The input and the weights are multiplied and summed, and the result is used to calculate a non-linear \textit{activation function}. Formally a neurons input and output is defined as:
@@ -38,7 +38,7 @@ The reason these functions are used is that they have the non-linear property, w
 \begin{figure}[h!]
   \centering
       \includegraphics[width=0.5\textwidth, scale=0.1]{Figures/Background/Neuron}
-  \caption{A single neuron with three inputs. }
+  \caption[Neuron]{A single neuron with three inputs. }
   \label{fig_neuron}
 \end{figure}
 
@@ -60,7 +60,7 @@ The network takes in two parameters:
 
 
 \subsection{Training} \label{sec_ann_training}
-During the training of the network it is the parameters $ (\mathbf{W, b}) $ that are altered in order to adapt the network to the training data. This is done by providing the network with a set of training samples, where we provide an input and an expected output. By using a cost function we can then figure out how we should tune our weights and biases in order to reduce the error rate. In other words, our goal is to minimize a cost function over a set of training samples. This can be done by using \textit{gradient decent} and the \textit{backpropagation algorithm} \cite{Rumelhart1986}\cite{Leonard1990}\cite{LeCun1998}. 
+During the training of the network it is the parameters $ (\mathbf{W, b}) $ that are altered in order to adapt the network to the training data. This is done by providing the network with a set of training samples, where we provide an input and an expected output. By using a cost function we can then figure out how we should tune our weights and biases in order to reduce the error rate. In other words, our goal is to minimize a cost function over a set of training samples. This can be done by using \textit{gradient descent} and the \textit{backpropagation algorithm} \cite{Rumelhart1986}\cite{Leonard1990}\cite{LeCun1998}. 
 
 Let the cost function for a single training example $(x,y)$ be defined as:
 
@@ -79,7 +79,7 @@ Then the cost function for \textit{m} training examples $ ((x^{1}, y^{1}), (x^{2
  
 Where the first term is simply the average sum-of-squares error. The second term is the \textit{regularization term}, or \textit{weight decay term}, which tends to reduce \textit{overfitting}. ANNs have a vast number of parameters, i.e. weights, which makes it susceptible to random noise. This can greatly reduce the networks ability to provide correct predictions, but this  can be mended by the regularization term. 
 
-Based on this we can use gradient decent to compute how we should alter the weights in order to reduce the cost function. One iteration of gradient descent updates \textbf{w} and \textit{b} as follows:
+Based on this we can use gradient descent to compute how we should alter the weights in order to reduce the cost function. One iteration of gradient descent updates \textbf{w} and \textit{b} as follows:
 
 \begin{equation}
 	w_{ij}^{(l)} = w_{ij}^{(l)} - \alpha\frac{\partial}{\partial w_{ij}^{(l)} }Cost(\mathbf{W},\mathbf{b})
@@ -91,7 +91,7 @@ Based on this we can use gradient decent to compute how we should alter the weig
 
 Where $ \alpha $ is the learning rate, which is a predetermined constant. $ w_{ij}^l $ denotes the weight between neuron j in layer l, and neuron i in layer l+1. $ b_i^l $ denotes the bias associated with neuron \textit{i} in layer l+1. 
 
-Note that this would only make us able to compute the gradient for the output layer. In order to perform gradient decent on the hidden layers, we need to propagate the error from the output layer backwards, to the hidden layers. For this we use the \textit{backpropagation algorithm}. Let $ o_i^{(l)} $ denote the output of the $i$th neuron in layer $l$, and $z_k^{(l)}$ is the weighted sum of the inputs plus the bias for the $k$th neuron in layer l. Then the \textit{backpropagation algorithm} can be formalized as follows: 
+Note that this would only make us able to compute the gradient for the output layer. In order to perform gradient descent on the hidden layers, we need to propagate the error from the output layer backwards, to the hidden layers. For this we use the \textit{backpropagation algorithm}. Let $ o_i^{(l)} $ denote the output of the $i$th neuron in layer $l$, and $z_k^{(l)}$ is the weighted sum of the inputs plus the bias for the $k$th neuron in layer l. Then the \textit{backpropagation algorithm} can be formalized as follows: 
 
 \begin{enumerate}
 	\item Perform a feedforward pass, computing the output of every layer.
@@ -113,7 +113,7 @@ Note that this would only make us able to compute the gradient for the output la
 	\end{equation}
 \end{enumerate}
 	
-Now, combining \textit{gradient decent} and the \textit{backpropagation algorithm} we can describe an algorithm to train our network: 
+Now, combining \textit{gradient descent} and the \textit{backpropagation algorithm} we can describe an algorithm to train our network: 
 
 \begin{enumerate}
 	\item Initialize the weights $ \mathbf{w}^{(l)} $ and $ b^{l} $ to random values for every layer \textit{l}.
@@ -162,7 +162,7 @@ A \textit{Convolutional Neural Network} \cite{LeCun1998} (CNN) is an extension o
 \begin{figure}[h!]
   \centering
       \includegraphics[width=1.2\textwidth]{Figures/Background/convnet}
-  \caption{An example CNN, the LeNet-5 \cite{LeCun1998}. It consists of two convolution and subsampling/pooling layer pairs, which are connected to a fully connected ANN with 10 output classes.}
+  \caption[The LeNet-5]{An example CNN, the LeNet-5 \cite{LeCun1998}. It consists of two convolution and subsampling/pooling layer pairs, which are connected to a fully connected ANN with 10 output classes.}
   \label{fig_cnn}
 \end{figure}
 
@@ -210,7 +210,7 @@ Once a feature has been detected, the exact position become less important. For 
 \begin{figure}[h!]
   \centering
       \includegraphics[width=1.0\textwidth]{Figures/Background/Convolution-Maxpooling}
-  \caption{Illustration of the convolution and subsampling/max-pooling operations. The leftmost matrix is convulted with a $ 2 \times 2 $ kernel, and the resulting matrix is subsampled into four non-overlapping areas where the max value is extracted.}
+  \caption[Convolution and subsampling/max-pooling operation]{Illustration of the convolution and subsampling/max-pooling operations. The leftmost matrix is convulted with a $ 2 \times 2 $ kernel, and the resulting matrix is subsampled into four non-overlapping areas where the max value is extracted.}
   \label{fig_conv_ss_mp}
 \end{figure}
 
@@ -242,18 +242,18 @@ Figure \ref{fig_conv_ss_mp} illustrates the convolution operation and the subsam
 \begin{figure}[h!]
   \centering
       \includegraphics[width=1.3\textwidth]{Figures/Background/Convolution_subsample_pool}
-  \caption{A visual overview of the operations performed by the convolution layer and subsampling/pooling layer with four input images. Yellow represents the convolution operation, and red represents the subsampling/max-pooling operation.}
+  \caption[Convolutional layer operation]{A visual overview of the operations performed by the convolution layer and subsampling/pooling layer with four input images. Yellow represents the convolution operation, and red represents the subsampling/max-pooling operation.}
   \label{fig_visual_conv_ss_mp}
 \end{figure}
 
 
 
 \subsection{Training} \label{sec_cnn_training}
-As mentioned, a CNN consists of three types of layers: a convolution layer, a subsampling/pooling layer and fully connected layer. The latter is trained as described in Section \ref{sec_ann_training}, using backpropagation and gradient decent. The two other layers use the same general algorithm, but the error $ \delta^l $ and the gradient of $ Cost(\mathbf{W,b}; x, y) $ is calculated differently. 
+As mentioned, a CNN consists of three types of layers: a convolution layer, a subsampling/pooling layer and fully connected layer. The latter is trained as described in Section \ref{sec_ann_training}, using backpropagation and gradient descent. The two other layers use the same general algorithm, but the error $ \delta^l $ and the gradient of $ Cost(\mathbf{W,b}; x, y) $ is calculated differently. 
 
 Since the backpropagation aglorithm starts at the last layer and work its way backwards, the error is first calculated for the fully connected layers. It is then provided to the subsampling/pooling layer, and finally to the convolution layer. Thus we first need to calculate the error for the subsampling/pooling layer, so we can propagate it to the convolution layer. 
 
-The subsampling/pooling layer does not contain any weights, and can therefore not be tuned. Thus it only needs to propagate the error it receives. Depending on which pooling operation is used, there are two respective methods for this. For max pooling, the error is simply propagated to the neuron that was chosen as the maximum value, while the rest are set to zero. For average-pooling we have to distrubute the error evenly between all the responsible neurons. We therefore define the function \textit{upsample(...)}, which performs the correct propegation operation depending on the type of pooler. 
+The subsampling/pooling layer does not contain any weights, and can therefore not be tuned. Thus it only needs to propagate the error it receives. Depending on which pooling operation is used, there are two respective methods for this. For max pooling, the error is simply propagated to the neuron that was chosen as the maximum value, while the rest are set to zero. For average-pooling we have to distribute the error evenly between all the responsible neurons. We therefore define the function \textit{upsample(...)}, which performs the correct propagation operation depending on the type of pooler. 
 
 We can now formally define how to calculate the error and the gradient by simply replacing the equations in step 3 and 4 in the backpropagation algorithm with the following equations. For simplicity we assume that convolution and subsampling/pooling is done in a single layer \textit{l}.
 
@@ -264,7 +264,7 @@ We can now formally define how to calculate the error and the gradient by simply
 	\delta_{k}^{l} =  upsample( (\mathbf{W}_{k}^l)^T \mathbf{\delta}_{k}^{l+1})\bullet f'(\mathbf{Z}_k^l)
 \end{equation}
 
-Where $  (\mathbf{W}_{k}^l)^T $ is the weight matrix in layer \textit{l}, $  \mathbf{\delta}_{j}^{l+1} $ is the error matrix for layer $ l + 1 $, $ \bullet $ is the Hadamard product, $ f'(\mathbf{Z}_k^l) $ is the matrix containing the derivative of the activation function, and k indexes the filter number. I.e. it contains $ o_{kij}^l(1-o_{kij}^l) $ for every neuron at index \textit{ij} in feature map \textit{k} in layer \textit{l}. 
+Where $  (\mathbf{W}_{k}^l)^T $ is the weight matrix in layer \textit{l}, $  \mathbf{\delta}_{j}^{l+1} $ is the error matrix for layer $ l + 1 $, $ \bullet $ is the element-wise product (i.e. Hadamard product), $ f'(\mathbf{Z}_k^l) $ is the matrix containing the derivative of the activation function, and k indexes the filter number. I.e. it contains $ o_{kij}^l(1-o_{kij}^l) $ for every neuron at index \textit{ij} in feature map \textit{k} in layer \textit{l}. 
 
 Using this we can calculate the gradient:
 
