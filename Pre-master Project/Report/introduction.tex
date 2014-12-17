@@ -2,7 +2,7 @@
 
 \section{Motivation}
 
-During the last decade it has become apparent that \textit{Moore's law} is coming to an end, due to the breakdown of \textit{Dennard scaling.} This has forced a paradigm shift  in the computing domain, from performance-centric serial computation to energy-efficient parallel computation \cite{Duranton2013}. This comes from the observation that many simpler and smaller parallel processors generally provides better energy-efficiency than a single high-performing superscalar one. Unfortunately this is not enough. The continued decline of Moore's law has led to a \textit{utilization wall} \cite{Venkatesh2010}, which causes the percentage of a chip one can actively use within a chip's power budget is dropping exponentially. Thus only a portion of the transistors on a chip can be powered at same time for a given power budget and a constant die
+During the last decade it has become apparent that \textit{Moore's law} is coming to an end, due to the breakdown of \textit{Dennard scaling.} This has forced a paradigm shift  in the computing domain, from performance-centric serial computation to energy-efficient parallel computation \cite{Duranton2013}. This comes from the observation that many simpler and smaller parallel processors generally provides better energy-efficiency than a single high-performing superscalar one. Unfortunately this is not enough. The continued decline of Moore's law has led to a \textit{utilization wall} \cite{Venkatesh2010}, which causes the percentage of a chip one can actively use within a chip's power budget to drop exponentially. Thus only a portion of the transistors on a chip can be powered at same time for a given power budget and a constant die
 area. This is referred to as the \textit{Dark Silicon effect}.
 
 In order to reduce the effect of Dark Silicon there have been purposed two main strategies \cite{Olukotun2011}. First, mutli-core architectures can be made heterogeneous by including cores that represent different points in the power/performance design space. Thus the architecture must be able to decide which core should perform the computation based whether the goal is performance or energy efficiency, or a combination of both. The second is using hardware components that are specialized for a specific task, and thus does it preferably both fast and energy-efficient. If the tasks does not occur, the component can be turned off, preventing it from wasting energy. Such specialized components are known as \textit{hardware accelerators}. 
@@ -10,9 +10,9 @@ In order to reduce the effect of Dark Silicon there have been purposed two main 
 
 The Single-ISA Heterogeneous MAny-core Computer(SHMAC) \cite{NTNU2014} project is an ongoing project at the Energy Efficient Computing Systems(EECS) research area at the Norwegian University of Science and Technology. The purpose of the project is to mitigate the Dark Silicon effect by using the techniques described in the previous paragraph. There have thus been an increasing interest in exploring what kind of applications are worth hardware-accelerating. 
 
-One of the applications that have been considered are \textit{machine learning algorithms}. A concept that is several decades old, but have been increasingly popular in recent years. There are two primary reasons for this. First, many machine learning algorithms require a great amount of data for learning, in order to make accurate predictions or detect patterns. This has been largely solved by the vast amount of data that has become available due to \textit{Big Data} and the Internet. Second, most machine learning algorithms are computationally expensive, making many of them previously infeasible to make use of. But with the advancement of processing power and sophistication of processor architectures, the execution time has come to a reasonable level. Especially the arrival of the \textit{Graphic Processcing Unit} (GPU) helped a lot, since they are able to exploit the parallel nature of many machine learning algorithms. 
+One of the applications that have been considered are \textit{machine learning algorithms}. A concept that is several decades old, but has been increasingly popular in recent years. There are two primary reasons for this. First, many machine learning algorithms require a great amount of data for learning, in order to make accurate predictions or detect patterns. This has been largely solved by the vast amount of data that has become available due to \textit{Big Data} and the Internet. Second, most machine learning algorithms are computationally expensive, making many of them previously infeasible to make use of. But with the advancement of processing power and sophistication of processor architectures, the execution time has come to a reasonable level. Especially the arrival of the \textit{Graphic Processcing Unit} (GPU) helped a lot, since they are able to exploit the parallel nature of many machine learning algorithms. 
 
-An machine learning algorithm that have become recently popular is the \textit{Convolution Neural Network} (CNN), which is an extension of the \textit{Artifical Neural Network} (ANN) algorithm. It is one of the state of the art techniques used for object recognition in images and sound. A technique that is used by Google and Facebook for face and object detection in their image databases. With the Internet-of-Things and an increasing amount of devices able to take pictures and film, the potential for CNNs have vastly increased. By making our devices able to recognize its surroundings one can create some very interesting applications.
+An machine learning algorithm that have become recently popular is the \textit{Convolution Neural Network} (CNN), which is an extension of the \textit{Artifical Neural Network} (ANN) algorithm. It is one of the state of the art techniques used for object recognition in images and sound. A technique that is used by Google and Facebook for face and object detection in their image databases. With the Internet-of-Things and an increasing amount of devices able to take pictures and film, the potential for CNNs have vastly increased. By making our devices able to recognize its surroundings one can create various interesting applications.
 
 For the reasons mentioned above, we have in this project decided to explore the feasibility of hardware accelerating a Convolutional Neural Network. 
 
@@ -26,7 +26,7 @@ identified:\\ \hfil \\ \hfil
 \textbf{Task 4 \textit{(mandatory)}} Provide an overview of the state of the art of software and hardware implementations of CNNs. \\ \hfil \\ \hfil
 \textbf{Task 5 \textit{(optional)}} Adapt the module to a SHMAC accelerator tile. \\ \hfil \\ \hfil
 
-We wish to note that task 1 goes beyond simply choosing an algorithm. Since the student have no background within artificial intelligence, a lot of effort will have to be put into learning and understanding the given algorithm. 
+We wish to note that task 1 goes beyond simply choosing an algorithm. Since the student had no background within artificial intelligence, a lot of effort have gone to learning and understanding the given algorithm. 
 
 
 \section{Report structure}
@@ -39,8 +39,6 @@ For the convinience of the reader, we will here provide a quick overview of the 
 \textbf{Chapter 5: Results and Discussion} compares our design with a equivalent implementation on a CPU, with respect to performance and energy efficiency. The chapter will also give our thought on the given results.  \\ \hfil \\ \hfil
 \textbf{Chapter 6: Future Work} presents how the design can be further improved. \\ \hfil \\ \hfil
 \textbf{Chapter 7: Conclusion} provides concluding remarks and a summary of which tasks we were able to complete.\\ \hfil \\ \hfil
-\textbf{Chapter 3:} \\ \hfil \\ \hfil
-\textbf{Chapter 3:} \\ \hfil \\ \hfil
-\textbf{Chapter 3:} \\ \hfil \\ \hfil
+
 
 

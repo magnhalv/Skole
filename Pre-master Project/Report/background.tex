@@ -49,7 +49,7 @@ The network takes in two parameters:
 \begin{equation}
 	(\mathbf{W, b}) = (\mathbf{W}^{(1)}, b^{(1)}, \mathbf{W}^{(2)}, b^{(2)}, \dots , \mathbf{W}^{(n_l)}, b^{(n_l)})	
 \end{equation}
- Where \textbf{W} is a 3-dimensional matrix containing the weight matrix for each level. $ \mathbf{W}^{(l)} $ contains the weight matrix for the weights going from layer \textit{l} to \textit{l+1}. E.g., in the case of Figure \ref{fig_ann}, $ \mathbf{W}^{(1)} \in \Re ^{3 \times 4}$ and $ \mathbf{W}^{(2)} \in \Re ^{4 \times 2}$. Let $ w_{ij}^l $ denote the weight between neuron j in layer l, and neuron i in layer l+1. Let $ b_i^l $ denote the bias associated with neuron \textit{i} in layer l+1. 
+ Where \textbf{W} is a 3-dimensional matrix containing the weight matrix for each layer. $ \mathbf{W}^{(l)} $ contains the weight matrix for the weights going from layer \textit{l} to \textit{l+1}. E.g., in the case of Figure \ref{fig_ann}, $ \mathbf{W}^{(1)} \in \Re ^{3 \times 4}$ and $ \mathbf{W}^{(2)} \in \Re ^{4 \times 2}$.
 
 \begin{figure}[h!]
   \centering
@@ -77,7 +77,7 @@ Then the cost function for \textit{m} training examples $ ((x^{1}, y^{1}), (x^{2
 	(\mathbf{w}_{ji}^{l})^2
 \end{equation}
  
-Where the first term is simply the average sum-of-squares error. The second term is the \textit{regularization term}, or \textit{weight decay term}, which tends to reduce \textit{overfitting}. ANNs have a vast number of parameters, i.e. weights, and makes it susceptible to random noise. This can greatly reduce the networks ability to provide correct predictions, But this  can be mended by the regularization term. 
+Where the first term is simply the average sum-of-squares error. The second term is the \textit{regularization term}, or \textit{weight decay term}, which tends to reduce \textit{overfitting}. ANNs have a vast number of parameters, i.e. weights, which makes it susceptible to random noise. This can greatly reduce the networks ability to provide correct predictions, but this  can be mended by the regularization term. 
 
 Based on this we can use gradient decent to compute how we should alter the weights in order to reduce the cost function. One iteration of gradient descent updates \textbf{w} and \textit{b} as follows:
 
@@ -89,7 +89,9 @@ Based on this we can use gradient decent to compute how we should alter the weig
 	b^{(l)} = b^{(l)} - \alpha\frac{\partial}{\partial b_{i}^{(l)} }Cost(\mathbf{W},\mathbf{b})
 \end{equation}
 
-Where $ \alpha $ is the learning rate, which is a predetermined constant. Note that this would only make us able to compute the gradient for the output layer. In order to perform gradient decent on the hidden layers, we need to propagate the error from the output layer backwards, to the hidden layers. For this we use the \textit{backpropagation algorithm}. Let $ o_i^{(l)} $ denote the output of the $i$th neuron in layer $l$, and $z_k^{(l)}$ is the weighted sum of the inputs plus the bias for the $k$th neuron in layer l. Then the \textit{backpropagation algorithm} can be formalized as follows: 
+Where $ \alpha $ is the learning rate, which is a predetermined constant. $ w_{ij}^l $ denotes the weight between neuron j in layer l, and neuron i in layer l+1. $ b_i^l $ denotes the bias associated with neuron \textit{i} in layer l+1. 
+
+Note that this would only make us able to compute the gradient for the output layer. In order to perform gradient decent on the hidden layers, we need to propagate the error from the output layer backwards, to the hidden layers. For this we use the \textit{backpropagation algorithm}. Let $ o_i^{(l)} $ denote the output of the $i$th neuron in layer $l$, and $z_k^{(l)}$ is the weighted sum of the inputs plus the bias for the $k$th neuron in layer l. Then the \textit{backpropagation algorithm} can be formalized as follows: 
 
 \begin{enumerate}
 	\item Perform a feedforward pass, computing the output of every layer.
@@ -135,15 +137,15 @@ Now, combining \textit{gradient decent} and the \textit{backpropagation algorith
 
 \subsection{Issues with object recognition}\label{ann_issues}
 
-While the ANN model have proven useful is several applications, it falls short when it comes to object recognition in images. Accordring to \cite{LeCun1998} there are three major reasons for this: . 
+While the ANN model have proven useful in several applications, it falls short when it comes to object recognition in images. According to \cite{LeCun1998} there are three major reasons for this: . 
 
 \begin{enumerate}
 
 	\item \textbf{Topology}. A fully connected ANN does not take into consideration the topology of the input. An image has a strong 2D spatial locality correlation, which makes it possible to combine low-order features (edges, end-points etc.) in the same area into higher-order features.  
 	
-	\item \textbf{Scalability}. Even small images contains a large amount of pixels/inputs, e.g. a $ 32 \times 32 $ image contains 1024 pixels/inputs. A fully connected network with 100 hidden units would then end up with $ 1024 \times 100 $ weights that needs to be calculated in the first layer, making harder to scale for larger images and inefficient .
+	\item \textbf{Scalability}. Even small images contains a large amount of pixels/inputs, e.g. a $ 32 \times 32 $ image contains 1024 pixels/inputs. A fully connected network with 100 hidden units would then end up with $ 1024 \times 100 $ weights that needs to be calculated in the first layer. Thus making it harder to scale for larger images and rather inefficient .
 	
-	\item \textbf{Object variance.}While objects are similar enough on a higher level to be grouped together into a class, they can still be very different on a lower level. E.g. a human face have several features that are needed for it to be defined as a face, e.g. eyes, mouth, nose etc. But the size and shape of these features tend to be very different from person to person. While it is possible for a standard ANN to compensate for these internal differences within a class, the network would have to be very large, would probably contain several neurons with similar weight vectors positioned at different places in the network, and would require a very large number of training samples. 
+	\item \textbf{Object variance.}While objects are similar enough, on a higher level, to be grouped together into a class, they can still be very different on a lower level. E.g. a human face have several features that are needed for it to be defined as a face, e.g. eyes, mouth, nose etc. But the size and shape of these features tend to be very different from person to person. While it is possible for a standard ANN to compensate for these internal differences within a class, it would have to make three costly compensations. 1) The network would have to be very large, 2) it would probably contain several neurons with similar weight vectors positioned at different places in the network, and 3)  it would require a massive amount of training samples. 
 	
 \end{enumerate}
 
@@ -154,7 +156,7 @@ While the ANN model have proven useful is several applications, it falls short w
 % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % 
 \section{Convolutional Neural Network}\label{cnn}
 
-A \textit{Convolutional Neural Network} \cite{LeCun1998} (CNN) is an extension of the \textit{Artificial Neural Network} model, which is made specifically for object recognition in images or speech recognition. It was made in order to solve the issues that the classic ANN model faced 
+A \textit{Convolutional Neural Network} \cite{LeCun1998} (CNN) is an extension of the \textit{Artificial Neural Network} model, which is made specifically for object recognition in images or speech recognition. It was made in order to solve the issues that the classic ANN model faced. 
 
 
 \begin{figure}[h!]
@@ -166,7 +168,7 @@ A \textit{Convolutional Neural Network} \cite{LeCun1998} (CNN) is an extension o
 
 \subsection{Definition} \label{sec_cnn_def}
 
-The CNN model adds two additional types of layers, in addition to the standard ANN layers: a \textit{convolution layer} and a \textit{subsampling/pooling layer}. The idea behind the two new layers is to exploit the strong 2D local structure of images, i.e. pixels close to each other are highly correlated. By using local correlation one can extract and combine small local features (e.g. edges, corners, points) into higher-order features (e.g. nose, mouths, forehead), which can in the end be recognized as an object (e.g. a face).  A full network is illustrated in Figure \ref{fig_cnn}.
+The CNN model adds two additional types of layers, in addition to the standard ANN layers: a \textit{convolution layer} and a \textit{subsampling/pooling layer}. The idea behind the two new layers is to exploit the local 2D structure of images, i.e. pixels close to each other are highly correlated. By using local correlation one can extract and combine small local features (e.g. edges, corners, points) into higher-order features (e.g. a nose, a mouth, a forehead), which can in the end be recognized as an object (e.g. a face).  A full network is illustrated in Figure \ref{fig_cnn}.
 
 
 \paragraph{Convolution layer}  \hfill \break
@@ -174,13 +176,13 @@ The convolution layer extracts a set of features from a set of input images. For
 
 The extraction is done by performing a \textit{convolution operation} on the image, using a \textit{kernel} that acts like a filter. The kernel is a 2D matrix that contains a set of weights. Depending on values of the weights, convoluting the image with the kernel will have wide range of effects, e.g. sharpening, bluring, edge detection  and feature extraction. By training our network we can configure the weights to extract the features we need in order to recognize our desired classes. 
 
-After the convolution operation have been performed, a bias is added to every element in the feature map and the result is sent through a non-linear function, e.g. a sigmoid function.
+After the convolution operation has been performed, a bias is added to every element in the feature map and the result is sent through a non-linear function, e.g. a sigmoid function.
 
 Formally we can define the convolution layer as follows. The layer accepts \textit{n} images $ X_1, X_2, \dots, X_n $ as inputs, and produces \textit{m} feature maps, $F_1, F_2, \dots, F_m $. These feature maps are produced using a set of \textit{m} learned kernels $ W_1, W_2, \dots, W_m $.  Each feature map $ F_t $ is then produced by computing:
  
 
 \begin{equation}
-\mathbf{F}_t = Sigmoid(b+\sum_{i=1}^{n}\mathbf{X}_t*\mathbf{W_t})
+\mathbf{F}_t = Sigmoid(b+\sum_{i=1}^{n}\mathbf{X}_i*\mathbf{W_t})
 \end{equation}
 
 Where \textbf{F} is the resulting feature map, X is the input image, \textbf{W} is the kernel matrix, and \textit{b} is the bias. $ X * W $ is the convolution operation, which is defined as:
@@ -235,7 +237,7 @@ Where $ o_{ij} $ is a value in the output matrix and $ f_{ij} $ is a value in th
 
 Thus, the subsample/pooling layer helps solve the two last issues from Section \ref{ann_issues}. By reducing the accuracy, the network is less sensitive to the difference between instances of a class. This also causes the network size to be smaller, since it does not require neurons to recognize the differences. 
 
-Figure \ref{fig_conv_ss_mp} illustrates the convolution operation without adding bias and applying the sigmoid function, while Figure \ref{fig_visual_conv_ss_mp} illustrates the full operation of the convolution and subsampling/pooling layer. 
+Figure \ref{fig_conv_ss_mp} illustrates the convolution operation and the subsample/max-pooling operation, while Figure \ref{fig_visual_conv_ss_mp} illustrates the full operation of the convolution and subsampling/pooling layers. 
 
 \begin{figure}[h!]
   \centering
@@ -247,13 +249,11 @@ Figure \ref{fig_conv_ss_mp} illustrates the convolution operation without adding
 
 
 \subsection{Training} \label{sec_cnn_training}
-As mentioned, a CNN consists of three types of layers: a convolution layer, a subsampling/pooling layer and fully connected layer. The latter is trained as described in Section \ref{sec_ann_training}, using backpropagation and gradient decent. The two other layers uses the same general algorithm, but the error $ \delta^l $ and the gradient of $ Cost(\mathbf{W,b}; x, y) $ is calculated differently. . 
+As mentioned, a CNN consists of three types of layers: a convolution layer, a subsampling/pooling layer and fully connected layer. The latter is trained as described in Section \ref{sec_ann_training}, using backpropagation and gradient decent. The two other layers use the same general algorithm, but the error $ \delta^l $ and the gradient of $ Cost(\mathbf{W,b}; x, y) $ is calculated differently. 
 
-Since the backpropagation aglorithm starts at the last layer and work its way backwards, the error is first calculated for the fully connected layer, then provided to the subsampling/pooling layer, and finally to the convolution layer. Thus we first need to calculate the error for the subsampling/pooling layer, so we can propagate it to the convolution layer. 
+Since the backpropagation aglorithm starts at the last layer and work its way backwards, the error is first calculated for the fully connected layers. It is then provided to the subsampling/pooling layer, and finally to the convolution layer. Thus we first need to calculate the error for the subsampling/pooling layer, so we can propagate it to the convolution layer. 
 
-The subsampling/pooling layer does not contain any weight, and can therefore not be tuned, so it only needs to propagate the error it receives. Depending on which pooling operation is used, there are two respective methods for this:
-
-For max pooling, the error is simply propagated to the neuron that was chosen as the maximum value, while the rest are set to zero. Wheras for average-pooling we have to distrubute the error evenly between all the responsible neurons. We therefore define the function \textit{upsample(...)}, which performs the correct propegation operation depending on the type of pooler. 
+The subsampling/pooling layer does not contain any weights, and can therefore not be tuned. Thus it only needs to propagate the error it receives. Depending on which pooling operation is used, there are two respective methods for this. For max pooling, the error is simply propagated to the neuron that was chosen as the maximum value, while the rest are set to zero. For average-pooling we have to distrubute the error evenly between all the responsible neurons. We therefore define the function \textit{upsample(...)}, which performs the correct propegation operation depending on the type of pooler. 
 
 We can now formally define how to calculate the error and the gradient by simply replacing the equations in step 3 and 4 in the backpropagation algorithm with the following equations. For simplicity we assume that convolution and subsampling/pooling is done in a single layer \textit{l}.
 
@@ -282,13 +282,13 @@ A vast amount of the computation required by a CNN can be parallelized. Thus, in
 
 \begin{enumerate}
 	\item The computation of each of the individual feature maps and their corresponding subsampling/pooling. Which \cite{Chakradhar2010} referred to as \textit{inter-parallelism}.
-	\item It is also possible to parallelize the computation of the feature maps that take more than one matrix as input. Which is the case in the subsequent layers after the first. Which \cite{Chakradhar2010} referred to as \textit{intra-parallelism}.
+	\item It is also possible to parallelize the computation of the feature maps that take more than one matrix as input. This is the case in the subsequent layers after the first. Which \cite{Chakradhar2010} referred to as \textit{intra-parallelism}.
 	\item The activation of each neuron in the fully connected layer. 	
 \end{enumerate}
 
-One can also parallelize the mentioned parallelizations themselves. The convolution of a matrix $ n \times n $ using a $ k \times k $ kernel consists of $ n - k + 1 $ convolution operation, which each can be done in parallel. Thus convoluting the whole matrix could potentially take only the time it takes to perform one convolution operation. The subsampling/pooling operation can also be parallelized by pooling all of the individual submatrices at the same time.  
+One can also parallelize the mentioned parallelizations themselves. The convolution of a matrix $ n \times n $ using a $ k \times k $ kernel consists of $ (n - k + 1) \times (n - k + 1) $ convolution operation, which each can be done in parallel. Thus convoluting the whole matrix could potentially take only the time it takes to perform one convolution operation. The subsampling/pooling operation can also be parallelized by pooling all of the individual submatrices at the same time.  
 	
-It is also possible to compute the neuron activation function in parallel, since its a series of  \textit{n} multiply and accumulate operations. One option is to parallelize them by creating a binary tree multiplier, where you have \textit{n} units compute the product of the input and its respective weight, then you use $ \frac{n}{2} $ units to add two results each, and so on until you have a single value. This will reduce the time it takes from \textit{n} time to $ log_2 n $ time. But considering the vast amount of activation functions that are to be computed, hardware resource are better spent on computing as many activation functions in parallel as possible. Unless you have an unlimited amount of hardware resources.   
+It is also possible to compute the neuron activation function in parallel, since its a series of  \textit{n} multiply and accumulate operations. One option is to parallelize them by creating a binary tree multiplier, where you have \textit{n} units compute the product of the input and its respective weight, then you use $ \frac{n}{2} $ units to add two of the results each, and so on until you have a single value. This will reduce the time it takes from \textit{n} time to $ log_2 n $ time. But considering the vast amount of activation functions that are to be computed, hardware resource are better spent on computing as many activation functions in parallel as possible. Unless you have an unlimited amount of hardware resources.   
 
 
 
