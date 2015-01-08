@@ -1,0 +1,8 @@
+INTSTYLE=ise
+INFILE=/home/magnus/Github/Skole/VHDL_testing/io_test/io_test/RPNSystem.ncd
+OUTFILE=/home/magnus/Github/Skole/VHDL_testing/io_test/io_test/RPNSystem.bit
+FAMILY=Spartan6
+PART=xc6slx16-2csg324
+WORKINGDIR=/home/magnus/Github/Skole/VHDL_testing/io_test/io_test
+LICENSE=ISE
+USER_INFO=174154421_208900020_000

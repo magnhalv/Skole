@@ -1,0 +1,20 @@
+//! **************************************************************************
+// Written by: Map M.81d on Thu Jan 08 11:37:17 2015
+//! **************************************************************************
+
+SCHEMATIC START;
+CONFIG VCCAUX = "3.3";
+COMP "clk" LOCATE = SITE "K15" LEVEL 1;
+COMP "UART_Tx" LOCATE = SITE "H14" LEVEL 1;
+COMP "leds<0>" LOCATE = SITE "J13" LEVEL 1;
+COMP "leds<1>" LOCATE = SITE "K14" LEVEL 1;
+COMP "leds<2>" LOCATE = SITE "U17" LEVEL 1;
+COMP "leds<3>" LOCATE = SITE "U18" LEVEL 1;
+COMP "UART_Rx" LOCATE = SITE "H13" LEVEL 1;
+COMP "reset" LOCATE = SITE "H18" LEVEL 1;
+TIMEGRP sys_clk_pin = BEL "UART_Tx" BEL "clk_BUFGP/BUFG";
+TS_sys_clk_pin = PERIOD TIMEGRP "sys_clk_pin" 24 MHz HIGH 50%;
+PIN reset_pins<0> = BEL "reset" PINNAME PAD;
+PIN "reset_pins<0>" TIG;
+SCHEMATIC END;
+

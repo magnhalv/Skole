@@ -1,0 +1,24 @@
+#### Part of TDT4255 Computer Design laboratory exercises
+#### Group for Computer Architecture and Design
+#### Department of Computer and Information Science
+#### Norwegian University of Science and Technology
+
+#### User constraints file for the VHDL tutorial
+#### to be deployed on Avnet-6 Spartan LX16 Evaluation Kit
+
+#### Constraints for the LEDs (output)
+NET X		       LOC = J13 | IOSTANDARD = LVCMOS33;
+NET Y           LOC = K14 | IOSTANDARD = LVCMOS33;
+NET Z           LOC = U17 | IOSTANDARD = LVCMOS33;
+
+#### Constraints for the capacitive pushbuttons (input)
+NET A		       LOC = L13 | IOSTANDARD = LVCMOS33;
+NET B           LOC = K16 | IOSTANDARD = LVCMOS33;
+NET C           LOC = L16 | IOSTANDARD = LVCMOS33;
+
+### Constraints for the clock and reset
+NET reset TIG;
+NET reset LOC=H18 | IOSTANDARD = LVCMOS33;
+NET clk TNM_NET = clk;
+TIMESPEC TS_clk = PERIOD clk 24.0 MHz;
+NET clk			 LOC = K15 | IOSTANDARD = LVCMOS33;

@@ -61,15 +61,14 @@ BEGIN
 
 	clock : process
 	begin
-		clk <= '1';
-		wait for clk_period/2;
 		clk <= '0';
+		wait for clk_period/2;
+		clk <= '1';
 		wait for clk_period/2;
 	end process;
 	
 	create_input : PROCESS
 	BEGIN
-		wait for 100 ns;
 		wait for clk_period*10;
 		conv_en_in <= '1';
 		for i in 1 to 12 loop
@@ -91,7 +90,6 @@ BEGIN
 	
 	assert_output : process
 	begin
-		wait for 100 ns;
 		wait for clk_period*11;
 		
 		for i in 1 to 12 loop
@@ -105,7 +103,7 @@ BEGIN
 					severity error;
 				
 			else
-				assert pixel_out = to_ufixed(i+((i-8)*2)+4, 7, -8)
+				assert pixel_out = to_ufixed(3*i-12, 7, -8)
 					report "Test: " & integer'image(i) & ". Pixel_out was: " & to_string(pixel_out) & ". Should be: " & to_string(to_ufixed(i+((i-8)*2)+4, 7, -8)) & "."
 					severity error;
 			end if;

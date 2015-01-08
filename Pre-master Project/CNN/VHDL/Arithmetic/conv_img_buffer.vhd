@@ -42,14 +42,17 @@ architecture Behavioral of conv_img_buffer is
 	signal write_addr 		: integer range 0 to IMG_SIZE-1;
 	signal read_addr 			: integer range 0 to IMG_SIZE-1;
 	
+	signal prev_valid 		: boolean;
 	
 	signal looped				: boolean;
 	signal pixel_sum			: ufixed(INT_WIDTH-1 downto -FRAC_WIDTH);
 	
-	signal doutb_buffer		: ufixed(INT_WIDTH-1 downto -FRAC_WIDTH);
+	signal read_buffer		: ufixed(INT_WIDTH-1 downto -FRAC_WIDTH);
 	signal doutb 				: std_logic_vector(15 downto 0);
 	signal addra 				: std_logic_vector(6 downto 0);
 	signal addrb 				: std_logic_vector(6 downto 0);
+	
+	
 	
 begin
 
@@ -67,14 +70,30 @@ begin
 		
 	);
 	
-	output_valid <= input_valid;
-	pixel_out <= pixel_sum;
-	conv_en_out <= conv_en_in;
-	
-	read_buffer : process(clk)
+	update_output : process(clk) 
 	begin
-		if rising_edge(clk) and input_valid = '1' then
-			doutb_buffer <= to_ufixed(doutb, doutb_buffer);
+		if rising_edge(clk) then
+			output_valid <= input_valid;
+			pixel_out <= pixel_sum;
+			conv_en_out <= conv_en_in;	
+		end if;
+	end process;
+	
+	update_prev_valid	: process(clk) 
+	begin
+		if rising_edge(clk) then
+			if input_valid = '1' then
+				prev_valid <= true;
+			else
+				prev_valid <= false;
+			end if;
+		end if;
+	end process;
+	
+	update_read_buffer : process(clk)
+	begin
+		if rising_edge(clk) and (input_valid = '1' or prev_valid) then
+			read_buffer <= to_ufixed(doutb, read_buffer);
 		end if;
 	end process;
 	
@@ -82,38 +101,33 @@ begin
 		variable one_cycle_delayed : boolean;
 	begin
 		if rising_edge(clk) then
-			if (conv_en_in = '0' and input_valid='0') then
+			if (conv_en_in = '0') then
 				looped <= false;
-				read_addr <= 2;
+				read_addr <= 1;
 				write_addr <= 0;
-				one_cycle_delayed := false;
 			elsif (input_valid = '1') then
 			
-				if not one_cycle_delayed then
-					one_cycle_delayed := true;
+				if (write_addr = IMG_SIZE-1) then
+					write_addr <= 0;
+					looped <= true;
 				else
-					if (write_addr = IMG_SIZE-1) then
-						write_addr <= 0;
-						looped <= true;
-					else
-						write_addr <= write_addr + 1;
-					end if;
-					
-					if (read_addr = IMG_SIZE-1) and one_cycle_delayed then
-						read_addr <= 0;
-					else
-						read_addr <= read_addr + 1;
-					end if;
+					write_addr <= write_addr + 1;
+				end if;
+				
+				if (read_addr = IMG_SIZE-1) then
+					read_addr <= 0;
+				else
+					read_addr <= read_addr + 1;
 				end if;
 			end if;
 		end if;
 	end process;
 	
-	add_pixels : process(pixel_in, looped, doutb, doutb_buffer)
+	add_pixels : process(pixel_in, looped, doutb, read_buffer)
 		variable pixel_sum_temp : ufixed(INT_WIDTH downto -FRAC_WIDTH);
 	begin
 		if looped then
-			pixel_sum_temp := doutb_buffer + pixel_in;
+			pixel_sum_temp := read_buffer + pixel_in;
 			if (pixel_sum_temp(INT_WIDTH)='0') then
 				pixel_sum <= pixel_sum_temp(INT_WIDTH-1 downto -FRAC_WIDTH);
 			else

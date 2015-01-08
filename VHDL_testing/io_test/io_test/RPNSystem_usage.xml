@@ -1,0 +1,206 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- IMPORTANT: This is an internal file that has been generated
+     by the Xilinx ISE software.  Any direct editing or
+     changes made to this file may result in unpredictable
+     behavior or data corruption.  It is strongly advised that
+     users do not edit the contents of this file. -->
+<DeviceUsageSummary rev="4">
+<DesignStatistics TimeStamp="Thu Jan  8 11:37:40 2015"><group name="NetStatistics">
+<item name="NumNets_Active" rev="4">
+<attrib name="value" value="13"/></item>
+<item name="NumNets_Gnd" rev="4">
+<attrib name="value" value="1"/></item>
+<item name="NumNodesOfType_Active_BOUNCEIN" rev="4">
+<attrib name="value" value="1"/></item>
+<item name="NumNodesOfType_Active_BUFGOUT" rev="4">
+<attrib name="value" value="1"/></item>
+<item name="NumNodesOfType_Active_BUFHINP2OUT" rev="4">
+<attrib name="value" value="1"/></item>
+<item name="NumNodesOfType_Active_CLKPIN" rev="4">
+<attrib name="value" value="1"/></item>
+<item name="NumNodesOfType_Active_CLKPINFEED" rev="4">
+<attrib name="value" value="1"/></item>
+<item name="NumNodesOfType_Active_CNTRLPIN" rev="4">
+<attrib name="value" value="1"/></item>
+<item name="NumNodesOfType_Active_GENERIC" rev="4">
+<attrib name="value" value="6"/></item>
+<item name="NumNodesOfType_Active_GLOBAL" rev="4">
+<attrib name="value" value="8"/></item>
+<item name="NumNodesOfType_Active_INPUT" rev="4">
+<attrib name="value" value="1"/></item>
+<item name="NumNodesOfType_Active_IOBIN2OUT" rev="4">
+<attrib name="value" value="3"/></item>
+<item name="NumNodesOfType_Active_IOBOUTPUT" rev="4">
+<attrib name="value" value="3"/></item>
+<item name="NumNodesOfType_Active_OUTBOUND" rev="4">
+<attrib name="value" value="4"/></item>
+<item name="NumNodesOfType_Active_OUTPUT" rev="4">
+<attrib name="value" value="1"/></item>
+<item name="NumNodesOfType_Active_PADINPUT" rev="4">
+<attrib name="value" value="1"/></item>
+<item name="NumNodesOfType_Active_PADOUTPUT" rev="4">
+<attrib name="value" value="3"/></item>
+<item name="NumNodesOfType_Active_PINFEED" rev="4">
+<attrib name="value" value="5"/></item>
+<item name="NumNodesOfType_Active_PINFEED2" rev="4">
+<attrib name="value" value="1"/></item>
+<item name="NumNodesOfType_Active_QUAD" rev="4">
+<attrib name="value" value="2"/></item>
+<item name="NumNodesOfType_Active_SINGLE" rev="4">
+<attrib name="value" value="1"/></item>
+<item name="NumNodesOfType_Gnd_DOUBLE" rev="4">
+<attrib name="value" value="2"/></item>
+<item name="NumNodesOfType_Gnd_GENERIC" rev="4">
+<attrib name="value" value="4"/></item>
+<item name="NumNodesOfType_Gnd_IOBIN2OUT" rev="4">
+<attrib name="value" value="4"/></item>
+<item name="NumNodesOfType_Gnd_IOBOUTPUT" rev="4">
+<attrib name="value" value="4"/></item>
+<item name="NumNodesOfType_Gnd_OUTBOUND" rev="4">
+<attrib name="value" value="4"/></item>
+<item name="NumNodesOfType_Gnd_OUTPUT" rev="4">
+<attrib name="value" value="4"/></item>
+<item name="NumNodesOfType_Gnd_PADINPUT" rev="4">
+<attrib name="value" value="4"/></item>
+<item name="NumNodesOfType_Gnd_PINFEED" rev="4">
+<attrib name="value" value="4"/></item>
+<item name="NumNodesOfType_Gnd_SINGLE" rev="4">
+<attrib name="value" value="2"/></item>
+</group>
+<group name="SiteStatistics">
+<item name="BUFG-BUFGMUX" rev="4">
+<attrib name="value" value="1"/></item>
+<item name="IOB-IOBM" rev="4">
+<attrib name="value" value="4"/></item>
+<item name="IOB-IOBS" rev="4">
+<attrib name="value" value="4"/></item>
+</group>
+<group name="MiscellaneousStatistics">
+<item name="AGG_BONDED_IO" rev="3">
+<attrib name="value" value="8"/></item>
+<item name="AGG_IO" rev="3">
+<attrib name="value" value="8"/></item>
+<item name="AGG_LOCED_IO" rev="3">
+<attrib name="value" value="8"/></item>
+<item name="NUM_BONDED_IOB" rev="3">
+<attrib name="value" value="8"/></item>
+<item name="NUM_BUFG" rev="3">
+<attrib name="value" value="1"/></item>
+<item name="NUM_IOB_FF" rev="3">
+<attrib name="value" value="1"/></item>
+<item name="NUM_LOCED_IOB" rev="3">
+<attrib name="value" value="8"/></item>
+<item name="NUM_OLOGIC2" rev="3">
+<attrib name="value" value="1"/></item>
+</group>
+</DesignStatistics>
+<DeviceUsage TimeStamp="Thu Jan  8 11:37:40 2015"><group name="SiteSummary">
+<item name="BUFG" rev="4">
+<attrib name="total" value="1000000"/><attrib name="used" value="1"/></item>
+<item name="BUFG_BUFG" rev="4">
+<attrib name="total" value="1000000"/><attrib name="used" value="1"/></item>
+<item name="IOB" rev="4">
+<attrib name="total" value="1000000"/><attrib name="used" value="8"/></item>
+<item name="IOB_IMUX" rev="4">
+<attrib name="total" value="1000000"/><attrib name="used" value="3"/></item>
+<item name="IOB_INBUF" rev="4">
+<attrib name="total" value="1000000"/><attrib name="used" value="3"/></item>
+<item name="IOB_OUTBUF" rev="4">
+<attrib name="total" value="1000000"/><attrib name="used" value="5"/></item>
+<item name="OLOGIC2" rev="4">
+<attrib name="total" value="1000000"/><attrib name="used" value="1"/></item>
+<item name="OLOGIC2_OUTFF" rev="4">
+<attrib name="total" value="1000000"/><attrib name="used" value="1"/></item>
+<item name="PAD" rev="4">
+<attrib name="total" value="1000000"/><attrib name="used" value="8"/></item>
+</group>
+</DeviceUsage>
+<ReportConfigData TimeStamp="Thu Jan  8 11:37:40 2015"><group name="IOB_OUTBUF">
+<item name="DRIVEATTRBOX" rev="4">
+<attrib name="12" value="5"/></item>
+<item name="SLEW" rev="4">
+<attrib name="SLOW" value="5"/></item>
+<item name="SUSPEND" rev="4">
+<attrib name="3STATE" value="5"/></item>
+</group>
+<group name="OLOGIC2">
+<item name="CLK0" rev="4">
+<attrib name="CLK0_INV" value="0"/><attrib name="CLK0" value="1"/></item>
+</group>
+<group name="OLOGIC2_OUTFF">
+<item name="CK0" rev="4">
+<attrib name="CK0_INV" value="0"/><attrib name="CK0" value="1"/></item>
+<item name="OUTFFTYPE" rev="4">
+<attrib name="FF" value="1"/></item>
+<item name="SRINIT_OQ" rev="4">
+<attrib name="0" value="1"/></item>
+<item name="SRTYPE_OQ" rev="4">
+<attrib name="ASYNC" value="1"/></item>
+</group>
+</ReportConfigData>
+<ReportPinData TimeStamp="Thu Jan  8 11:37:40 2015"><group name="IOB_OUTBUF">
+<item name="IN" rev="4">
+<attrib name="value" value="5"/></item>
+<item name="OUT" rev="4">
+<attrib name="value" value="5"/></item>
+</group>
+<group name="BUFG_BUFG">
+<item name="I0" rev="4">
+<attrib name="value" value="1"/></item>
+<item name="O" rev="4">
+<attrib name="value" value="1"/></item>
+</group>
+<group name="PAD">
+<item name="PAD" rev="4">
+<attrib name="value" value="8"/></item>
+</group>
+<group name="IOB_INBUF">
+<item name="OUT" rev="4">
+<attrib name="value" value="3"/></item>
+<item name="PAD" rev="4">
+<attrib name="value" value="3"/></item>
+</group>
+<group name="OLOGIC2">
+<item name="CLK0" rev="4">
+<attrib name="value" value="1"/></item>
+<item name="D1" rev="4">
+<attrib name="value" value="1"/></item>
+<item name="OQ" rev="4">
+<attrib name="value" value="1"/></item>
+<item name="SR" rev="4">
+<attrib name="value" value="1"/></item>
+</group>
+<group name="OLOGIC2_OUTFF">
+<item name="CK0" rev="4">
+<attrib name="value" value="1"/></item>
+<item name="D1" rev="4">
+<attrib name="value" value="1"/></item>
+<item name="Q" rev="4">
+<attrib name="value" value="1"/></item>
+<item name="SR" rev="4">
+<attrib name="value" value="1"/></item>
+</group>
+<group name="IOB_IMUX">
+<item name="I" rev="4">
+<attrib name="value" value="3"/></item>
+<item name="OUT" rev="4">
+<attrib name="value" value="3"/></item>
+</group>
+<group name="IOB">
+<item name="I" rev="4">
+<attrib name="value" value="3"/></item>
+<item name="O" rev="4">
+<attrib name="value" value="5"/></item>
+<item name="PAD" rev="4">
+<attrib name="value" value="8"/></item>
+</group>
+<group name="BUFG">
+<item name="I0" rev="4">
+<attrib name="value" value="1"/></item>
+<item name="O" rev="4">
+<attrib name="value" value="1"/></item>
+</group>
+</ReportPinData>
+<CmdHistory>
+</CmdHistory>
+</DeviceUsageSummary>

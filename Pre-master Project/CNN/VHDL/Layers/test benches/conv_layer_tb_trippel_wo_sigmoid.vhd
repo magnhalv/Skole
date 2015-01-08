@@ -133,9 +133,9 @@ begin
 
 	clock : process
 	begin
-		clk <= '1';
-		wait for clk_period/2;
 		clk <= '0';
+		wait for clk_period/2;
+		clk <= '1';
 		wait for clk_period/2;
 	end process;
 	
@@ -173,33 +173,33 @@ begin
 		wait; 
 	end process;
 	
---	assert_output : process
---		
---	begin
---	
---		wait for 100 ns;
---		wait for 34*clk_period;
---		assert pixel_out = result0
---			report "Pixel_out was not equal to result0"
---			severity error;
---		
---		wait for clk_period*2;
---		assert pixel_out = result1
---			report "Pixel_out was not equal to result1"
---			severity error;
---			
---		wait for clk_period*10;
---		assert pixel_out = result2
---			report "Pixel_out was not equal to result2"
---			severity error;
---			
---		wait for clk_period*2;
---		assert pixel_out = result3
---			report "Pixel_out was not equal to result3"
---			severity error;
---		
---		wait;
---	end process;
+	assert_output : process
+		
+	begin
+	
+		wait for 100 ns;
+		wait for 34*clk_period;
+		assert pixel_out = result0
+			report "Pixel_out was not equal to result0"
+			severity error;
+		
+		wait for clk_period*2;
+		assert pixel_out = result1
+			report "Pixel_out was not equal to result1"
+			severity error;
+			
+		wait for clk_period*10;
+		assert pixel_out = result2
+			report "Pixel_out was not equal to result2"
+			severity error;
+			
+		wait for clk_period*2;
+		assert pixel_out = result3
+			report "Pixel_out was not equal to result3"
+			severity error;
+		
+		wait;
+	end process;
 	
 
 end;

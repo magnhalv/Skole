@@ -1,0 +1,17 @@
+xst -intstyle ise -ifn "/home/magnus/Github/Skole/VHDL_testing/io_test/io_test/RPNSystem.xst" -ofn "/home/magnus/Github/Skole/VHDL_testing/io_test/io_test/RPNSystem.syr" 
+ngdbuild -intstyle ise -dd _ngo -sd ipcore_dir -nt timestamp -uc RPNSystem.ucf -p xc6slx16-csg324-2 RPNSystem.ngc RPNSystem.ngd  
+map -intstyle ise -p xc6slx16-csg324-2 -w -logic_opt off -ol high -t 1 -xt 0 -register_duplication off -r 4 -global_opt off -mt off -ir off -pr off -lc off -power off -o RPNSystem_map.ncd RPNSystem.ngd RPNSystem.pcf 
+xst -intstyle ise -ifn "/home/magnus/Github/Skole/VHDL_testing/io_test/io_test/RPNSystem.xst" -ofn "/home/magnus/Github/Skole/VHDL_testing/io_test/io_test/RPNSystem.syr" 
+ngdbuild -intstyle ise -dd _ngo -sd ipcore_dir -nt timestamp -uc RPNSystem.ucf -p xc6slx16-csg324-2 RPNSystem.ngc RPNSystem.ngd  
+map -intstyle ise -p xc6slx16-csg324-2 -w -logic_opt off -ol high -t 1 -xt 0 -register_duplication off -r 4 -global_opt off -mt off -ir off -pr off -lc off -power off -o RPNSystem_map.ncd RPNSystem.ngd RPNSystem.pcf 
+par -w -intstyle ise -ol high -mt off RPNSystem_map.ncd RPNSystem.ncd RPNSystem.pcf 
+trce -intstyle ise -v 3 -s 2 -n 3 -fastpaths -xml RPNSystem.twx RPNSystem.ncd -o RPNSystem.twr RPNSystem.pcf -ucf RPNSystem.ucf 
+bitgen -intstyle ise -f RPNSystem.ut RPNSystem.ncd 
+xst -intstyle ise -ifn "/home/magnus/Github/Skole/VHDL_testing/io_test/io_test/RPNSystem.xst" -ofn "/home/magnus/Github/Skole/VHDL_testing/io_test/io_test/RPNSystem.syr" 
+xst -intstyle ise -ifn "/home/magnus/Github/Skole/VHDL_testing/io_test/io_test/RPNSystem.xst" -ofn "/home/magnus/Github/Skole/VHDL_testing/io_test/io_test/RPNSystem.syr" 
+xst -intstyle ise -ifn "/home/magnus/Github/Skole/VHDL_testing/io_test/io_test/RPNSystem.xst" -ofn "/home/magnus/Github/Skole/VHDL_testing/io_test/io_test/RPNSystem.syr" 
+ngdbuild -intstyle ise -dd _ngo -sd ipcore_dir -nt timestamp -uc RPNSystem.ucf -p xc6slx16-csg324-2 RPNSystem.ngc RPNSystem.ngd  
+map -intstyle ise -p xc6slx16-csg324-2 -w -logic_opt off -ol high -t 1 -xt 0 -register_duplication off -r 4 -global_opt off -mt off -ir off -pr off -lc off -power off -o RPNSystem_map.ncd RPNSystem.ngd RPNSystem.pcf 
+par -w -intstyle ise -ol high -mt off RPNSystem_map.ncd RPNSystem.ncd RPNSystem.pcf 
+trce -intstyle ise -v 3 -s 2 -n 3 -fastpaths -xml RPNSystem.twx RPNSystem.ncd -o RPNSystem.twr RPNSystem.pcf -ucf RPNSystem.ucf 
+bitgen -intstyle ise -f RPNSystem.ut RPNSystem.ncd 

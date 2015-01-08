@@ -1,0 +1,3 @@
+NEWPROJECT "/home/magnus/Github/Skole/VHDL_testing/io_test/io_test/ipcore_dir/coregen.cgp"
+SETPROJECT "/home/magnus/Github/Skole/VHDL_testing/io_test/io_test/ipcore_dir/coregen.cgp"
+LAUNCHXCO "/home/magnus/Github/Skole/VHDL_testing/io_test/io_test/ipcore_dir/RPNDataMem.xco"
