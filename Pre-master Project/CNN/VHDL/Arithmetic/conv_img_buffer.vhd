@@ -70,16 +70,7 @@ begin
 		
 	);
 	
-	update_output : process(clk) 
-	begin
-		if rising_edge(clk) then
-			output_valid <= input_valid;
-			pixel_out <= pixel_sum;
-			conv_en_out <= conv_en_in;	
-		end if;
-	end process;
-	
-	update_prev_valid	: process(clk) 
+	update_prev_valid : process(clk) 
 	begin
 		if rising_edge(clk) then
 			if input_valid = '1' then
@@ -90,15 +81,26 @@ begin
 		end if;
 	end process;
 	
+	
+	update_output : process(clk) 
+	begin
+		if rising_edge(clk) then
+			output_valid <= input_valid;
+			pixel_out <= pixel_sum;
+			conv_en_out <= conv_en_in;	
+		end if;
+	end process;
+	
 	update_read_buffer : process(clk)
 	begin
-		if rising_edge(clk) and (input_valid = '1' or prev_valid) then
-			read_buffer <= to_ufixed(doutb, read_buffer);
+		if rising_edge(clk) then
+			if prev_valid then
+				read_buffer <= to_ufixed(doutb, read_buffer);
+			end if;
 		end if;
 	end process;
 	
 	update_index : process(clk)
-		variable one_cycle_delayed : boolean;
 	begin
 		if rising_edge(clk) then
 			if (conv_en_in = '0') then
@@ -127,7 +129,12 @@ begin
 		variable pixel_sum_temp : ufixed(INT_WIDTH downto -FRAC_WIDTH);
 	begin
 		if looped then
-			pixel_sum_temp := read_buffer + pixel_in;
+			if prev_valid then
+				pixel_sum_temp := to_ufixed(doutb, read_buffer) + pixel_in;
+			else
+				pixel_sum_temp := read_buffer + pixel_in;
+			end if;
+			
 			if (pixel_sum_temp(INT_WIDTH)='0') then
 				pixel_sum <= pixel_sum_temp(INT_WIDTH-1 downto -FRAC_WIDTH);
 			else

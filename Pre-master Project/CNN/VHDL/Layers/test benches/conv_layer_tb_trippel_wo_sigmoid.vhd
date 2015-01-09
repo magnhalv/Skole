@@ -64,10 +64,10 @@ ARCHITECTURE behavior OF conv_layer_tb_trippel_wo_sig IS
 	constant four 	: ufixed(INT_WIDTH-1 downto -FRAC_WIDTH) := "0000010000000000";
 	constant five 	: ufixed(INT_WIDTH-1 downto -FRAC_WIDTH) := "0000010100000000";
 	
-	constant result0 : ufixed(INT_WIDTH-1 downto -FRAC_WIDTH) := "1010110100000000";
-	constant result1 : ufixed(INT_WIDTH-1 downto -FRAC_WIDTH) := "1100100000000000";
-	constant result2 : ufixed(INT_WIDTH-1 downto -FRAC_WIDTH) := "1010001000000000";
-	constant result3 : ufixed(INT_WIDTH-1 downto -FRAC_WIDTH) := "1111000100000000";
+	constant result0 : ufixed(INT_WIDTH-1 downto -FRAC_WIDTH) := "1011111100000000";
+	constant result1 : ufixed(INT_WIDTH-1 downto -FRAC_WIDTH) := "1101110100000000";
+	constant result2 : ufixed(INT_WIDTH-1 downto -FRAC_WIDTH) := "1100110100000000";
+	constant result3 : ufixed(INT_WIDTH-1 downto -FRAC_WIDTH) := "1010110000000000";
 	
 	constant OUTPUT_DIM : integer := (IMG_DIM-KERNEL_DIM+1)/MAX_POOL_DIM;
 	type img_array is array ((IMG_DIM*IMG_DIM)-1 downto 0) of ufixed(INT_WIDTH-1 downto -FRAC_WIDTH);
@@ -75,37 +75,38 @@ ARCHITECTURE behavior OF conv_layer_tb_trippel_wo_sig IS
 	type pooled_array is array ((OUTPUT_DIM*OUTPUT_DIM)-1 downto 0) of ufixed(INT_WIDTH-1 downto -FRAC_WIDTH);
 	
 	signal img1 : img_array := (
-		two, zero, zero, five, two, one, 
-		zero, four, two, three, zero, two, 
-		one, zero, one, four, zero, zero, 
-		two, three, one, zero, zero, five, 
-		zero, one, two, four, five, five, 
-		four, one, two, four, five, four
+		one, zero, five, zero, four, two, 
+		four, zero, two, one, four, three, 
+		zero, three, four, four, four, two, 
+		four, two, three, two, five, one, 
+		three, two, two, four, two, two, 
+		one, zero, zero, five, two, one
+
 	);
 	
 	signal img2 : img_array := (
-		two, five, three, three, four, one, 
-		three, two, three, four, two, zero, 
-		two, one, two, two, four, three, 
-		one, four, one, three, three, one, 
-		zero, one, four, five, one, four, 
-		zero, zero, zero, zero, four, four
+		five, one, one, five, two, one, 
+		three, four, zero, four, one, four, 
+		five, five, one, four, three, two, 
+		five, zero, two, two, one, four, 
+		zero, three, two, three, three, one, 
+		three, three, two, five, one, three
 	);
 	
 	signal img3 : img_array := (
-		three, five, three, three, three, four, 
-		zero, one, one, five, one, three, 
-		five, zero, five, zero, one, three, 
-		three, four, one, five, two, five, 
-		five, two, two, zero, four, two, 
-		four, four, one, three, five, zero
+		one, five, five, zero, five, four, 
+		one, two, two, four, two, zero, 
+		one, one, one, one, five, two, 
+		four, four, one, zero, two, four, 
+		five, four, two, zero, one, four, 
+		one, five, three, zero, two, zero
 	);
 	
 	signal kernel : kernel_array := (
-		three,
-		one, four, four,
-		one, four, four,
-		four, two, one
+		one, four, five, 
+		four, one, four, 
+		zero, five, one,
+		three
 	);
 	
 	signal result : pooled_array := (
@@ -140,10 +141,7 @@ begin
 	end process;
 	
 	create_input : process
-	begin
-		reset <= '1';
-		
-		wait for 100 ns; 
+	begin 
 		first_layer <= '0';
 		reset <= '0';
 		weight_we <= '1';
@@ -177,25 +175,24 @@ begin
 		
 	begin
 	
-		wait for 100 ns;
-		wait for 34*clk_period;
+		wait for 35*clk_period;
 		assert pixel_out = result0
-			report "Pixel_out was not equal to result0"
+			report "Pixel_out was not equal to result0. Expected: " & to_string(result0) & ". Acutal: " & to_string(pixel_out) & "."
 			severity error;
 		
 		wait for clk_period*2;
 		assert pixel_out = result1
-			report "Pixel_out was not equal to result1"
+			report "Pixel_out was not equal to result1. Expected: " & to_string(result1) & ". Acutal: " & to_string(pixel_out) & "."
 			severity error;
 			
 		wait for clk_period*10;
 		assert pixel_out = result2
-			report "Pixel_out was not equal to result2"
+			report "Pixel_out was not equal to result2. Expected: " & to_string(result2) & ". Acutal: " & to_string(pixel_out) & "."
 			severity error;
 			
 		wait for clk_period*2;
 		assert pixel_out = result3
-			report "Pixel_out was not equal to result3"
+			report "Pixel_out was not equal to result3. Expected: " & to_string(result3) & ". Acutal: " & to_string(pixel_out) & "."
 			severity error;
 		
 		wait;
