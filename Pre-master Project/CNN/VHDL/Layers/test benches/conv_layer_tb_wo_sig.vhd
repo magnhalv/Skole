@@ -64,10 +64,10 @@ ARCHITECTURE behavior OF conv_layer_tb_wo_sig IS
 	constant four 	: ufixed(INT_WIDTH-1 downto -FRAC_WIDTH) := "0000010000000000";
 	constant five 	: ufixed(INT_WIDTH-1 downto -FRAC_WIDTH) := "0000010100000000";
 	
-	constant result0 : ufixed(INT_WIDTH-1 downto -FRAC_WIDTH) := "0011100100000000";
-	constant result1 : ufixed(INT_WIDTH-1 downto -FRAC_WIDTH) := "0011110000000000";
-	constant result2 : ufixed(INT_WIDTH-1 downto -FRAC_WIDTH) := "0011100100000000";
-	constant result3 : ufixed(INT_WIDTH-1 downto -FRAC_WIDTH) := "0010101100000000";
+	constant result0 : ufixed(INT_WIDTH-1 downto -FRAC_WIDTH) := to_ufixed(43, 7, -8);
+	constant result1 : ufixed(INT_WIDTH-1 downto -FRAC_WIDTH) := to_ufixed(54, 7, -8);
+	constant result2 : ufixed(INT_WIDTH-1 downto -FRAC_WIDTH) := to_ufixed(69, 7, -8);
+	constant result3 : ufixed(INT_WIDTH-1 downto -FRAC_WIDTH) := to_ufixed(49, 7, -8);
 	
 	constant OUTPUT_DIM : integer := (IMG_DIM-KERNEL_DIM+1)/MAX_POOL_DIM;
 	type img_array is array ((IMG_DIM*IMG_DIM)-1 downto 0) of ufixed(INT_WIDTH-1 downto -FRAC_WIDTH);
@@ -75,25 +75,27 @@ ARCHITECTURE behavior OF conv_layer_tb_wo_sig IS
 	type pooled_array is array ((OUTPUT_DIM*OUTPUT_DIM)-1 downto 0) of ufixed(INT_WIDTH-1 downto -FRAC_WIDTH);
 	
 	signal img : img_array := (
-		four, three, two, two, two, two,
-		three, five, three, five, four, one,
-		one, two, zero, one, four, zero,
-		two, five, three, one, two, four,
-		five, three, two, five, one, two,
-		four, four, zero, two, zero, zero
+		one, one, two, zero, one, one, 
+		two, zero, four, one, four, four, 
+		one, four, three, three, one, one, 
+		three, five, three, one, one, five, 
+		three, three, five, three, zero, five, 
+		three, three, five, three, zero, one
 	);
 	
 	signal kernel : kernel_array := (
-		three,
-		three, two, zero,
-		one, five, one,
-		four, three, zero
+		three, three, four, 
+		zero, zero, two, 
+		one, zero, four,
+		three
 	);
 	
 	signal result : pooled_array := (
-		result0, result1,
-		result2, result3
+		result3, result2,
+		result1, result0
 	);
+	
+	signal nof_outputs : integer := 0;
 	
 	
 	
@@ -115,22 +117,22 @@ begin
 
 	clock : process
 	begin
-		clk <= '1';
-		wait for clk_period/2;
 		clk <= '0';
+		wait for clk_period/2;
+		clk <= '1';
 		wait for clk_period/2;
 	end process;
 	
 	create_input : process
 	begin
-		reset <= '1';
 		
-		wait for 100 ns; 
+		wait for clk_period;
+		
 		first_layer <= '1';
 		reset <= '0';
 		weight_we <= '1';
 		for i in 0 to (KERNEL_DIM*KERNEL_DIM) loop
-			weight_data <= kernel(KERNEL_DIM*KERNEL_DIM-i);
+			weight_data <= kernel(i);
 			wait for clk_period;
 		end loop;
 		weight_we <= '0';
@@ -145,33 +147,28 @@ begin
 		wait; 
 	end process;
 	
-	assert_output : process
-		
+	assert_outputs : process(clk)
 	begin
-	
-		wait for 100 ns;
-		wait for 34*clk_period;
-		assert pixel_out = result0
-			report "Pixel_out was not equal to result0"
-			severity error;
-		
-		wait for clk_period*2;
-		assert pixel_out = result1
-			report "Pixel_out was not equal to result1"
-			severity error;
-			
-		wait for clk_period*10;
-		assert pixel_out = result2
-			report "Pixel_out was not equal to result2"
-			severity error;
-			
-		wait for clk_period*2;
-		assert pixel_out = result3
-			report "Pixel_out was not equal to result3"
-			severity error;
-		
-		wait;
+		if rising_edge(clk) then
+			if (pixel_valid ='1') then
+				assert pixel_out = result(nof_outputs)
+					report "Output nr. " & integer'image(nof_outputs) & ". Expected value: " &
+						to_string(result(nof_outputs)) & ". Actual value: " & to_string(pixel_out) & "."
+					severity error;
+				nof_outputs <= nof_outputs + 1;
+			end if;
+		end if; 
 	end process;
 	
+	assert_correct_nof_outputs : process(clk)
+	begin
+		if rising_edge(clk) then
+			if (nof_outputs >= 4) then
+				assert nof_outputs = 4
+					report "More values was set as valid outputs than expected!"
+					severity error;
+			end if;
+		end if;
+	end process;
 
 end;

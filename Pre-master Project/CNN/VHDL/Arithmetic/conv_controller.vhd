@@ -19,7 +19,7 @@ architecture Behavioral of conv_controller is
 
 	signal row_num 				: integer range 0 to IMAGE_DIM := 0;
 	signal column_num 			: integer range 0 to IMAGE_DIM := 0;
-	signal reached_valid_row 		: std_logic;
+	signal reached_valid_row 	: std_logic;
 	
 	signal conv_en_buf	: std_logic;
 	
@@ -36,8 +36,8 @@ begin
 			conv_en_buf <= conv_en;
 			if conv_en = '1' then
 				if (column_num = IMAGE_DIM and row_num = IMAGE_DIM) then
-					column_num <= 1;
 					row_num <= 1;
+					column_num <= 1;
 					reached_valid_row <= '0';
 				
 				else
@@ -65,15 +65,13 @@ begin
 		if rising_edge(clk) then
 			if conv_en_buf = '1'
 			and reached_valid_row = '1' 
-			and (column_num >= KERNEL_DIM) then
-				output_valid_buf <= '1';
+			and (column_num >= KERNEL_DIM-1 and column_num < IMAGE_DIM) then
+				output_valid <= '1';
 			else 
-				output_valid_buf <= '0';
+				output_valid <= '0';
 			end if;
 		end if;
 	end process;
-	
-	output_valid <= output_valid_buf;
 
 end Behavioral;
 
