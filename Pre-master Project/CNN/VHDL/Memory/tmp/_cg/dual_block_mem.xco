@@ -1,7 +1,7 @@
 ##############################################################
 #
 # Xilinx Core Generator version 12.4
-# Date: Thu Nov 13 12:23:01 2014
+# Date: Tue Jan 13 16:03:14 2015
 #
 ##############################################################
 #
@@ -17,7 +17,7 @@ SET addpads = false
 SET asysymbol = true
 SET busformat = BusFormatAngleBracketNotRipped
 SET createndf = false
-SET designentry = Advanced
+SET designentry = VHDL
 SET device = xc6slx16
 SET devicefamily = spartan6
 SET flowvendor = Foundation_ISE
@@ -27,7 +27,7 @@ SET implementationfiletype = Ngc
 SET package = csg324
 SET removerpms = false
 SET simulationfiles = Behavioral
-SET speedgrade = -3
+SET speedgrade = -2
 SET verilogsim = true
 SET vhdlsim = true
 # END Project Options
@@ -90,4 +90,4 @@ CSET write_width_a=16
 CSET write_width_b=16
 # END Parameters
 GENERATE
-# CRC:  fd89bb0
+# CRC: 6d03ae1a

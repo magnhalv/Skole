@@ -9,21 +9,22 @@ use ieee_proposed.fixed_pkg.all;
 
 entity convolution is
 	generic 	(
-		IMAGE_DIM	: integer := 5;
-		KERNEL_DIM 	: integer := 3;
-		INT_WIDTH	: integer := 8;
-		FRAC_WIDTH	: integer := 8
+		IMAGE_DIM	   		: integer := 6;
+		KERNEL_DIM 		: integer := 3;
+		INT_WIDTH	   		: integer := 8;
+		FRAC_WIDTH		: integer := 8
 	);
 	port ( 
-		clk					: in std_logic;
+		clk						: in std_logic;
 		reset					: in std_logic;
 		conv_en_in			: in std_logic;
+		layer_nr				: in std_logic;
 		weight_we			: in std_logic;
 		weight_data 		: in ufixed(INT_WIDTH-1 downto -FRAC_WIDTH);
-		pixel_in 			: in ufixed(INT_WIDTH-1 downto -FRAC_WIDTH);
-      output_valid		: out std_logic; 
-		conv_en_out			: out std_logic;
-		pixel_out 			: out ufixed(INT_WIDTH-1 downto -FRAC_WIDTH);
+		pixel_in 				: in ufixed(INT_WIDTH-1 downto -FRAC_WIDTH);
+		output_valid			: out std_logic; 
+		conv_en_out		: out std_logic;
+		pixel_out 				: out ufixed(INT_WIDTH-1 downto -FRAC_WIDTH);
 		bias_out				: out ufixed(INT_WIDTH-1 downto -FRAC_WIDTH)
 	);
 end convolution;
@@ -32,14 +33,14 @@ architecture Behavioral of convolution is
 
 	component mac
 		port (
-			clk 			: in std_logic;
+			clk 				: in std_logic;
 			reset			: in std_logic;
 			weight_we 	: in std_logic;
-			weight_in	: in ufixed(INT_WIDTH-1 downto -FRAC_WIDTH);
+			weight_in		: in ufixed(INT_WIDTH-1 downto -FRAC_WIDTH);
 			multi_value	: in ufixed(INT_WIDTH-1 downto -FRAC_WIDTH);
 			acc_value 	: in ufixed(INT_WIDTH-1 downto -FRAC_WIDTH);
 			weight_out	: out ufixed(INT_WIDTH-1 downto -FRAC_WIDTH);
-			result 		: out ufixed(INT_WIDTH-1 downto -FRAC_WIDTH)
+			result 			: out ufixed(INT_WIDTH-1 downto -FRAC_WIDTH)
 		);
 	end component;
 	
@@ -60,26 +61,28 @@ architecture Behavioral of convolution is
 	
 	component conv_controller
 		generic (	
-			IMAGE_DIM 	: integer := IMAGE_DIM;
+			IMAGE_DIM 		: integer := IMAGE_DIM;
 			KERNEL_DIM 	: integer := KERNEL_DIM
 		);
 		port (
 			clk 					: in  std_logic;
-			conv_en			 	: in  std_logic;
-			output_valid 		: out  std_logic
+			conv_en			: in  std_logic;
+			output_valid 	: out  std_logic
 		);
 	end component;
 	
 	type ufixed_acc_array is array (KERNEL_DIM - 1 downto 0, KERNEL_DIM downto 0) of ufixed(INT_WIDTH-1 downto -FRAC_WIDTH);
 	type ufixed_weight_array is array (KERNEL_DIM - 1 downto 0, KERNEL_DIM-1 downto 0) of ufixed(INT_WIDTH-1 downto -FRAC_WIDTH);
-	type ufixed_shift_reg_array is array (KERNEL_DIM - 2 downto 0, IMAGE_DIM-KERNEL_DIM-1 downto 0) of ufixed(INT_WIDTH-1 downto -FRAC_WIDTH);
+	type ufixed_shift_reg_array is array (KERNEL_DIM - 2 downto 0, IMAGE_DIM-KERNEL_DIM downto 0) of ufixed(INT_WIDTH-1 downto -FRAC_WIDTH);
 	
 	
-	signal acc_value 			: ufixed_acc_array;
-	signal weight_values 	: ufixed_weight_array;
-	signal shift_reg_values : ufixed_shift_reg_array;
-	signal final_result 		: ufixed(INT_WIDTH downto -FRAC_WIDTH);
-	signal bias					: ufixed(INT_WIDTH-1 downto -FRAC_WIDTH);
+	signal acc_value					: ufixed_acc_array;
+	signal weight_values 	      	: ufixed_weight_array;
+	signal shift_reg_values       	: ufixed_shift_reg_array;
+	signal final_result 		        : ufixed(INT_WIDTH downto -FRAC_WIDTH);
+	signal bias					        : ufixed(INT_WIDTH-1 downto -FRAC_WIDTH);
+	
+	constant L2_IMAGE_DIM     : integer := IMAGE_DIM-KERNEL_DIM+1;
 	
 		
 	
@@ -107,7 +110,7 @@ begin
 					weight_out => weight_values(i,j),
 					result => acc_value(i,j+1)
 				);
-			end generate;
+         end generate;
 			
 			mac_other_leftmost : if j = 0 and i > 0 generate
 			begin
@@ -117,7 +120,7 @@ begin
 					weight_we => weight_we,
 					weight_in => weight_values(i-1,KERNEL_DIM-1),
 					multi_value => pixel_in,
-					acc_value => acc_value(i, j),
+					acc_value => acc_value(i,0),
 					weight_out => weight_values(i, j),
 					result => acc_value(i,j+1)
 				);
@@ -182,7 +185,7 @@ begin
 							reset		=> reset,
 							we 		=> conv_en_in,
 							data_in 	=> shift_reg_values(i, x-1),
-							data_out => acc_value(i+1, 0)
+							data_out =>shift_reg_values(i, x)
 						);
 					end generate;
 					
@@ -198,6 +201,16 @@ begin
 						);
 					end generate;
 				end generate;
+            
+                layer_mux : process(layer_nr, shift_reg_values)
+                begin
+                    if (layer_nr = '0') then
+						acc_value(i+1, 0) <= shift_reg_values(i, IMAGE_DIM-KERNEL_DIM-1);
+					else
+						acc_value(i+1, 0) <= shift_reg_values(i, L2_IMAGE_DIM-KERNEL_DIM-1);
+					end if; 
+                end process;
+                
 			end generate;
 			
 		end generate;
