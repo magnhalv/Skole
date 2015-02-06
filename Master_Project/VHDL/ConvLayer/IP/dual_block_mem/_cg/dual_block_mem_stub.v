@@ -1,7 +1,7 @@
 // Copyright 1986-2014 Xilinx, Inc. All Rights Reserved.
 // --------------------------------------------------------------------------------
 // Tool Version: Vivado v.2014.4 (lin64) Build 1071353 Tue Nov 18 16:47:07 MST 2014
-// Date        : Fri Jan 23 14:57:50 2015
+// Date        : Thu Feb  5 18:50:54 2015
 // Host        : Cyberspace running 64-bit Ubuntu 14.10
 // Command     : write_verilog -force -mode synth_stub
 //               /home/magnhalv/Github/Skole/Master_Project/VHDL/ConvLayer/IP/dual_block_mem/_cg/dual_block_mem_stub.v
