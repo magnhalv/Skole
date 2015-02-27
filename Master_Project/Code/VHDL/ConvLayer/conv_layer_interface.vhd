@@ -1,7 +1,6 @@
 library IEEE;
 use IEEE.STD_LOGIC_1164.ALL;
 use IEEE.NUMERIC_STD.ALL;
-use IEEE.STD_LOGIC_UNSIGNED.ALL;
 
 library ieee_proposed;
 use ieee_proposed.fixed_float_types.all;
@@ -9,17 +8,17 @@ use ieee_proposed.fixed_pkg.all;
 
 entity conv_layer_interface is
 	generic (
-        C_S_AXI_DATA_WIDTH  : integer := 32;
-        IMG_DIM             : integer := 8;
-        KERNEL_DIM          : integer := 2;
-        MAX_POOL_DIM        : integer := 2;
-        INT_WIDTH           : integer := 8;
-        FRAC_WIDTH          : integer := 8
+        C_S_AXI_DATA_WIDTH  : Natural := 32;
+        IMG_DIM             : Natural := 6;
+        KERNEL_DIM          : Natural := 3;
+        MAX_POOL_DIM        : Natural := 2;
+        INT_WIDTH           : Natural := 8;
+        FRAC_WIDTH          : Natural := 8
     );
     Port (
         clk             : in std_logic;
-        reset           : in std_logic;
-        s_axi_raddr     : in std_logic_vector(1 downto 0);
+        reset           : in std_logic; -- NOTE: Is active low.
+        s_axi_raddr     : in std_logic_vector(2 downto 0);
         s_axi_rdata     : out std_logic_vector(C_S_AXI_DATA_WIDTH-1 downto 0);
         s_axi_wdata     : in std_logic_vector(C_S_AXI_DATA_WIDTH-1 downto 0);
         s_axi_we        : in std_logic;
@@ -32,25 +31,25 @@ entity conv_layer_interface is
     );
     
     
-    
+     
 end conv_layer_interface;
 
 architecture Behavioral of conv_layer_interface is
     
     component convolution_layer is
         generic (
-            IMG_DIM 		: integer := IMG_DIM;
-            KERNEL_DIM 		: integer := KERNEL_DIM;
-            MAX_POOL_DIM 	: integer := MAX_POOL_DIM;
-            INT_WIDTH 		: integer := INT_WIDTH;
-            FRAC_WIDTH 		: integer := FRAC_WIDTH
+            IMG_DIM 		: Natural := IMG_DIM;
+            KERNEL_DIM 		: Natural := KERNEL_DIM;
+            MAX_POOL_DIM 	: Natural := MAX_POOL_DIM;
+            INT_WIDTH 		: Natural := INT_WIDTH;
+            FRAC_WIDTH 		: Natural := FRAC_WIDTH
         );
         
         port ( 
             clk 		: in std_logic;
             reset		: in std_logic;
             conv_en		: in std_logic;
-            first_layer	: in std_logic;
+            layer_nr	: in std_logic;
             weight_we	: in std_logic;
             weight_data	: in ufixed(INT_WIDTH-1 downto -FRAC_WIDTH);
             pixel_in	: in ufixed(INT_WIDTH-1 downto -FRAC_WIDTH);
@@ -63,27 +62,32 @@ architecture Behavioral of conv_layer_interface is
 	-- Instruction signals --
 	signal op_code         : std_logic_vector(1 downto 0);
 	signal write_weights   : std_logic;
-	signal start_cl      : std_logic;
+	signal start_cl        : std_logic;
 	
 	signal is_writing_weights : std_logic;
 	signal is_executing_cl : std_logic;
 	
+	-- Result buffer
+	type ufixed_array_length_4 is array (3 downto 0) of ufixed(INT_WIDTH-1 downto -FRAC_WIDTH);
+	signal results : ufixed_array_length_4;
+	
+	
 	-- Conv layer (cl) signals --
-	signal cl_conv_en		 : std_logic;
-    signal cl_first_layer   : std_logic;
+	signal cl_conv_en		: std_logic;
+    signal cl_layer_nr      : std_logic;
     signal cl_weight_we     : std_logic;
     signal cl_weight_data   : ufixed(INT_WIDTH-1 downto -FRAC_WIDTH);
     signal cl_pixel_in      : ufixed(INT_WIDTH-1 downto -FRAC_WIDTH);
     signal cl_pixel_valid   : std_logic;
     signal cl_pixel_out     : ufixed(INT_WIDTH-1 downto -FRAC_WIDTH);
     signal cl_dummy_bias    : ufixed(INT_WIDTH-1 downto -FRAC_WIDTH);
-	
-	
-begin
+    
 
-    s_axis_tready <= is_writing_weights;   
+	
+begin   
     
     op_code <= s_axi_wdata(1 downto 0);
+    cl_layer_nr <= '0'; -- CHANGE LATER
     
     DecodeInstruction : process(clk) 
     begin
@@ -107,35 +111,42 @@ begin
         end if;
     end process;
     
-    Read : process(clk)
+    Read : process(s_axis_tdata, s_axi_raddr, results, cl_dummy_bias, is_writing_weights, is_executing_cl)
     begin
-        if rising_edge(clk) then
-            case s_axi_raddr is
-                when "00" => s_axi_rdata <= "0000000000000000" & to_slv(cl_dummy_bias);
-                when "01" => s_axi_rdata <= (0 => is_writing_weights, others => '0');
-                when others => s_axi_rdata <= (others => '0');
-            end case;
-        end if;
+        case s_axi_raddr is
+            when b"000" => s_axi_rdata <= "0000000000000000" & to_slv(results(0)); -- 0
+            when b"001" => s_axi_rdata <= "0000000000000000" & to_slv(results(1)); -- 4
+            when b"010" => s_axi_rdata <= "0000000000000000" & to_slv(results(2)); -- 8
+            when b"011" => s_axi_rdata <= "0000000000000000" & to_slv(results(3)); -- 12
+            when b"100" => s_axi_rdata <= (0 => is_writing_weights, others => '0'); -- 16
+            when b"101" => s_axi_rdata <= (0 => is_executing_cl, others => '0'); -- 20
+            when b"110" => s_axi_rdata <= s_axis_tdata; -- 24
+            when b"111" => s_axi_rdata <= "0000000000000000" & to_slv(cl_dummy_bias); -- 28
+            when others => s_axi_rdata <= (others => '1');
+        end case;
     end process;
     
     s_axis_tready <= is_writing_weights or is_executing_cl;
     
+    cl_weight_we <= is_writing_weights and s_axis_tvalid;
+    cl_weight_data <= to_ufixed(s_axis_tdata(INT_WIDTH+FRAC_WIDTH-1 downto 0), cl_weight_data);
     
-    
-    WriteWeights : process(clk)
-        variable nof_writes : integer;
+    WriteWeights : process(clk, reset)
+        variable nof_writes : Natural;
     begin
-        if reset = '1' then
+        if reset = '0' then
             nof_writes := 0;
             is_writing_weights <= '0';
         elsif rising_edge(clk) then
             if write_weights = '1' then
                 is_writing_weights <= '1';  
             elsif is_writing_weights = '1' then
-                if nof_writes = KERNEL_DIM*KERNEL_DIM+5 then
-                    is_writing_weights <= '0';
-                else
-                    nof_writes := nof_writes + 1;
+                if s_axis_tvalid = '1' then
+                    if nof_writes = KERNEL_DIM*KERNEL_DIM then
+                        is_writing_weights <= '0';
+                    else
+                        nof_writes := nof_writes + 1;
+                    end if;
                 end if;
             else
                 nof_writes := 0;
@@ -144,9 +155,34 @@ begin
         end if;
     end process;
     
+    cl_conv_en <= is_executing_cl;
+    cl_pixel_in <= to_ufixed(s_axis_tdata(INT_WIDTH+FRAC_WIDTH-1 downto 0), cl_pixel_in);
     
-    cl_weight_we <= is_writing_weights and s_axis_tvalid;
-    cl_weight_data <= to_ufixed(s_axis_tdata(INT_WIDTH+FRAC_WIDTH-1 downto 0), cl_weight_data);
+    ExecuteCl : process(clk, reset)
+        variable nof_results : Natural;
+     begin
+        if (reset = '0') then
+            nof_results := 0;
+            is_executing_cl <= '0';
+        elsif rising_edge(clk) then
+            if start_cl = '1' then
+                nof_results := 0;
+                is_executing_cl <= '1';
+            elsif is_executing_cl = '1' then
+                if cl_pixel_valid = '1' then
+                    if nof_results = 4 then
+                        is_executing_cl <= '0';
+                    else
+                        results(nof_results) <= cl_pixel_out;
+                        nof_results := nof_results + 1;
+                    end if;
+                end if;
+            else
+                nof_results := 0;
+                is_executing_cl <= '0';
+            end if;
+        end if;
+     end process;
 
     -- PORT MAPS --
     
@@ -154,7 +190,7 @@ begin
         clk         => clk,
         reset       => reset,
         conv_en     => cl_conv_en,
-        first_layer => cl_first_layer,
+        layer_nr    => cl_layer_nr,
         weight_we   => cl_weight_we,
         weight_data => cl_weight_data,
         pixel_in    => cl_pixel_in,

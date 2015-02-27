@@ -7,11 +7,11 @@ use ieee_proposed.fixed_pkg.all;
 
 entity mac is
 	generic  (
-					INT_WIDTH 	: integer := 8;
-					FRAC_WIDTH 	: integer := 8
+					INT_WIDTH 	: Natural := 8;
+					FRAC_WIDTH 	: Natural := 8
 				);
 	Port( 	
-			clk 			: in std_logic;
+			clk 		: in std_logic;
 			reset 		: in std_logic;		
 			weight_we 	: in std_logic;
 			weight_in 	: in ufixed(INT_WIDTH-1 downto -FRAC_WIDTH);
@@ -25,7 +25,7 @@ end mac;
 architecture Behavioral of mac is
 	
 	signal weight_reg 	: ufixed(INT_WIDTH-1 downto -FRAC_WIDTH);
-	signal sum 				: ufixed(INT_WIDTH*2 downto -FRAC_WIDTH*2);
+	signal sum 			: ufixed(INT_WIDTH*2 downto -FRAC_WIDTH*2);
 	signal product 		: ufixed((INT_WIDTH*2)-1 downto -FRAC_WIDTH*2);
 	
 begin	
@@ -35,7 +35,7 @@ begin
 	weight_register : process(clk) 
 	begin
 		if rising_edge(clk) then
-			if (reset = '1') then
+			if (reset = '0') then
 				weight_reg <= (others => '0');
 			elsif(weight_we = '1') then
 				weight_reg <= weight_in;

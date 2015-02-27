@@ -1,7 +1,6 @@
 library IEEE;
 use IEEE.STD_LOGIC_1164.ALL;
 use IEEE.NUMERIC_STD.ALL;
-use IEEE.STD_LOGIC_UNSIGNED.ALL;
 
 library ieee_proposed;
 use ieee_proposed.fixed_float_types.all;
@@ -9,7 +8,7 @@ use ieee_proposed.fixed_pkg.all;
 
 ENTITY conv_img_buffer_tb IS
 	generic (
-		IMG_SIZE		: integer := 4;
+		IMG_SIZE		: Natural := 4;
 		INT_WIDTH 	: positive := 8;
 		FRAC_WIDTH 	: positive := 8
 	);
@@ -20,7 +19,7 @@ ARCHITECTURE behavior OF conv_img_buffer_tb IS
   -- Component Declaration
 	component conv_img_buffer is
 		generic (
-			IMG_SIZE		: integer := IMG_SIZE;
+			IMG_SIZE		: Natural := IMG_SIZE;
 			INT_WIDTH 	: positive := INT_WIDTH;
 			FRAC_WIDTH 	: positive := FRAC_WIDTH
 		);
@@ -95,16 +94,16 @@ BEGIN
 		for i in 1 to 12 loop
 			if i < 5 then
 				assert pixel_out = to_ufixed(i, 7, -8)
-					report "Test: " & integer'image(i) & ". Pixel_out was: " & to_string(pixel_out) & ". Should be: " & to_string(to_ufixed(i, 7, -8)) & "."
+					report "Test: " & Natural'image(i) & ". Pixel_out was: " & to_string(pixel_out) & ". Should be: " & to_string(to_ufixed(i, 7, -8)) & "."
 					severity error;
 			elsif i < 9 then
 				assert pixel_out = to_ufixed(i+(i-4), 7, -8)
-					report "Test: " & integer'image(i) & ". Pixel_out was: " & to_string(pixel_out) & ". Should be: " & to_string(to_ufixed(i+(i-4), 7, -8)) & "."
+					report "Test: " & Natural'image(i) & ". Pixel_out was: " & to_string(pixel_out) & ". Should be: " & to_string(to_ufixed(i+(i-4), 7, -8)) & "."
 					severity error;
 				
 			else
 				assert pixel_out = to_ufixed(3*i-12, 7, -8)
-					report "Test: " & integer'image(i) & ". Pixel_out was: " & to_string(pixel_out) & ". Should be: " & to_string(to_ufixed(i+((i-8)*2)+4, 7, -8)) & "."
+					report "Test: " & Natural'image(i) & ". Pixel_out was: " & to_string(pixel_out) & ". Should be: " & to_string(to_ufixed(i+((i-8)*2)+4, 7, -8)) & "."
 					severity error;
 			end if;
 			wait for clk_period;

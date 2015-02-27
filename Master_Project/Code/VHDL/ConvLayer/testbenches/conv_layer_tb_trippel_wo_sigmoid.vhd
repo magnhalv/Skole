@@ -1,7 +1,6 @@
 		library IEEE;
 use IEEE.STD_LOGIC_1164.ALL;
 use IEEE.NUMERIC_STD.ALL;
-use IEEE.STD_LOGIC_UNSIGNED.ALL;
 
 library ieee_proposed;
 use ieee_proposed.fixed_float_types.all;
@@ -9,11 +8,11 @@ use ieee_proposed.fixed_pkg.all;
 
 ENTITY conv_layer_tb_trippel_wo_sig IS
 	generic (
-		IMG_DIM 			: integer := 6;
-		KERNEL_DIM 		: integer := 3;
-		MAX_POOL_DIM 	: integer := 2;
-		INT_WIDTH 		: integer := 8;
-		FRAC_WIDTH 		: integer := 8
+		IMG_DIM 			: Natural := 6;
+		KERNEL_DIM 		: Natural := 3;
+		MAX_POOL_DIM 	: Natural := 2;
+		INT_WIDTH 		: Natural := 8;
+		FRAC_WIDTH 		: Natural := 8
 	);
 END conv_layer_tb_trippel_wo_sig;
 
@@ -21,18 +20,18 @@ ARCHITECTURE behavior OF conv_layer_tb_trippel_wo_sig IS
 
 	component convolution_layer is
 		generic (
-			IMG_DIM 			: integer := IMG_DIM;
-			KERNEL_DIM 		: integer := KERNEL_DIM;
-			MAX_POOL_DIM 	: integer := MAX_POOL_DIM;
-			INT_WIDTH 		: integer := INT_WIDTH;
-			FRAC_WIDTH 		: integer := FRAC_WIDTH
+			IMG_DIM 			: Natural := IMG_DIM;
+			KERNEL_DIM 		: Natural := KERNEL_DIM;
+			MAX_POOL_DIM 	: Natural := MAX_POOL_DIM;
+			INT_WIDTH 		: Natural := INT_WIDTH;
+			FRAC_WIDTH 		: Natural := FRAC_WIDTH
 		);
 		
 		port ( 
 			clk 			: in std_logic;
 			reset			: in std_logic;
 			conv_en		: in std_logic;
-			first_layer	: in std_logic;
+			layer_nr	: in std_logic;
 			weight_we	: in std_logic;
 			weight_data	: in ufixed(INT_WIDTH-1 downto -FRAC_WIDTH);
 			pixel_in		: in ufixed(INT_WIDTH-1 downto -FRAC_WIDTH);
@@ -45,7 +44,7 @@ ARCHITECTURE behavior OF conv_layer_tb_trippel_wo_sig IS
 	signal clk 				: std_logic := '0';
 	signal reset			: std_logic := '0';
 	signal conv_en			: std_logic := '0';
-	signal first_layer	: std_logic := '0';
+	signal layer_nr	: std_logic := '0';
 	signal weight_we		: std_logic := '0';
 	signal weight_data	: ufixed(INT_WIDTH-1 downto -FRAC_WIDTH) := (others => '0');
 	signal pixel_in		: ufixed(INT_WIDTH-1 downto -FRAC_WIDTH) := (others => '0');
@@ -77,7 +76,7 @@ ARCHITECTURE behavior OF conv_layer_tb_trippel_wo_sig IS
 	constant result10	: ufixed(INT_WIDTH-1 downto -FRAC_WIDTH) := to_ufixed(170, 7, -8);
 	constant result11	: ufixed(INT_WIDTH-1 downto -FRAC_WIDTH) := to_ufixed(147, 7, -8);
 	
-	constant OUTPUT_DIM : integer := (IMG_DIM-KERNEL_DIM+1)/MAX_POOL_DIM;
+	constant OUTPUT_DIM : Natural := (IMG_DIM-KERNEL_DIM+1)/MAX_POOL_DIM;
 	type img_array is array ((IMG_DIM*IMG_DIM)-1 downto 0) of ufixed(INT_WIDTH-1 downto -FRAC_WIDTH);
 	type kernel_array is array ((KERNEL_DIM*KERNEL_DIM) downto 0) of ufixed(INT_WIDTH-1 downto -FRAC_WIDTH);
 	type pooled_array is array (11 downto 0) of ufixed(INT_WIDTH-1 downto -FRAC_WIDTH);
@@ -123,7 +122,7 @@ ARCHITECTURE behavior OF conv_layer_tb_trippel_wo_sig IS
 		result3, result2, result1, result0
 	);
 	
-	signal nof_outputs : integer := 0;
+	signal nof_outputs : Natural := 0;
 	
        
 begin
@@ -132,7 +131,7 @@ begin
 		clk 			=> clk,
 		reset			=> reset,
 		conv_en		=> conv_en,
-		first_layer	=> first_layer,
+		layer_nr	=> layer_nr,
 		weight_we	=> weight_we,
 		weight_data	=> weight_data,
 		pixel_in		=> pixel_in,
@@ -151,8 +150,8 @@ begin
 	
 	create_input : process
 	begin 
-		first_layer <= '0';
-		reset <= '0';
+		layer_nr <= '0';
+		reset <= '1';
 		weight_we <= '1';
 		for i in 0 to (KERNEL_DIM*KERNEL_DIM) loop
 			weight_data <= kernel(i);
@@ -185,7 +184,7 @@ begin
 		if rising_edge(clk) then
 			if (pixel_valid ='1') then
 				assert pixel_out = result(nof_outputs)
-					report "Output nr. " & integer'image(nof_outputs) & ". Expected value: " &
+					report "Output nr. " & Natural'image(nof_outputs) & ". Expected value: " &
 						to_string(result(nof_outputs)) & ". Actual value: " & to_string(pixel_out) & "."
 					severity error;
 				nof_outputs <= nof_outputs + 1;

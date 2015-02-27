@@ -1,12 +1,11 @@
-	library IEEE;
+library IEEE;
 use IEEE.STD_LOGIC_1164.ALL;
 use IEEE.NUMERIC_STD.ALL;
-use IEEE.STD_LOGIC_UNSIGNED.ALL;
 
 entity conv_controller is
 	generic (	
-		IMAGE_DIM 	: integer := 32;
-		KERNEL_DIM 	: integer := 5
+		IMAGE_DIM 	: Natural := 3;
+		KERNEL_DIM 	: Natural := 2
 	);
 	port (
 		clk 				: in  std_logic;
@@ -17,15 +16,15 @@ end conv_controller;
 
 architecture Behavioral of conv_controller is
 
-	signal row_num 				: integer range 0 to IMAGE_DIM := 0;
-	signal column_num 			: integer range 0 to IMAGE_DIM := 0;
+	signal row_num 				: Natural range 0 to IMAGE_DIM := 0;
+	signal column_num 			: Natural range 0 to IMAGE_DIM := 0;
 	signal reached_valid_row 	: std_logic;
 	
 	signal conv_en_buf	: std_logic;
 	
 	signal output_valid_buf			: std_logic;
-	constant TOTAL_NOF_CYCLES		: integer := (IMAGE_DIM*IMAGE_DIM)+1;
-	constant INVALID_INTERVAL		: integer := KERNEL_DIM-1;
+	constant TOTAL_NOF_CYCLES		: Natural := (IMAGE_DIM*IMAGE_DIM)+1;
+	constant INVALID_INTERVAL		: Natural := KERNEL_DIM-1;
 
 begin
 

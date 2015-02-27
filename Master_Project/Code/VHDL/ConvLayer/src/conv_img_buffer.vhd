@@ -1,7 +1,6 @@
 library IEEE;
 use IEEE.STD_LOGIC_1164.ALL;
 use IEEE.NUMERIC_STD.ALL;
-use IEEE.STD_LOGIC_UNSIGNED.ALL;
 
 library ieee_proposed;
 use ieee_proposed.fixed_float_types.all;
@@ -9,9 +8,9 @@ use ieee_proposed.fixed_pkg.all;
 
 entity conv_img_buffer is
 	generic (
-		IMG_SIZE	: integer := 4;
-		INT_WIDTH 	: positive := 8;
-		FRAC_WIDTH 	: positive := 8
+		IMG_SIZE	: Natural;
+		INT_WIDTH 	: positive;
+		FRAC_WIDTH 	: positive
 	);
 	Port ( 
 		clk 				: in std_logic;
@@ -39,8 +38,8 @@ architecture Behavioral of conv_img_buffer is
 		);
 	end component;
 	
-	signal write_addr 		: integer range 0 to IMG_SIZE-1;
-	signal read_addr 			: integer range 0 to IMG_SIZE-1;
+	signal write_addr 		: Natural range 0 to IMG_SIZE-1;
+	signal read_addr 			: Natural range 0 to IMG_SIZE-1;
 	
 	signal prev_valid 		: boolean;
 	
@@ -125,7 +124,7 @@ begin
 		end if;
 	end process;
 	
-	add_pixels : process(pixel_in, looped, doutb, read_buffer)
+	add_pixels : process(pixel_in, looped, doutb, read_buffer, prev_valid)
 		variable pixel_sum_temp : ufixed(INT_WIDTH downto -FRAC_WIDTH);
 	begin
 		if looped then

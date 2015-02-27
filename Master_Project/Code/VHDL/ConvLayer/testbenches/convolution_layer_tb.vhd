@@ -1,7 +1,6 @@
 library IEEE;
 use IEEE.STD_LOGIC_1164.ALL;
 use IEEE.NUMERIC_STD.ALL;
-use IEEE.STD_LOGIC_UNSIGNED.ALL;
 
 library ieee_proposed;
 use ieee_proposed.fixed_float_types.all;
@@ -9,11 +8,11 @@ use ieee_proposed.fixed_pkg.all;
 
 ENTITY convolution_layer_tb IS
 	generic (
-		IMG_DIM 			: integer := 8;
-		KERNEL_DIM 		: integer := 3;
-		MAX_POOL_DIM 	: integer := 2;
-		INT_WIDTH 		: integer := 8;
-		FRAC_WIDTH 		: integer := 8
+		IMG_DIM 			: Natural := 8;
+		KERNEL_DIM 		: Natural := 3;
+		MAX_POOL_DIM 	: Natural := 2;
+		INT_WIDTH 		: Natural := 8;
+		FRAC_WIDTH 		: Natural := 8
 	);
 END convolution_layer_tb;
 
@@ -21,11 +20,11 @@ ARCHITECTURE behavior OF convolution_layer_tb IS
 
 	COMPONENT convolution_layer
 		generic (
-			IMG_DIM 			: integer := IMG_DIM;
-			KERNEL_DIM 		: integer := KERNEL_DIM;
-			MAX_POOL_DIM 	: integer := MAX_POOL_DIM;
-			INT_WIDTH 		: integer := INT_WIDTH;
-			FRAC_WIDTH 		: integer := FRAC_WIDTH
+			IMG_DIM 			: Natural := IMG_DIM;
+			KERNEL_DIM 		: Natural := KERNEL_DIM;
+			MAX_POOL_DIM 	: Natural := MAX_POOL_DIM;
+			INT_WIDTH 		: Natural := INT_WIDTH;
+			FRAC_WIDTH 		: Natural := FRAC_WIDTH
 		);
 		
 		port ( 
@@ -57,7 +56,7 @@ ARCHITECTURE behavior OF convolution_layer_tb IS
 	constant result7 : ufixed(INT_WIDTH-1 downto -FRAC_WIDTH) := "0101100100000000";
 	constant result8 : ufixed(INT_WIDTH-1 downto -FRAC_WIDTH) := "0110001000000000";
 	
-	constant OUTPUT_DIM : integer := (IMG_DIM-KERNEL_DIM+1)/MAX_POOL_DIM;
+	constant OUTPUT_DIM : Natural := (IMG_DIM-KERNEL_DIM+1)/MAX_POOL_DIM;
 	type img_array is array ((IMG_DIM*IMG_DIM)-1 downto 0) of ufixed(INT_WIDTH-1 downto -FRAC_WIDTH);
 	type kernel_array is array ((KERNEL_DIM*KERNEL_DIM) downto 0) of ufixed(INT_WIDTH-1 downto -FRAC_WIDTH);
 	type pooled_array is array ((OUTPUT_DIM*OUTPUT_DIM)-1 downto 0) of ufixed(INT_WIDTH-1 downto -FRAC_WIDTH);

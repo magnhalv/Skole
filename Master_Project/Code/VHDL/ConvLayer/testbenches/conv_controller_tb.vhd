@@ -2,13 +2,13 @@ LIBRARY ieee;
 USE ieee.std_logic_1164.ALL;
  
 -- Uncomment the following library declaration if using
--- arithmetic functions with Signed or Unsigned values
+-- arithmetic functions with Signed or Natural values
 --USE ieee.numeric_std.ALL;
  
 ENTITY conv_controller_tb IS
 	generic (
-		KERNEL_DIM 	: integer := 7;
-		IMAGE_DIM 	: integer := 32
+		KERNEL_DIM 	: Natural := 7;
+		IMAGE_DIM 	: Natural := 32
 	);
 END conv_controller_tb;
  
@@ -18,8 +18,8 @@ ARCHITECTURE behavior OF conv_controller_tb IS
  
     COMPONENT conv_controller
 	 generic (
-		IMAGE_DIM : integer := IMAGE_DIM;
-		KERNEL_DIM : integer := KERNEL_DIM
+		IMAGE_DIM : Natural := IMAGE_DIM;
+		KERNEL_DIM : Natural := KERNEL_DIM
 	 );
     PORT(
          clk 				: in  std_logic;
@@ -38,8 +38,8 @@ ARCHITECTURE behavior OF conv_controller_tb IS
 
    -- Clock period definitions
    constant clk_period : time := 1 ns;
-	constant DELAY_BEFORE_VALID 	: integer := (IMAGE_DIM*(KERNEL_DIM-1)+(KERNEL_DIM+1));
-	constant DELAY_BEFORE_FIN		: integer := ((IMAGE_DIM*IMAGE_DIM)-DELAY_BEFORE_VALID+1);
+	constant DELAY_BEFORE_VALID 	: Natural := (IMAGE_DIM*(KERNEL_DIM-1)+(KERNEL_DIM+1));
+	constant DELAY_BEFORE_FIN		: Natural := ((IMAGE_DIM*IMAGE_DIM)-DELAY_BEFORE_VALID+1);
  
 BEGIN
  

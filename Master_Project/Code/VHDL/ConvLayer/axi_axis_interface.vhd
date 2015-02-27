@@ -12,7 +12,7 @@ entity axi_axis_interface is
 		-- Width of S_AXI data bus
 		C_S_AXI_DATA_WIDTH	: integer	:= 32;
 		-- Width of S_AXI address bus
-		C_S_AXI_ADDR_WIDTH	: integer	:= 4
+		C_S_AXI_ADDR_WIDTH	: integer	:= 5
 	);
 	port (
 		-- AXI4 streaming interface
@@ -94,7 +94,7 @@ architecture arch_imp of axi_axis_interface is
         Port (
             clk             : in std_logic;
             reset           : in std_logic;
-            s_axi_raddr     : in std_logic_vector(1 downto 0);
+            s_axi_raddr     : in std_logic_vector(2 downto 0);
             s_axi_rdata     : out std_logic_vector(31 downto 0);
             s_axi_wdata     : in std_logic_vector(31 downto 0);
             s_axi_we        : in std_logic;
@@ -126,7 +126,7 @@ architecture arch_imp of axi_axis_interface is
 	-- ADDR_LSB = 2 for 32 bits (n downto 2)
 	-- ADDR_LSB = 3 for 64 bits (n downto 3)
 	constant ADDR_LSB  : integer := (C_S_AXI_DATA_WIDTH/32)+ 1;
-	constant OPT_MEM_ADDR_BITS : integer := 1;
+	constant OPT_MEM_ADDR_BITS : integer := 2;
 	------------------------------------------------
 	---- Signals for user logic register space example
 	--------------------------------------------------

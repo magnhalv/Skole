@@ -1,7 +1,6 @@
 library IEEE;
 use IEEE.STD_LOGIC_1164.ALL;
 use IEEE.NUMERIC_STD.ALL;
-use IEEE.STD_LOGIC_UNSIGNED.ALL;
 
 library ieee_proposed;
 use ieee_proposed.fixed_float_types.all;
@@ -9,11 +8,11 @@ use ieee_proposed.fixed_pkg.all;
 
 ENTITY conv_layer_tb_wo_sig IS
 	generic (
-		IMG_DIM 			: integer := 6;
-		KERNEL_DIM 		: integer := 3;
-		MAX_POOL_DIM 	: integer := 2;
-		INT_WIDTH 		: integer := 8;
-		FRAC_WIDTH 		: integer := 8
+		IMG_DIM 		: Natural := 8;
+		KERNEL_DIM 		: Natural := 3;
+		MAX_POOL_DIM 	: Natural := 2;
+		INT_WIDTH 		: Natural := 8;
+		FRAC_WIDTH 		: Natural := 8
 	);
 END conv_layer_tb_wo_sig;
 
@@ -21,37 +20,37 @@ ARCHITECTURE behavior OF conv_layer_tb_wo_sig IS
 
 	component convolution_layer is
 		generic (
-			IMG_DIM 			: integer := IMG_DIM;
-			KERNEL_DIM 		: integer := KERNEL_DIM;
-			MAX_POOL_DIM 	: integer := MAX_POOL_DIM;
-			INT_WIDTH 		: integer := INT_WIDTH;
-			FRAC_WIDTH 		: integer := FRAC_WIDTH
+			IMG_DIM 		: Natural := IMG_DIM;
+			KERNEL_DIM 		: Natural := KERNEL_DIM;
+			MAX_POOL_DIM 	: Natural := MAX_POOL_DIM;
+			INT_WIDTH 		: Natural := INT_WIDTH;
+			FRAC_WIDTH 		: Natural := FRAC_WIDTH
 		);
 		
 		port ( 
-			clk 			: in std_logic;
-			reset			: in std_logic;
+			clk 		: in std_logic;
+			reset		: in std_logic;
 			conv_en		: in std_logic;
-			first_layer	: in std_logic;
+			layer_nr	: in std_logic;
 			weight_we	: in std_logic;
 			weight_data	: in ufixed(INT_WIDTH-1 downto -FRAC_WIDTH);
-			pixel_in		: in ufixed(INT_WIDTH-1 downto -FRAC_WIDTH);
+			pixel_in	: in ufixed(INT_WIDTH-1 downto -FRAC_WIDTH);
 			pixel_valid	: out std_logic;
 			pixel_out 	: out ufixed(INT_WIDTH-1 downto -FRAC_WIDTH);
 			dummy_bias	: out ufixed(INT_WIDTH-1 downto -FRAC_WIDTH)
 		);
 	end component;
 	
-	signal clk 				: std_logic := '0';
-	signal reset			: std_logic := '0';
-	signal conv_en			: std_logic := '0';
-	signal first_layer	: std_logic := '0';
-	signal weight_we		: std_logic := '0';
+	signal clk 			: std_logic := '0';
+	signal reset		: std_logic := '0';
+	signal conv_en		: std_logic := '0';
+	signal layer_nr	    : std_logic := '0';
+	signal weight_we	: std_logic := '0';
 	signal weight_data	: ufixed(INT_WIDTH-1 downto -FRAC_WIDTH) := (others => '0');
 	signal pixel_in		: ufixed(INT_WIDTH-1 downto -FRAC_WIDTH) := (others => '0');
 	signal pixel_valid	: std_logic := '0';
-	signal pixel_out 		: ufixed(INT_WIDTH-1 downto -FRAC_WIDTH) := (others => '0');
-	signal dummy_bias		: ufixed(INT_WIDTH-1 downto -FRAC_WIDTH) := (others => '0');
+	signal pixel_out 	: ufixed(INT_WIDTH-1 downto -FRAC_WIDTH) := (others => '0');
+	signal dummy_bias	: ufixed(INT_WIDTH-1 downto -FRAC_WIDTH) := (others => '0');
 	
 	constant clk_period : time := 1 ns;
 	
@@ -64,38 +63,46 @@ ARCHITECTURE behavior OF conv_layer_tb_wo_sig IS
 	constant four 	: ufixed(INT_WIDTH-1 downto -FRAC_WIDTH) := "0000010000000000";
 	constant five 	: ufixed(INT_WIDTH-1 downto -FRAC_WIDTH) := "0000010100000000";
 	
-	constant result0 : ufixed(INT_WIDTH-1 downto -FRAC_WIDTH) := to_ufixed(43, 7, -8);
-	constant result1 : ufixed(INT_WIDTH-1 downto -FRAC_WIDTH) := to_ufixed(54, 7, -8);
-	constant result2 : ufixed(INT_WIDTH-1 downto -FRAC_WIDTH) := to_ufixed(69, 7, -8);
-	constant result3 : ufixed(INT_WIDTH-1 downto -FRAC_WIDTH) := to_ufixed(49, 7, -8);
+    constant result0 : ufixed(INT_WIDTH-1 downto -FRAC_WIDTH) := to_ufixed(84, 7, -8);
+    constant result1 : ufixed(INT_WIDTH-1 downto -FRAC_WIDTH) := to_ufixed(82, 7, -8);
+    constant result2 : ufixed(INT_WIDTH-1 downto -FRAC_WIDTH) := to_ufixed(84, 7, -8);
+    constant result3 : ufixed(INT_WIDTH-1 downto -FRAC_WIDTH) := to_ufixed(94, 7, -8);
+    constant result4 : ufixed(INT_WIDTH-1 downto -FRAC_WIDTH) := to_ufixed(47, 7, -8);
+    constant result5 : ufixed(INT_WIDTH-1 downto -FRAC_WIDTH) := to_ufixed(76, 7, -8);
+    constant result6 : ufixed(INT_WIDTH-1 downto -FRAC_WIDTH) := to_ufixed(93, 7, -8);
+    constant result7 : ufixed(INT_WIDTH-1 downto -FRAC_WIDTH) := to_ufixed(72, 7, -8);
+    constant result8 : ufixed(INT_WIDTH-1 downto -FRAC_WIDTH) := to_ufixed(82, 7, -8);
 	
-	constant OUTPUT_DIM : integer := (IMG_DIM-KERNEL_DIM+1)/MAX_POOL_DIM;
+	constant OUTPUT_DIM : Natural := (IMG_DIM-KERNEL_DIM+1)/MAX_POOL_DIM;
 	type img_array is array ((IMG_DIM*IMG_DIM)-1 downto 0) of ufixed(INT_WIDTH-1 downto -FRAC_WIDTH);
 	type kernel_array is array ((KERNEL_DIM*KERNEL_DIM) downto 0) of ufixed(INT_WIDTH-1 downto -FRAC_WIDTH);
 	type pooled_array is array ((OUTPUT_DIM*OUTPUT_DIM)-1 downto 0) of ufixed(INT_WIDTH-1 downto -FRAC_WIDTH);
 	
 	signal img : img_array := (
-		one, one, two, zero, one, one, 
-		two, zero, four, one, four, four, 
-		one, four, three, three, one, one, 
-		three, five, three, one, one, five, 
-		three, three, five, three, zero, five, 
-		three, three, five, three, zero, one
+        three, three, five, five, three, five, three, zero, 
+        one, two, zero, three, five, five, three, zero, 
+        four, one, two, three, zero, zero, three, zero, 
+        five, two, one, two, zero, two, five, one, 
+        five, three, one, zero, four, one, four, four, 
+        three, five, five, two, two, five, three, zero, 
+        two, one, five, one, four, zero, four, two, 
+        three, five, two, zero, two, four, zero, zero
 	);
 	
 	signal kernel : kernel_array := (
-		three, three, four, 
-		zero, zero, two, 
-		one, zero, four,
+        five, four, five, 
+        four, one, zero, 
+        one, three, three,
 		three
 	);
 	
 	signal result : pooled_array := (
-		result3, result2,
-		result1, result0
-	);
+        result8, result7, result6,
+        result5, result4, result3,
+        result2, result1, result0
+    );
 	
-	signal nof_outputs : integer := 0;
+	signal nof_outputs : Natural := 0;
 	
 	
 	
@@ -106,7 +113,7 @@ begin
 		clk 			=> clk,
 		reset			=> reset,
 		conv_en		=> conv_en,
-		first_layer	=> first_layer,
+		layer_nr	=> layer_nr,
 		weight_we	=> weight_we,
 		weight_data	=> weight_data,
 		pixel_in		=> pixel_in,
@@ -128,8 +135,8 @@ begin
 		
 		wait for clk_period;
 		
-		first_layer <= '1';
-		reset <= '0';
+		layer_nr <= '0';
+		reset <= '1';
 		weight_we <= '1';
 		for i in 0 to (KERNEL_DIM*KERNEL_DIM) loop
 			weight_data <= kernel(i);
@@ -152,7 +159,7 @@ begin
 		if rising_edge(clk) then
 			if (pixel_valid ='1') then
 				assert pixel_out = result(nof_outputs)
-					report "Output nr. " & integer'image(nof_outputs) & ". Expected value: " &
+					report "Output nr. " & Natural'image(nof_outputs) & ". Expected value: " &
 						to_string(result(nof_outputs)) & ". Actual value: " & to_string(pixel_out) & "."
 					severity error;
 				nof_outputs <= nof_outputs + 1;
@@ -163,8 +170,8 @@ begin
 	assert_correct_nof_outputs : process(clk)
 	begin
 		if rising_edge(clk) then
-			if (nof_outputs >= 4) then
-				assert nof_outputs = 4
+			if (nof_outputs >= 9) then
+				assert nof_outputs = 9
 					report "More values was set as valid outputs than expected!"
 					severity error;
 			end if;

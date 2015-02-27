@@ -11,43 +11,50 @@ use ieee_proposed.fixed_pkg.all;
   ARCHITECTURE behavior OF mac_tb IS 
 
   -- Component Declaration
-          COMPONENT mac
-				Port ( 	
-					clk : in  STD_LOGIC;
-					reset : in std_logic;
-					weight_we : in  STD_LOGIC;
-					weight_data : in  ufixed(7 downto -8);
-					multi_value : in  ufixed(7 downto -8);
-					acc_value : in  ufixed(7 downto -8);
-					result : out  ufixed(7 downto -8)
-				);
-			end component;
-
-          signal clk :  std_logic;
-			 signal reset : std_logic;
-          signal weight_we :  std_logic;
-			 signal weight_data : ufixed(7 downto -8);
-			 signal multi_value : ufixed(7 downto -8);
-			 signal acc_value : ufixed(7 downto -8);
-			 signal result  : ufixed(7 downto -8);
-			 
-			 constant clk_period : time := 2 ns;	
-			 
-			 constant expected0 : ufixed(7 downto -8) := "0000010100000000";
-			 constant expected1 : ufixed(7 downto -8) := "0000000100000010";
-			 constant expected2 : ufixed(7 downto -8) := "0000000000000001";
-			 constant expected3 : ufixed(7 downto -8) := "0000000000000000";
-          
-			
+    COMPONENT mac
+        generic (
+            INT_WIDTH     : Natural := 8;
+            FRAC_WIDTH     : Natural := 8
+        );
+        Port(     
+            clk         : in std_logic;
+            reset         : in std_logic;        
+            weight_we     : in std_logic;
+            weight_in     : in ufixed(INT_WIDTH-1 downto -FRAC_WIDTH);
+            multi_value : in ufixed(INT_WIDTH-1 downto -FRAC_WIDTH);
+            acc_value     : in ufixed(INT_WIDTH-1 downto -FRAC_WIDTH);
+            weight_out    : out ufixed(INT_WIDTH-1 downto -FRAC_WIDTH);
+            result         : out ufixed(INT_WIDTH-1 downto -FRAC_WIDTH)
+        );
+    end component;
+    
+    signal clk :  std_logic;
+    signal reset : std_logic;
+    signal weight_we :  std_logic;
+    signal weight_in : ufixed(7 downto -8);
+    signal multi_value : ufixed(7 downto -8);
+    signal acc_value : ufixed(7 downto -8);
+    signal weight_out : ufixed(7 downto -8);
+    signal result  : ufixed(7 downto -8);
+    
+    constant clk_period : time := 2 ns;	
+    
+    constant expected0 : ufixed(7 downto -8) := "0000010100000000";
+    constant expected1 : ufixed(7 downto -8) := "0000000100000010";
+    constant expected2 : ufixed(7 downto -8) := "0000000000000001";
+    constant expected3 : ufixed(7 downto -8) := "0000000000000000";
+    
+        
 BEGIN
   
 	test_mac: mac PORT MAP(
 		clk => clk,
 		reset => reset,
 		weight_we => weight_we,
-		weight_data => weight_data,
+		weight_in => weight_in,
 		multi_value => multi_value,
 		acc_value => acc_value,
+		weight_out => weight_out,
 		result => result
    );
   
@@ -63,13 +70,13 @@ BEGIN
   --  Test Bench Statements
      tb : PROCESS
      BEGIN
-			reset <= '1';
+			reset <= '0';
 			wait for 100 ns;
 			
 			wait for clk_period/2;
-			reset <= '0';
+			reset <= '1';
 			weight_we <= '1';
-			weight_data <= to_ufixed(2, weight_data);
+			weight_in <= to_ufixed(2, weight_in);
 			wait for clk_period;
 			
 			-- TEST CASE 1: 2*2+1 = 5
@@ -96,7 +103,7 @@ BEGIN
 			-- TEST CASE 3: Test lower bound accuracy.
 			-- 0.00390625*0.00390625+0.00390625 = 0.00392150879 ~ 0.00390625.
 			weight_we <= '1';
-			weight_data <= to_ufixed(0.00390625, weight_data);
+			weight_in <= to_ufixed(0.00390625, weight_in);
 			wait for clk_period;
 			weight_we <= '0';
 			
@@ -113,7 +120,7 @@ BEGIN
 			-- this module will not give the correct answer!
 			-- 128*2 + 0 = 256. The module's result will be 0, due to overflow. 
 			weight_we <= '1';
-			weight_data <= to_ufixed(2, weight_data);
+			weight_in <= to_ufixed(2, weight_in);
 			wait for clk_period;
 			weight_we <= '0';
 			
