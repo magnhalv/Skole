@@ -22,6 +22,12 @@ entity axi_axis_interface is
         S_AXIS_TKEEP    : in std_logic_vector((C_S_AXI_DATA_WIDTH/8)-1 downto 0);
         S_AXIS_TLAST    : in std_logic;
 
+        m_axis_tvalid   : out std_logic;
+        m_axis_tready   : in std_logic;
+        m_axis_tdata    : out std_logic_vector(C_S_AXI_DATA_WIDTH-1 downto 0);
+        m_axis_tkeep    : out std_logic_vector((C_S_AXI_DATA_WIDTH/8)-1 downto 0);
+        m_axis_tlast    : out std_logic;
+
 		-- Global Clock Signal
 		S_AXI_ACLK	: in std_logic;
 		-- Global Reset Signal. This Signal is Active LOW
@@ -103,7 +109,13 @@ architecture arch_imp of axi_axis_interface is
             s_axis_tready   : out std_logic;
             s_axis_tdata    : in std_logic_vector(C_S_AXI_DATA_WIDTH-1 downto 0);
             s_axis_tkeep    : in std_logic_vector((C_S_AXI_DATA_WIDTH/8)-1 downto 0);
-            s_axis_tlast    : in std_logic
+            s_axis_tlast    : in std_logic;
+            
+            m_axis_tvalid   : out std_logic;
+            m_axis_tready   : in std_logic;
+            m_axis_tdata    : out std_logic_vector(C_S_AXI_DATA_WIDTH-1 downto 0);
+            m_axis_tkeep    : out std_logic_vector((C_S_AXI_DATA_WIDTH/8)-1 downto 0);
+            m_axis_tlast    : out std_logic
         );
     end component;
 	-- AXI4LITE signals
@@ -320,7 +332,12 @@ begin
             s_axis_tready   => S_AXIS_TREADY,
             s_axis_tdata    => S_AXIS_TDATA,
             s_axis_tkeep    => S_AXIS_TKEEP,
-            s_axis_tlast    => S_AXIS_TLAST
+            s_axis_tlast    => S_AXIS_TLAST,
+            m_axis_tvalid   => m_axis_tvalid,
+            m_axis_tready   => m_axis_tready,
+            m_axis_tdata    => m_axis_tdata,
+            m_axis_tkeep    => m_axis_tkeep,
+            m_axis_tlast    => m_axis_tlast
         );
 	-- User logic ends
 

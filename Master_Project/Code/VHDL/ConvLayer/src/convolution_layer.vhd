@@ -120,53 +120,54 @@ begin
 		weight_we		=> weight_we,
 		weight_data 	=> weight_data,
 		pixel_in 		=> pixel_in,
-		output_valid	=> dv_conv_to_buf_and_mux,
+		output_valid	=> pixel_valid,--dv_conv_to_buf_and_mux,
 		conv_en_out		=> conv_en_conv_to_buf_and_mux,
-		pixel_out 		=> data_conv_to_buf_and_mux,
+		pixel_out 		=> pixel_out,--data_conv_to_buf_and_mux,
 		bias    		=> bias
 	
 	);
 	
-	img_buffer : conv_img_buffer port map ( 
-		clk 			=> clk,
-		input_valid		=> dv_conv_to_buf_and_mux,
-		conv_en_in		=> conv_en,
-		pixel_in 		=> data_conv_to_buf_and_mux,
-		output_valid	=> dv_buf_to_mux,
-		conv_en_out		=> conv_en_buf_to_mux, 
-		pixel_out 		=> data_buf_to_mux
-	);
+--	img_buffer : conv_img_buffer port map ( 
+--		clk 			=> clk,
+--		input_valid		=> dv_conv_to_buf_and_mux,
+--		conv_en_in		=> conv_en,
+--		pixel_in 		=> data_conv_to_buf_and_mux,
+--		output_valid	=> dv_buf_to_mux,
+--		conv_en_out		=> conv_en_buf_to_mux, 
+--		pixel_out 		=> data_buf_to_mux
+--	);
 	
-	layer_mux : process (layer_nr, 
-						  conv_en_conv_to_buf_and_mux, 
-						  dv_conv_to_buf_and_mux,
-						  data_conv_to_buf_and_mux,
-						  conv_en_buf_to_mux,
-						  dv_buf_to_mux,
-						  data_buf_to_mux)
-	begin
-		if (layer_nr = '0') then
-			conv_en_mux_to_mp <= conv_en_conv_to_buf_and_mux;
-			dv_mux_to_mp <= dv_conv_to_buf_and_mux;
-			data_mux_to_mp	<= data_conv_to_buf_and_mux;
-		else
-			conv_en_mux_to_mp <= conv_en_buf_to_mux;
-			dv_mux_to_mp <= dv_buf_to_mux;
-			data_mux_to_mp <= data_buf_to_mux;
-		end if;
-	end process;
+--	layer_mux : process (layer_nr, 
+--						  conv_en_conv_to_buf_and_mux, 
+--						  dv_conv_to_buf_and_mux,
+--						  data_conv_to_buf_and_mux,
+--						  conv_en_buf_to_mux,
+--						  dv_buf_to_mux,
+--						  data_buf_to_mux)
+--	begin
+--		if (layer_nr = '0') then
+--			conv_en_mux_to_mp <= conv_en_conv_to_buf_and_mux;
+--			dv_mux_to_mp <= dv_conv_to_buf_and_mux;
+--			data_mux_to_mp	<= data_conv_to_buf_and_mux;
+--		else
+--			conv_en_mux_to_mp <= conv_en_buf_to_mux;
+--			dv_mux_to_mp <= dv_buf_to_mux;
+--			data_mux_to_mp <= data_buf_to_mux;
+--		end if;
+--	end process;
 	
 	
-	mp : max_pool port map ( 
-		clk 			=> clk,
-		conv_en			=> conv_en_mux_to_mp,
-		input_valid		=> dv_mux_to_mp,
-		data_in			=> data_mux_to_mp,
-		data_out		=> pixel_out,
-		output_valid 	=> pixel_valid
-	);
+--	mp : max_pool port map ( 
+--		clk 			=> clk,
+--		conv_en			=> conv_en_mux_to_mp,
+--		input_valid		=> dv_mux_to_mp,
+--		data_in			=> data_mux_to_mp,
+--		data_out		=> pixel_out,
+--		output_valid 	=> pixel_valid
+--	);
 
 	dummy_bias <= bias;
+	
 
 end Behavioral;
 

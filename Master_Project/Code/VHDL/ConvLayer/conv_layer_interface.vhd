@@ -12,8 +12,8 @@ entity conv_layer_interface is
         IMG_DIM             : Natural := 6;
         KERNEL_DIM          : Natural := 3;
         MAX_POOL_DIM        : Natural := 2;
-        INT_WIDTH           : Natural := 8;
-        FRAC_WIDTH          : Natural := 8
+        INT_WIDTH           : Natural := 16;
+        FRAC_WIDTH          : Natural := 16
     );
     Port (
         clk             : in std_logic;
@@ -27,7 +27,13 @@ entity conv_layer_interface is
         s_axis_tready   : out std_logic;
         s_axis_tdata    : in std_logic_vector(C_S_AXI_DATA_WIDTH-1 downto 0);
         s_axis_tkeep    : in std_logic_vector((C_S_AXI_DATA_WIDTH/8)-1 downto 0);
-        s_axis_tlast    : in std_logic
+        s_axis_tlast    : in std_logic;
+        
+        m_axis_tvalid   : out std_logic;
+        m_axis_tready   : in std_logic;
+        m_axis_tdata    : out std_logic_vector(C_S_AXI_DATA_WIDTH-1 downto 0);
+        m_axis_tkeep    : out std_logic_vector((C_S_AXI_DATA_WIDTH/8)-1 downto 0);
+        m_axis_tlast    : out std_logic
     );
     
     
@@ -114,14 +120,14 @@ begin
     Read : process(s_axis_tdata, s_axi_raddr, results, cl_dummy_bias, is_writing_weights, is_executing_cl)
     begin
         case s_axi_raddr is
-            when b"000" => s_axi_rdata <= "0000000000000000" & to_slv(results(0)); -- 0
-            when b"001" => s_axi_rdata <= "0000000000000000" & to_slv(results(1)); -- 4
-            when b"010" => s_axi_rdata <= "0000000000000000" & to_slv(results(2)); -- 8
-            when b"011" => s_axi_rdata <= "0000000000000000" & to_slv(results(3)); -- 12
+            when b"000" => s_axi_rdata <= to_slv(results(0)); -- 0
+            when b"001" => s_axi_rdata <= to_slv(results(1)); -- 4
+            when b"010" => s_axi_rdata <= to_slv(results(2)); -- 8
+            when b"011" => s_axi_rdata <= to_slv(results(3)); -- 12
             when b"100" => s_axi_rdata <= (0 => is_writing_weights, others => '0'); -- 16
             when b"101" => s_axi_rdata <= (0 => is_executing_cl, others => '0'); -- 20
             when b"110" => s_axi_rdata <= s_axis_tdata; -- 24
-            when b"111" => s_axi_rdata <= "0000000000000000" & to_slv(cl_dummy_bias); -- 28
+            when b"111" => s_axi_rdata <= to_slv(cl_dummy_bias); -- 28
             when others => s_axi_rdata <= (others => '1');
         end case;
     end process;
@@ -158,6 +164,9 @@ begin
     cl_conv_en <= is_executing_cl;
     cl_pixel_in <= to_ufixed(s_axis_tdata(INT_WIDTH+FRAC_WIDTH-1 downto 0), cl_pixel_in);
     
+    m_axis_tkeep <= (others => '1');
+    --m_axis_tdata <= to_slv(cl_pixel_out);
+    
     ExecuteCl : process(clk, reset)
         variable nof_results : Natural;
      begin
@@ -172,10 +181,26 @@ begin
                 if cl_pixel_valid = '1' then
                     if nof_results = 4 then
                         is_executing_cl <= '0';
+                        m_axis_tvalid <= '0'; 
+                        --m_axis_tready
+                        m_axis_tlast <= '0';
                     else
                         results(nof_results) <= cl_pixel_out;
                         nof_results := nof_results + 1;
+                        m_axis_tvalid <= '1';
+                        if (m_axis_tready = '0') then
+                            m_axis_tdata <= "00000101001110010000000000000000";
+                        else
+                            m_axis_tdata <= to_slv(cl_pixel_out);
+                        end if;
+                        --m_axis_tready
+                        m_axis_tlast <= '1';
+
                     end if;
+                else
+                    m_axis_tvalid <= '0'; 
+                    --m_axis_tready
+                    m_axis_tlast <= '0';
                 end if;
             else
                 nof_results := 0;
