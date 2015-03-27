@@ -103,6 +103,7 @@ architecture arch_imp of axi_axis_interface is
             s_axi_raddr     : in std_logic_vector(2 downto 0);
             s_axi_rdata     : out std_logic_vector(31 downto 0);
             s_axi_wdata     : in std_logic_vector(31 downto 0);
+            s_axi_waddr     : in std_logic_vector(2 downto 0);
             s_axi_we        : in std_logic;
             
             s_axis_tvalid   : in std_logic;
@@ -145,7 +146,7 @@ architecture arch_imp of axi_axis_interface is
 
 	signal slv_reg_rden	: std_logic;
 	signal slv_reg_wren	: std_logic;
-	signal reg_data_out	:std_logic_vector(C_S_AXI_DATA_WIDTH-1 downto 0);
+	signal reg_data_out	: std_logic_vector(C_S_AXI_DATA_WIDTH-1 downto 0);
 	signal byte_index	: integer;
 
 begin
@@ -325,6 +326,7 @@ begin
             clk             => S_AXI_ACLK,
             reset           => S_AXI_ARESETN,
             s_axi_raddr     => axi_araddr(ADDR_LSB + OPT_MEM_ADDR_BITS downto ADDR_LSB),
+            s_axi_waddr     => axi_awaddr(ADDR_LSB + OPT_MEM_ADDR_BITS downto ADDR_LSB),
             s_axi_wdata     => S_AXI_WDATA,
             s_axi_we        => slv_reg_wren,
             s_axi_rdata     => my_read_data,

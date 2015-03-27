@@ -26,8 +26,8 @@
 */
 #pragma once
 
-#include <cstdint>
-#include <limits>
+#include <c++/4.8.3/cstdint>
+#include <c++/4.8.3/limits>
 
 namespace tiny_cnn {
 
@@ -50,7 +50,7 @@ public:
 
     void operator -= (const fixed_point<Q>& rhs) { 
         assert(rhs.v_ < 0 || (v_ >= std::numeric_limits<in_type>::min() + rhs.v_));
-        v_ -= rhs.v_; 
+        v_ -= rhs.v_;
     }
 
     void operator *= (const fixed_point<Q>& rhs) {

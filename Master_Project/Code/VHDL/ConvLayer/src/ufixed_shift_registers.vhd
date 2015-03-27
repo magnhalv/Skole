@@ -35,7 +35,7 @@ use ieee_proposed.fixed_pkg.all;
 --library UNISIM;
 --use UNISIM.VComponents.all;
 
-entity ufixed_shift_registers is
+entity sfixed_shift_registers is
     generic (
         NOF_REGS : Natural := 8;
         INT_WIDTH : Natural := 8;
@@ -46,16 +46,16 @@ entity ufixed_shift_registers is
         reset : in std_logic;
         we : in std_logic;
         output_reg : in Natural;
-        data_in : in ufixed(INT_WIDTH-1 downto -FRAC_WIDTH);
-        data_out : out ufixed(INT_WIDTH-1 downto -FRAC_WIDTH)
+        data_in : in sfixed(INT_WIDTH-1 downto -FRAC_WIDTH);
+        data_out : out sfixed(INT_WIDTH-1 downto -FRAC_WIDTH)
     );
     
 
-end ufixed_shift_registers;
+end sfixed_shift_registers;
 
-architecture Behavioral of ufixed_shift_registers is
+architecture Behavioral of sfixed_shift_registers is
 
-    component ufixed_buffer
+    component sfixed_buffer
         generic (
             INT_WIDTH : Natural := INT_WIDTH;
             FRAC_WIDTH : Natural := FRAC_WIDTH
@@ -64,14 +64,14 @@ architecture Behavioral of ufixed_shift_registers is
             clk : in std_logic;
             reset : in std_logic;
             we : in std_logic;
-            data_in : in ufixed(INT_WIDTH-1 downto -FRAC_WIDTH);
-            data_out : out ufixed(INT_WIDTH-1 downto -FRAC_WIDTH)
+            data_in : in sfixed(INT_WIDTH-1 downto -FRAC_WIDTH);
+            data_out : out sfixed(INT_WIDTH-1 downto -FRAC_WIDTH)
         );
     end component;
     
-    type ufixed_array is array (NOF_REGS-1 downto 0) of ufixed(INT_WIDTH-1 downto -FRAC_WIDTH);
+    type sfixed_array is array (NOF_REGS-1 downto 0) of sfixed(INT_WIDTH-1 downto -FRAC_WIDTH);
     
-    signal shift_reg_values : ufixed_array; 
+    signal shift_reg_values : sfixed_array; 
 
 begin
     
@@ -82,7 +82,7 @@ begin
     
         first_reg : if reg = 0 generate
         begin
-            shift_reg : ufixed_buffer port map (
+            shift_reg : sfixed_buffer port map (
                 clk => clk,
                 reset => reset,
                 we => we,
@@ -93,7 +93,7 @@ begin
         
         other_regs : if reg > 0 generate
         begin
-            shift_reg : ufixed_buffer port map (
+            shift_reg : sfixed_buffer port map (
                 clk => clk,
                 reset => reset,
                 we => we,

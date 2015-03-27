@@ -40,7 +40,7 @@ architecture Behavioral of tan_h is
 	
 begin
 
-    abs_x <= '0' & x(INT_WIDTH-2 downto -FRAC_WIDTH); -- Absolute value of x
+    abs_x <= resize(abs(x), abs_x); -- Absolute value of x
     pow_x <= resize(abs_x*abs_x, INT_WIDTH-1, -FRAC_WIDTH);
     signed_bit <= x(INT_WIDTH-1);
     
@@ -48,22 +48,22 @@ begin
     set_output: process(clk)
     begin 
         if rising_edge(clk) then
-            y <= tanh_x;
+            if signed_bit = '1' then
+                y <= resize(-tanh_x, INT_WIDTH-1, -FRAC_WIDTH);
+            else
+                y <= tanh_x;
+            end if;
         end if;
     end process;
     
     aprox_tanh : process(abs_x, pow_x, term1, term2, signed_bit )
     begin
         if abs_x <= a and abs_x >= 0 then
-            term1 <= resize(m1*pow_x, INT_WIDTH-1, -FRAC_WIDTH);
-            term2 <= resize(c1*abs_x, INT_WIDTH-1, -FRAC_WIDTH);
-            tanh_x <= resize(term1 + term2 + d1, INT_WIDTH-1, -FRAC_WIDTH);
+            tanh_x <= resize(m1*pow_x+c1*abs_x + d1, INT_WIDTH-1, -FRAC_WIDTH);
         elsif abs_x <= b and abs_x > a then
-            term1 <= resize(m2*pow_x, INT_WIDTH-1, -FRAC_WIDTH);
-            term2 <= resize(c2*abs_x, INT_WIDTH-1, -FRAC_WIDTH);
-            tanh_x <= resize(term1 + term2 + d2, INT_WIDTH-1, -FRAC_WIDTH);
+            tanh_x <= resize(m2*pow_x + c2*abs_x + d2, INT_WIDTH-1, -FRAC_WIDTH);
         else
-            tanh_x <= signed_bit & "0000000000000010000000000000000";
+            tanh_x <= to_sfixed(1, INT_WIDTH-1, -FRAC_WIDTH);
         end if; 
         
     end process;

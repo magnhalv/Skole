@@ -55,6 +55,14 @@ begin
 		x <= to_sfixed(1, x);
 		wait for clk_period;
 		x <= (others => '0');
+		wait for clk_period;
+		x <= to_sfixed(-0.5, x);
+		wait for clk_period;
+		x <= to_sfixed(-1, x);
+		wait for clk_period;
+		x <= to_sfixed(1.67, x);
+		wait for clk_period;
+		x <= (others => '0');
 		wait; -- wait forever
 	end process tb;
 

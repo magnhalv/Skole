@@ -14,19 +14,19 @@ entity mac is
 			clk 		: in std_logic;
 			reset 		: in std_logic;		
 			weight_we 	: in std_logic;
-			weight_in 	: in ufixed(INT_WIDTH-1 downto -FRAC_WIDTH);
-			multi_value : in ufixed(INT_WIDTH-1 downto -FRAC_WIDTH);
-			acc_value 	: in ufixed(INT_WIDTH-1 downto -FRAC_WIDTH);
-			weight_out	: out ufixed(INT_WIDTH-1 downto -FRAC_WIDTH);
-			result 		: out ufixed(INT_WIDTH-1 downto -FRAC_WIDTH)
+			weight_in 	: in sfixed(INT_WIDTH-1 downto -FRAC_WIDTH);
+			multi_value : in sfixed(INT_WIDTH-1 downto -FRAC_WIDTH);
+			acc_value 	: in sfixed(INT_WIDTH-1 downto -FRAC_WIDTH);
+			weight_out	: out sfixed(INT_WIDTH-1 downto -FRAC_WIDTH);
+			result 		: out sfixed(INT_WIDTH-1 downto -FRAC_WIDTH)
 		);
 end mac;
 
 architecture Behavioral of mac is
 	
-	signal weight_reg 	: ufixed(INT_WIDTH-1 downto -FRAC_WIDTH);
-	signal sum 			: ufixed(INT_WIDTH*2 downto -FRAC_WIDTH*2);
-	signal product 		: ufixed((INT_WIDTH*2)-1 downto -FRAC_WIDTH*2);
+	signal weight_reg 	: sfixed(INT_WIDTH-1 downto -FRAC_WIDTH);
+	signal sum 			: sfixed(INT_WIDTH*2 downto -FRAC_WIDTH*2);
+	signal product 		: sfixed((INT_WIDTH*2)-1 downto -FRAC_WIDTH*2);
 	
 begin	
 	

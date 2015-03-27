@@ -19,13 +19,13 @@ entity convolution is
 		conv_en : in std_logic;
 		layer_nr : in std_logic;
 		weight_we : in std_logic;
-		weight_data : in ufixed(INT_WIDTH-1 downto -FRAC_WIDTH);
-		pixel_in : in ufixed(INT_WIDTH-1 downto -FRAC_WIDTH);
+		weight_data : in sfixed(INT_WIDTH-1 downto -FRAC_WIDTH);
+		pixel_in : in sfixed(INT_WIDTH-1 downto -FRAC_WIDTH);
 	    
 	    conv_en_out : out std_logic;
 	    output_valid : out std_logic;
-		pixel_out : out ufixed(INT_WIDTH-1 downto -FRAC_WIDTH);
-		bias : out ufixed(INT_WIDTH-1 downto -FRAC_WIDTH)
+		pixel_out : out sfixed(INT_WIDTH-1 downto -FRAC_WIDTH);
+		bias : out sfixed(INT_WIDTH-1 downto -FRAC_WIDTH)
 	);
 end convolution;
 
@@ -43,7 +43,7 @@ architecture Behavioral of convolution is
         );
         end component;
 
-    component ufixed_shift_registers 
+    component sfixed_shift_registers 
         generic (
             NOF_REGS : Natural := IMG_DIM-KERNEL_DIM;
             INT_WIDTH : Natural := INT_WIDTH;
@@ -54,8 +54,8 @@ architecture Behavioral of convolution is
             reset : in std_logic;
             we : in std_logic;
             output_reg : in Natural;
-            data_in : in ufixed(INT_WIDTH-1 downto -FRAC_WIDTH);
-            data_out : out ufixed(INT_WIDTH-1 downto -FRAC_WIDTH)
+            data_in : in sfixed(INT_WIDTH-1 downto -FRAC_WIDTH);
+            data_out : out sfixed(INT_WIDTH-1 downto -FRAC_WIDTH)
         );
     end component;
        
@@ -69,21 +69,21 @@ architecture Behavioral of convolution is
             clk : in std_logic;
             reset : in std_logic;
             weight_we : in std_logic;
-            weight_in : in ufixed(INT_WIDTH-1 downto -FRAC_WIDTH);
-            multi_value : in ufixed(INT_WIDTH-1 downto -FRAC_WIDTH);
-            acc_value : in ufixed(INT_WIDTH-1 downto -FRAC_WIDTH);
-            weight_out : out ufixed(INT_WIDTH-1 downto -FRAC_WIDTH);
-            result : out ufixed(INT_WIDTH-1 downto -FRAC_WIDTH)
+            weight_in : in sfixed(INT_WIDTH-1 downto -FRAC_WIDTH);
+            multi_value : in sfixed(INT_WIDTH-1 downto -FRAC_WIDTH);
+            acc_value : in sfixed(INT_WIDTH-1 downto -FRAC_WIDTH);
+            weight_out : out sfixed(INT_WIDTH-1 downto -FRAC_WIDTH);
+            result : out sfixed(INT_WIDTH-1 downto -FRAC_WIDTH)
         );
     end component;
 
     
-    type ufixed_array is array (KERNEL_DIM-1 downto 0) of ufixed(INT_WIDTH-1 downto -FRAC_WIDTH);
-    type ufixed_array_of_arrays is array (KERNEL_DIM-1 downto 0) of ufixed_array;
+    type sfixed_array is array (KERNEL_DIM-1 downto 0) of sfixed(INT_WIDTH-1 downto -FRAC_WIDTH);
+    type sfixed_array_of_arrays is array (KERNEL_DIM-1 downto 0) of sfixed_array;
     
-    signal weight_values : ufixed_array_of_arrays;
-    signal acc_values : ufixed_array_of_arrays;
-    signal shift_reg_output : ufixed_array;
+    signal weight_values : sfixed_array_of_arrays;
+    signal acc_values : sfixed_array_of_arrays;
+    signal shift_reg_output : sfixed_array;
     
     signal output_shift_reg_nr : Natural;
     
@@ -160,7 +160,7 @@ begin
                 
                 shift_regs : if row < KERNEL_DIM-1 and col = KERNEL_DIM-1 generate
                 begin
-                    sr : ufixed_shift_registers port map (
+                    sr : sfixed_shift_registers port map (
                         clk => clk,
                         reset => reset,
                         we => conv_en,
