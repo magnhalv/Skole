@@ -17,15 +17,26 @@ architecture behavior of tanh_tb is
 
   -- Component Declaration
 	component tan_h
-		Port (
-            clk : in STD_LOGIC;
+		generic (
+            INT_WIDTH : Natural := 16;
+            FRAC_WIDTH : Natural := 16;
+            CONST_INT_WIDTH : Natural := 16;
+            CONST_FRAC_WIDTH : Natural := 16
+        );
+        Port (
+            clk : in std_logic;
+            input_valid : in std_logic;
             x : in  sfixed (INT_WIDTH-1 downto -FRAC_WIDTH);
-            y : out sfixed(INT_WIDTH-1 downto -FRAC_WIDTH));
+            output_valid : out std_logic;
+            y : out sfixed (INT_WIDTH-1 downto -FRAC_WIDTH)
+        );
 	end component;
 	
-	signal clk : std_logic;
-	signal x :  sfixed(INT_WIDTH-1 downto -FRAC_WIDTH);
-	signal y :  sfixed(INT_WIDTH-1 downto -FRAC_WIDTH);
+	signal clk : std_logic := '0';
+	signal input_valid : std_logic := '0';
+	signal x :  sfixed(INT_WIDTH-1 downto -FRAC_WIDTH) := (others => '0');
+	signal output_valid : std_logic := '0';
+	signal y :  sfixed(INT_WIDTH-1 downto -FRAC_WIDTH) := (others => '0');
 	
 	constant clk_period : time := 2 ns;	
 	
@@ -36,7 +47,9 @@ begin
     
     tanh_port : tan_h PORT MAP(
         clk => clk,
+        input_valid => input_valid,
         x => x,
+        output_valid => output_valid,
         y => y
     );
 
@@ -50,20 +63,27 @@ begin
 	
 	tb : process
 	begin
-		x <= to_sfixed(0.5, x);
-		wait for clk_period;
-		x <= to_sfixed(1, x);
-		wait for clk_period;
-		x <= (others => '0');
-		wait for clk_period;
-		x <= to_sfixed(-0.5, x);
-		wait for clk_period;
-		x <= to_sfixed(-1, x);
-		wait for clk_period;
-		x <= to_sfixed(1.67, x);
-		wait for clk_period;
-		x <= (others => '0');
-		wait; -- wait forever
+        wait for clk_period*5;
+        input_valid <= '1';
+        x <= to_sfixed(0.5, x);
+        wait for clk_period;
+        x <= to_sfixed(1, x);
+        wait for clk_period;
+        x <= (others => '0');
+        wait for clk_period;
+        x <= to_sfixed(-0.5, x);
+        wait for clk_period;
+        x <= to_sfixed(-1, x);
+        wait for clk_period;
+        x <= to_sfixed(1.67, x);
+        wait for clk_period;
+        x <= to_sfixed(-5, x);
+        wait for clk_period;
+        x <= to_sfixed(-0.26000, x);
+        wait for clk_period;
+        input_valid <= '0';
+        x <= (others => '0');
+        wait; -- wait forever
 	end process tb;
 
 end;

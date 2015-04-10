@@ -91,9 +91,11 @@ architecture Behavioral of convolution_layer is
 	
 	component tan_h is
 		Port (
-			clk 	: in std_logic;
-			x 		: in  sfixed (INT_WIDTH-1 downto -FRAC_WIDTH);
-			y 		: out sfixed(INT_WIDTH-1 downto -FRAC_WIDTH)
+            clk 	     : in std_logic;
+			input_valid  : in std_logic;
+			x 		     : in  sfixed (INT_WIDTH-1 downto -FRAC_WIDTH);
+			output_valid : out std_logic;
+			y 		     : out sfixed(INT_WIDTH-1 downto -FRAC_WIDTH)
 		);
 	end component;
 	
@@ -101,7 +103,9 @@ architecture Behavioral of convolution_layer is
 	signal pixel_biasToTanh : sfixed(INT_WIDTH-1 downto -FRAC_WIDTH);
 	signal bias : sfixed(INT_WIDTH-1 downto -FRAC_WIDTH);
 	signal pixelOut_convToBias : sfixed(INT_WIDTH-1 downto -FRAC_WIDTH);
-	signal outputValid_convToReg : std_logic;
+	
+	signal outputValid_convToBias : std_logic;
+	signal valid_biasToTanh : std_logic;
 	
 begin
 
@@ -113,34 +117,31 @@ begin
 		weight_we		=> weight_we,
 		weight_data 	=> weight_data,
 		pixel_in 		=> pixel_in,
-		output_valid	=> outputValid_convToReg,--dv_conv_to_buf_and_mux,
+		output_valid	=> outputValid_convToBias,--dv_conv_to_buf_and_mux,
 		conv_en_out		=> conv_en_conv_to_buf_and_mux,
 		pixel_out 		=> pixelOut_convToBias,--data_conv_to_buf_and_mux,
 		bias    		=> bias
 	
 	);
 	
-	add_bias : process(bias, pixelOut_convToBias)
-	begin
-	   pixel_biasToTanh <= resize(bias + pixelOut_convToBias, pixel_biasToTanh);
-	end process;
-	
-	activation_function : tan_h port map (
-	   clk => clk,
-	   x => pixel_biasToTanh,
-	   y => pixel_out
-	);
-	
-	valid_output_reg : process(clk)
+	add_bias : process(clk)
 	begin
 	   if rising_edge(clk) then
-	       if reset = '0' then
-	           pixel_valid <= '0';
-	       else
-	           pixel_valid <= outputValid_convToReg;
-	       end if;
-       end if;
+	       
+    --        pixel_out <= resize(bias + pixelOut_convToBias, pixel_biasToTanh);
+    --        pixel_valid <= outputValid_convToBias;
+	       pixel_biasToTanh <= resize(bias + pixelOut_convToBias, pixel_biasToTanh);
+	       valid_biasToTanh <= outputValid_convToBias;
+	   end if;
 	end process;
+	
+    activation_function : tan_h port map (
+	    clk => clk,
+	    input_valid => valid_biasToTanh,
+        x => pixel_biasToTanh,
+        output_valid => pixel_valid,
+        y => pixel_out
+	);
 	
 	
 	

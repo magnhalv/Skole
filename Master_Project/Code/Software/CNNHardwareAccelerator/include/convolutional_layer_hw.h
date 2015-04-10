@@ -37,7 +37,7 @@ namespace tiny_cnn {
 
 bool CompareFloats(float A, float B)
 {
-	const float EPSILON = 0.001;
+	const float EPSILON = 0.025;
 	const float diff = A - B;
 	return (diff < EPSILON) && (-diff < EPSILON);
 }
@@ -77,50 +77,30 @@ public:
     }
 
     virtual const vec_t& forward_propagation(const vec_t& in, int index) {
-    	vec_t all_fm;
-    	assert(in.size() == 1024);
+
     	for (int i = 0; i < 6; i++) {
-
-    		vec_t weights;
-    		weights.insert(weights.end(), this->W_.begin()+i*25, this->W_.begin()+25*(i+1));
-    		vec_t fm;
-    		CalculateClUsingHWAccelerator(in, weights, 0, fm, 32, 5);
-    		all_fm.insert(all_fm.end(), fm.begin(), fm.end());
-//    		for (int j = 0; j < fm.size(); j++) {
-//    			fm[j] += this->b_[this->out2bias_[j+28*28*i]];
-//    			float_t a = fm[j];
-//    			this->output_[index][j+28*28*i] = this->a_.f(a);
-//    		}
-    	}
-
-//    	for (int i = 0; i < 6; i++) {
-//			vec_t weights;
-//			weights.insert(weights.end(), this->W_.begin()+i*25, this->W_.begin()+25*(i+1));
-//			vec_t fm;
-//			CalculateClUsingHWAccelerator(in, weights, this->b_[i], this->output_[index], 32, 5);
-////    		for (int j = 0; j < fm.size(); j++) {
-////    			//fm[j] += this->b_[this->out2bias_[j+28*28*i]];
-////    			float_t a = fm[j];
-////    			this->output_[index][j+28*28*i] = a;
-////    		}
-//		}
-
-    	assert(all_fm.size() == this->out_size_);
-		for (int i = 0; i < this->out_size_; i++) {
-			const wi_connections& connections = this->out2wi_[i];
-			float_t a = 0.0;
-
-			for (auto connection : connections)// 13.1%
-				a += this->W_[connection.first] * in[connection.second]; // 3.2%
-
-			a *= this->scale_factor_;
-			a += this->b_[this->out2bias_[i]];
-			float out_val = this->a_.f(a);
-
-			float e = all_fm[i];
-			bool lol =  CompareFloats(e, out_val);
-			this->output_[index][i] = out_val; // 9.6%
+			vec_t weights;
+			weights.insert(weights.end(), this->W_.begin()+i*25, this->W_.begin()+25*(i+1));
+			CalculateClUsingHWAccelerator(in, weights, this->b_[i], this->output_[index].begin()+i*28*28, 32, 5);
 		}
+
+//		for (int i = 0; i < this->out_size_; i++) {
+//			const wi_connections& connections = this->out2wi_[i];
+//			float_t a = 0.0;
+//
+//			for (auto connection : connections)// 13.1%
+//				a += this->W_[connection.first] * in[connection.second]; // 3.2%
+//
+//			a *= this->scale_factor_;
+//			a += this->b_[this->out2bias_[i]];
+//			float out_val = this->a_.f(a);
+//
+//			float e = all_fm[i];
+//			if(!CompareFloats(e, out_val)) {
+//				printf("Expected: %f. Actual: %f.\n\r", out_val, e);
+//			}
+//			this->output_[index][i] = out_val; // 9.6%
+//		}
 
 
 		return this->next_ ? this->next_->forward_propagation(this->output_[index], index) : this->output_[index]; // 15.6%

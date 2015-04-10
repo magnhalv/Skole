@@ -23,6 +23,5 @@
 \contentsline {subsection}{\numberline {4.1.3}The Max Pooler}{21}
 \contentsline {chapter}{\numberline {5}Results and Discussion}{24}
 \contentsline {section}{\numberline {5.1}Results}{24}
-\contentsline {section}{\numberline {5.2}Discussion}{25}
-\contentsline {chapter}{\numberline {6}Future work}{27}
-\contentsline {chapter}{\numberline {7}Conclusion}{28}
+\contentsline {chapter}{\numberline {6}Future work}{25}
+\contentsline {chapter}{\numberline {7}Conclusion}{26}

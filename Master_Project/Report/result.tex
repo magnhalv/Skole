@@ -2,46 +2,4 @@
 
 \section{Results}
 
-The architecture of Imagezor was fully implemented and tested in simulation, but unfortunately it was not tested on actual hardware. But by making some assumtions we can estimate a theoretical performance. From Section \ref{architecture} we know that since the convoluter is the one that feeds data to the other components, and that they use one cycle to process the data, that it is the deciding factor for the performance. The convoluter uses $ k \times k $ cycles to load the kernel weights, and $ n \times n $ cycles to compute one convolution.  Using this we can define the metric \textit{conv\_net\_op/s}, which is how many subsampled/pooled feature map the application can compute per second, i.e. the basic operation of Imagezor. Since we used a Spartan 6, which only have resources enough for a single instance of Imagezor, this theorectial performance will only consider one instance of the Imagezor architecture.  
-
-We can thus define the performance of Imagezor as:
-
-\begin{equation} \label{eq_theoretical_performance}
-\frac{f}{I\times(n \times n) + (k \times k) + C} ~conv\_net\_op/s
-\end{equation}
-
-Where \textit{f} is the expected clock frequency of the architecture, and \textit{I} is the number of images that is required to compute a subsampled/pooled feature map, and the constant \textit{C} is the depth of the pipeline, i.e.  $ C = 5 $. Using the synthethis tools provided by ISE 12.4 from Xilinx, the expected clock frequency is 180 MHz.
-
-Using Equation \ref{eq_theoretical_performance} the Imagezor architecture was  compared  to a Intel Core i5-450. The CPU executed a C program which performed all the operations of the convolution and subsample/pooling layer. The program was run and timed 1000 times for each configuration of the input and kernel size, and the average time was used for comparison. We could then calculate the C program's conv\_net\_op/s by simply by dividing one second by the average time used.  In order to compare the scalability both different images sizes and kernel sizes was tested. The results from comparing the theoretical performance for Imagezor against the C program is shown in Figure \ref{fig_cpu_cmp_results}.
-\begin{figure}
-  \centering
-      \includegraphics[width=0.8\textwidth]{Figures/Results/Speedup_chart}
-  \caption[Speedup]{The theoretical speedup our module had compared to a Intel Core i5.}
-  \label{fig_cpu_cmp_results}
-\end{figure}
-
-As can be seen by the figure, Imagezor can be up to 170x faster than the CPU, i.e. was able to perform 170x more conv\_net\_ops per second. This makes a good case for accelerating the network operations in hardware. We can also see that even with limited hardware resources of the Spartan 6, only able to support a $ 5 \times 5 $ kernel, the speedup is still significant, up to 75x speedup.
-
-
-In order to estimate the energy efficiency we can calculate calculate conv\_net\_op/joule by dividing conv\_net\_op/s by the power usage. The Intel Core uses 85 W, while the Spartan 6 uses about 1.5 W. Using this we get the results shown in Figure \ref{fig_cpu_energy_cmp_results}, which shows Imagezor's conv\_net\_op/joule divided by the Intel Core's conv\_net\_op/joule, i.e. relative energy-efficency. As we can see, Imagezor is up to 1000x more energy efficient compared to the Intel Core i5. 
-
-\begin{figure}
-  \centering
-      \includegraphics[width=0.8\textwidth]{Figures/Results/energy_efficiency}
-  \caption[Speedup]{Shows how many times more Conv\_net\_ops Imagezor is able to perform compared to the Intel Core i5, per joule.}
-  \label{fig_cpu_energy_cmp_results}
-\end{figure}
-
-\section{Discussion}
-
-The results from the previous section makes a strong case for hardware accelerating the convolution and subsample/pooling layer in a CNN. We see that even without exploiting inter- and intra-parallelism, the speedup is significant, and the energy efficiency is up to 1000x better. This clearly shows that even with limited hardware resources, accelerating the convolution layer and the subsampling/pooling layer in a CNN can be very beneficial. 
-
-We see that the speedup scales with the size of the kernel. This makes sense since Imagezor primarily exploits the parallelism in the convolution operation, by computing effectively $ k \times k $ pixels at once. In addition the subsample/max-pooling does not take any additional time since it is able to process the pixels as fast as the convoluter module is able to produce them. While on a CPU the convolution and subsampling/pooling has to be done serially.  
-
-A weakness in the comparison is that the performance of Imagezor is calculated using a theoretical model. Actual simulation could provide different results due to various overheads. But given that the theoretical model is fairly realistic and shows such a vast improvement over the Intel Core i5, we can with fair certainly conclude that an accelerator using the Imagezor design will provide better performance and energy efficiency. 
-
-Another drawback is that we have been unable to compare our module to a GPU, which is the common choice for computing ANNs and CNNs (see Chapter \ref{chap_related_work}). But based on the findings in Section \ref{sec_related_work_cnn} it is likely that the GPUs performance will be about the same or better, but will fall short when it comes to energy efficiency. 
-
-Bottom line, hardware accelerating the network operations for applications that are energy and/or performance sensitive can be very worthwhile. Example applications could be computer clusters that are dedicated artificial neural networks (e.g. at Facebook or Google), where the primary cost is power. Another example would be embedded and/or real-time systems, which have a low power budget, but one still need good performance. 
-
 

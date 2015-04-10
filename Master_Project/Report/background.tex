@@ -290,18 +290,15 @@ One can also parallelize the mentioned parallelizations themselves. The convolut
 	
 It is also possible to compute the neuron activation function in parallel, since its a series of  \textit{n} multiply and accumulate operations. One option is to parallelize them by creating a binary tree multiplier, where you have \textit{n} units compute the product of the input and its respective weight, then you use $ \frac{n}{2} $ units to add two of the results each, and so on until you have a single value. This will reduce the time it takes from \textit{n} time to $ log_2 n $ time. But considering the vast amount of activation functions that are to be computed, hardware resource are better spent on computing as many activation functions in parallel as possible. Unless you have an unlimited amount of hardware resources.   
 
+\section{Hardware Acceleration}
 
+We chose to implement a variant of the LetNet-5 CNN for digit recognition using \textit{the MNIST dataset}. 
+The MNIST dataset consist of 50 000 samples of handwritten digits ranging from 0-9, where 40 000 of the samples are used for
+training and 10 000 samples are used to determine the accuracy of the network. The reason for choosing the LetNet-5 network is
+mostly due to it being a fairly small and simple network, making it eaiser to implement and debug. In addition it has been shown
+to work very well on the MNIST dataset. This is important since the aim of this project is hardware acceleration of Convolutional
+Neural Networks, not configuring a network with the optimal topology for a specfic task. Thus using a network that is already
+configured for a dataset gives us more time to explore the hardware part, instead of the topology part. 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
+For a pure software implementation of the LeNet-5 we used XXXXX's framework for neural networks, which is available at
+XXXXX. For a detailed introduction of the LeNet-5 network, please refer to the orignal paper \cite{XXXXX}. 

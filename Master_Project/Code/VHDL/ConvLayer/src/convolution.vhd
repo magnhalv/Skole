@@ -80,10 +80,11 @@ architecture Behavioral of convolution is
     
     type sfixed_array is array (KERNEL_DIM-1 downto 0) of sfixed(INT_WIDTH-1 downto -FRAC_WIDTH);
     type sfixed_array_of_arrays is array (KERNEL_DIM-1 downto 0) of sfixed_array;
+    type sfixed_array_shift_reg is array (KERNEL_DIM-2 downto 0) of sfixed(INT_WIDTH-1 downto -FRAC_WIDTH);
     
     signal weight_values : sfixed_array_of_arrays;
     signal acc_values : sfixed_array_of_arrays;
-    signal shift_reg_output : sfixed_array;
+    signal shift_reg_output : sfixed_array_shift_reg;
     
     signal output_shift_reg_nr : Natural;
     

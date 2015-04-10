@@ -24,7 +24,7 @@ float FixedToFloat(int n) {
 	return n/65536.0;
 }
 
-void WriteDataToTxBuffer(const std::vector<float> &image, const std::vector<float> &weights, const float bias) {
+void WriteDataToTxBuffer(const vec_t &image, const vec_t &weights, const float bias) {
 
 	std::vector<int> weights_temp(weights.size());
 	std::transform(weights.begin(), weights.end(), weights_temp.begin(), FloatToFixed);
@@ -36,7 +36,7 @@ void WriteDataToTxBuffer(const std::vector<float> &image, const std::vector<floa
 	std::transform(image.begin(), image.end(), &Buffer[1+weights.size()], FloatToFixed);
 }
 
-int CalculateClUsingHWAccelerator(const std::vector<float> &image, const std::vector<float> weights, const float bias, std::vector<float> &feature_map, const int img_dim, const int kernel_dim)
+int CalculateClUsingHWAccelerator(const vec_t &image, const vec_t weights, const float bias, vec_it feature_map, const int img_dim, const int kernel_dim)
 {
 	int Status;
 	XAxiDma_Config *Config;
@@ -78,18 +78,11 @@ int CalculateClUsingHWAccelerator(const std::vector<float> &image, const std::ve
 		return XST_FAILURE;
 	}
 
-	Xil_Out32(XPAR_CL_ACCELERATOR_0_BASEADDR, 0); //Write weights
-	while(Xil_In32(XPAR_CL_ACCELERATOR_0_BASEADDR+16) == 1); // Wait until done writing.
-
-	Xil_Out32(XPAR_CL_ACCELERATOR_0_BASEADDR+4, nof_outputs); //Set nof outputs
-
 	Status = WaitForTxToFinish(&AxiDma);
 	if (Status != XST_SUCCESS) {
 		return XST_FAILURE;
 	}
-
-	Xil_Out32(XPAR_CL_ACCELERATOR_0_BASEADDR, 1); //Start cl
-	while(Xil_In32(XPAR_CL_ACCELERATOR_0_BASEADDR+20) == 1); //Wait until cl is done
+	ConfigureAndRunAccelerator(nof_outputs);
 
 	Status = WaitForRxToFinish(&AxiDma);
 	if (Status != XST_SUCCESS) {
@@ -312,7 +305,7 @@ int TxSetup(XAxiDma * AxiDmaInstPtr)
 * @note     None.
 *
 ******************************************************************************/
-int SendPacket(XAxiDma * AxiDmaInstPtr, const std::vector<float> &image, const std::vector<float> &weights, const float bias)
+int SendPacket(XAxiDma * AxiDmaInstPtr, const vec_t &image, const vec_t &weights, const float bias)
 {
 	XAxiDma_BdRing *TxRingPtr;
 	int *TxPacket;
@@ -387,27 +380,23 @@ int SendPacket(XAxiDma * AxiDmaInstPtr, const std::vector<float> &image, const s
 	return XST_SUCCESS;
 }
 
-/*****************************************************************************/
-/*
-*
-* This function checks data buffer after the DMA transfer is finished.
-*
-* @param	None
-*
-* @return	- XST_SUCCESS if validation is successful
-*		- XST_FAILURE if validation is failure.
-*
-* @note		None.
-*
-******************************************************************************/
-int GetDataFromRxBuffer(std::vector<float> &vec, int data_size)
+void ConfigureAndRunAccelerator(int nof_outputs) {
+	Xil_Out32(XPAR_CL_ACCELERATOR_0_BASEADDR, 0); //Write weights
+	while(Xil_In32(XPAR_CL_ACCELERATOR_0_BASEADDR+16) == 1); // Wait until done writing.
+
+	Xil_Out32(XPAR_CL_ACCELERATOR_0_BASEADDR+4, nof_outputs); //Set nof outputs
+
+	Xil_Out32(XPAR_CL_ACCELERATOR_0_BASEADDR, 1); //Start cl
+	while(Xil_In32(XPAR_CL_ACCELERATOR_0_BASEADDR+20) == 1); //Wait until cl is done
+
+}
+
+int GetDataFromRxBuffer(vec_it iterator, int data_size)
 {
 	int *RxPacket = (int*)RX_BUFFER_BASE;
 
 	Xil_DCacheInvalidateRange((u32)RxPacket, data_size*4);
-
-	vec.resize(data_size);
-	std::transform(RxPacket, RxPacket+data_size, vec.begin(), FixedToFloat);
+	std::transform(RxPacket, RxPacket+data_size, iterator, FixedToFloat);
 
 	return XST_SUCCESS;
 }

@@ -26,7 +26,7 @@ architecture Behavioral of mac is
 	
 	signal weight_reg 	: sfixed(INT_WIDTH-1 downto -FRAC_WIDTH);
 	signal sum 			: sfixed(INT_WIDTH*2 downto -FRAC_WIDTH*2);
-	signal product 		: sfixed((INT_WIDTH*2)-1 downto -FRAC_WIDTH*2);
+    signal product      : sfixed((INT_WIDTH*2)-1 downto -FRAC_WIDTH*2);
 	
 begin	
 	
@@ -43,18 +43,19 @@ begin
 		end if;
 	end process;
 	
-	result_register : process(clk) 
-	begin
-		if rising_edge(clk) then
-			result <= sum(INT_WIDTH-1 downto -FRAC_WIDTH);
-		end if;
-	end process;
+    result_register : process(clk) 
+    begin
+        if rising_edge(clk) then
+            result <= sum(INT_WIDTH-1 downto -FRAC_WIDTH);
+        end if;
+    end process;
+    
+    mult_and_acc : process(product, weight_reg, acc_value, multi_value) 
+    begin
+        product <= weight_reg*multi_value;
+        sum <= product+acc_value;
+    end process;
 	
-	mult_and_acc : process(product, weight_reg, acc_value, multi_value) 
-	begin
-		product <= weight_reg*multi_value;
-		sum <= product+acc_value;
-	end process;
 
 end Behavioral;
 

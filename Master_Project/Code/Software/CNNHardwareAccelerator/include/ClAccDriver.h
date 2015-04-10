@@ -28,11 +28,15 @@ extern void xil_printf(const char *format, ...);
 #define RX_BUFFER_BASE		(MEM_BASE_ADDR + 0x00300000)
 #define RX_BUFFER_HIGH		(MEM_BASE_ADDR + 0x004FFFFF)
 
-void WriteDataToTxBuffer(const std::vector<float> &image, const std::vector<float> &weights, const float bias);
+using vec_t = std::vector<float>;
+using vec_it = std::vector<float>::iterator;
+
+void ConfigureAndRunAccelerator(int nof_outputs);
+void WriteDataToTxBuffer(const vec_t &image, const vec_t &weights, const float bias);
 int RxSetup(XAxiDma * AxiDmaInstPtr, const int recv_length);
 int TxSetup(XAxiDma * AxiDmaInstPtr);
-int SendPacket(XAxiDma * AxiDmaInstPtr, const std::vector<float> &image, const std::vector<float> &weights, const float bias);
-int GetDataFromRxBuffer(std::vector<float> &vec, int data_size);
+int SendPacket(XAxiDma * AxiDmaInstPtr, const vec_t &image, const vec_t &weights, const float bias);
+int GetDataFromRxBuffer(vec_it iterator, int data_size);
 int WaitForTxToFinish(XAxiDma * AxiDmaInstPtr);
 int WaitForRxToFinish(XAxiDma * AxiDmaInstPtr);
-int CalculateClUsingHWAccelerator(const std::vector<float> &image, const std::vector<float> weights, const float bias, std::vector<float> &feature_map, const int img_dim, const int kernel_dim);
+int CalculateClUsingHWAccelerator(const vec_t &image, const vec_t weights, const float bias, vec_it feature_map, const int img_dim, const int kernel_dim);
