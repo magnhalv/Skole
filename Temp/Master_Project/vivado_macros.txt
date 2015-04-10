@@ -1,0 +1,7 @@
+proc runbitstream {} {
+	update_ip_catalog -rebuild
+	report_ip_status -name ip_status 
+	upgrade_ip -vlnv Magnus:user:cl_accelerator:1.0 [get_ips  system_cl_accelerator_0_0]
+	reset_run synth_1
+	launch_runs impl_1 -to_step write_bitstream	
+}

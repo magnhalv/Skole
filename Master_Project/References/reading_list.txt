@@ -1,0 +1,18 @@
+1. Chakradhar, S., Sankaradas, M., Jakkula, V., & Cadambi, S. (2010). A dynamically configurable coprocessor for convolutional neural networks. Proceedings of the 37th Annual International Symposium on Computer Architecture - ISCA ’10, 247. doi:10.1145/1815961.1815993.
+
+2. Chen, T., Du, Z., Sun, N., Wang, J., & Wu, C. (2014). DianNao: a small-footprint high-throughput accelerator for ubiquitous machine-learning. Proceedings of the 19th International Conference on Architectural Support for Programming Languages and Operating Systems. Retrieved from http://dl.acm.org/citation.cfm?id=2541967
+
+3. Farabet, C., Martini, B., Akselrod, P., Talay, S., LeCun, Y., & Culurciello, E. (2010). Hardware accelerated convolutional neural networks for synthetic vision systems. Proceedings of 2010 IEEE International Symposium on Circuits and Systems, 257–260. doi:10.1109/ISCAS.2010.5537908
+
+4. Gokhale, V., Jin, J., Dundar, A., Martini, B., & Culurciello, E. (2014). A 240 G-ops / s Mobile Coprocessor for Deep Neural Networks. 2014 IEEE Conference on Computer Vision and Pattern Recognition Workshops, 682–687.
+
+5. Sankaradas, M., Jakkula, V., Cadambi, S., Chakradhar, S., Durdanovic, I., Cosatto, E., & Graf, H. P. (2009). A Massively Parallel Coprocessor for Convolutional Neural Networks. 2009 20th IEEE International Conference on Application-Specific Systems, Architectures and Processors, 53–60. doi:10.1109/ASAP.2009.25
+
+6. Farabet, C., Poulet, C., Han, J. Y., & LeCun, Y. (2009). CNP: An FPGA-based processor for Convolutional Networks. FPL 09: 19th International Conference on Field Programmable Logic and Applications, 1(1), 32–37.
+
+7. Cires, D. C., Meier, U., Masci, J., & Gambardella, L. M. (2011). Flexible , High Performance Convolutional Neural Networks for Image Classification. IJCAI’11 Proceedings of the Twenty-Second International Joint Conference on Artificial Intelligence - Volume Volume Two, 1237–1242.
+
+8. K. Fan, M. Kudlur, G. S. Dasika, and S. A. Mahlke. Bridging
+the computation gap between programmable processors
+and hardwired accelerators. In HPCA, pages 313–322. IEEE
+Computer Society, 2009.
