@@ -158,7 +158,7 @@ public:
     result test(const std::vector<vec_t>& in, const std::vector<label_t>& t) {
         result test_result;
         // in.size()
-        for (size_t i = 0; i < in.size(); i++) {
+        for (size_t i = 0; i < 50; i++) {
             vec_t out;
             predict(in[i], &out);
 
