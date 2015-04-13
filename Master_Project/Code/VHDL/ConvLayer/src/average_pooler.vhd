@@ -16,11 +16,11 @@ entity average_pooler is
 	Port ( 
 		clk : in std_logic;
         conv_en : in std_logic;
-        weight_in : in std_logic;
+        weight_in : in sfixed(INT_WIDTH-1 downto -FRAC_WIDTH);
         weight_we : in std_logic;
 		input_valid : in std_logic;
-		data_in : in ufixed(INT_WIDTH-1 downto -FRAC_WIDTH);
-		data_out : out ufixed(INT_WIDTH-1 downto -FRAC_WIDTH);
+		data_in : in sfixed(INT_WIDTH-1 downto -FRAC_WIDTH);
+		data_out : out sfixed(INT_WIDTH-1 downto -FRAC_WIDTH);
 		output_valid : out std_logic
 		
 	);
@@ -37,27 +37,26 @@ architecture Behavioral of average_pooler is
 			clk 		: in std_logic;
 			reset		: in std_logic;
 			we 		: in std_logic;
-			data_in 	: in ufixed(INT_WIDTH-1 downto -FRAC_WIDTH);
-			data_out : out ufixed(INT_WIDTH-1 downto -FRAC_WIDTH)
+			data_in 	: in sfixed(INT_WIDTH-1 downto -FRAC_WIDTH);
+			data_out : out sfixed(INT_WIDTH-1 downto -FRAC_WIDTH)
 		);
 	end component;
 
     constant POOL_ARRAY_DIM : Natural := IMG_DIM/POOL_DIM;
-	type states is (find_max, end_of_row,wait_for_new_row, finished); 
-	type ufixed_array is array(POOL_ARRAY_DIM-2 downto 0) of ufixed(INT_WIDTH-1 downto -FRAC_WIDTH);
+	type states is (find_max, end_of_row,wait_for_new_row, finished);
+
+	type sfixed_array is array(POOL_ARRAY_DIM-2 downto 0) of sfixed(INT_WIDTH-1 downto -FRAC_WIDTH);
 	
-	signal buffer_values : ufixed_array;
+	signal buffer_values : sfixed_array;
 	signal reset_buffers : std_logic;
 	signal write_buffers : std_logic;
 	signal current_state : states;
-	signal current_max	: ufixed(INT_WIDTH-1 downto -FRAC_WIDTH);
-
-	--signal pool_y : Natural range 0 to POOL_ARRAY_DIM-1 := 0;
+    signal pool_sum	     : sfixed(INT_WIDTH-1 downto -FRAC_WIDTH);
+    signal weight        : sfixed(INT_WIDTH-1 downto -FRAC_WIDTH);
+    signal output_valid_buf : std_logic;
 	signal pool_x : Natural range 0 to POOL_ARRAY_DIM-1 := 0;
-	
+        
 begin
-
-	data_out <= current_max;
 
 	generate_buffers : for i in 0 to POOL_ARRAY_DIM-2 generate
 	begin
@@ -67,7 +66,7 @@ begin
 				clk => clk,
 				reset => reset_buffers,
 				we => write_buffers,
-				data_in => current_max,
+				data_in => pool_sum,
 				data_out => buffer_values(i)
 			);
 		end generate;
@@ -85,12 +84,10 @@ begin
 	end generate;
 	
     controller : process(clk)
-	   variable x : integer;
-	   variable y : integer;
 	begin
         if rising_edge(clk) then
             if conv_en = '0' then
-                output_valid <= '0';
+                output_valid_buf <= '0';
                 reset_buffers <= '0';
                 write_buffers <= '0';
                 x := 0;
@@ -99,21 +96,21 @@ begin
             elsif input_valid = '1' then
                 if x = POOL_DIM-1 and y = POOL_DIM-1 then
                     if pool_x = POOL_ARRAY_DIM-1 then
-                        output_valid <= '1';
+                        output_valid_buf <= '1';
                         reset_buffers <= '0';
                         write_buffers <= '0';
                         x := 0;
                         y := 0;
                         pool_x <= 0;
                     else
-                        output_valid <= '1';
+                        output_valid_buf <= '1';
                         reset_buffers <= '1';
                         write_buffers <= '1';
                         x := 0;
                         pool_x <= pool_x + 1; 
                     end if;
                 elsif x = POOL_DIM-1 then
-                    output_valid <= '0';
+                    output_valid_buf <= '0';
                     x := 0;
                     write_buffers <= '1';
                     reset_buffers <= '1';
@@ -125,41 +122,33 @@ begin
                     end if;
                 else
                     x := x + 1;
-                    output_valid <= '0';
+                    output_valid_buf <= '0';
                     reset_buffers <= '1';
                     write_buffers <= '0';                        
                 end if;
             else
-                output_valid <= '0';
+                output_valid_buf <= '0';
                 reset_buffers <= '1';
                 write_buffers <= '0';
             end if;
 	   end if;
 	end process;
 	
-    update_max : process(clk)
+    update_sum : process(clk)
 	begin
         if rising_edge(clk) then
             if conv_en = '0' or reset_buffers = '0' then
-                current_max <= (others => '0');
+                pool_sum <= (others => '0');
             elsif input_valid = '1' then
                 if write_buffers = '1' then
-                    if pool_x = 0 then
-                        current_max <= buffer_values(POOL_ARRAY_DIM-2);                    
-                    else
-                        if data_in > buffer_values(POOL_ARRAY_DIM-2) then
-                            current_max <= data_in; 
-                        else
-                            current_max <= buffer_values(POOL_ARRAY_DIM-2);
-                        end if;
-                    end if;
-                elsif data_in > current_max then
-                    current_max <= data_in;
+                    pool_sum <= resize(data_in + buffer_values(POOL_ARRAY_DIM-2), INT_WIDTH-1, -FRAC_WIDTH);
+                else
+                    pool_sum <= (data_in + pool_sum, INT_WIDTH-1, -FRAC_WIDTH);
                 end if;
-             elsif write_buffers = '1' then
-                current_max <= buffer_values(POOL_ARRAY_DIM-2);
-             end if;
-        end if;
+            elsif write_buffers = '1' then
+                pool_sum <= buffer_values(POOL_ARRAY_DIM-2);
+            end if;
+        end if; 
 	end process;
 
     weight_reg : process(clk)
@@ -168,6 +157,14 @@ begin
             if weight_we = '1' then
                 weight <= weight_in;
             end if;
+        end if;
+    end process;
+
+    output_reg : process(clk)
+    begin
+        if rising_edge(clk) then
+            data_out <= resize(weight*pool_sum, INT_WIDTH-1, -FRAC_WIDTH);
+            output_valid <= output_valid_buf;
         end if;
     end process;
     
