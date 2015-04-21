@@ -24,22 +24,28 @@ float FixedToFloat(int n) {
 	return n/65536.0;
 }
 
-void WriteDataToTxBuffer(const vec_t &image, const vec_t &weights, const float bias) {
+void WriteDataToTxBuffer(ConvLayerValues clv) {
 
-	std::vector<int> weights_temp(weights.size());
-	std::transform(weights.begin(), weights.end(), weights_temp.begin(), FloatToFixed);
+	std::vector<int> weights_temp(clv.weights.size());
+	std::transform(clv.weights.begin(), clv.weights.end(), weights_temp.begin(), FloatToFixed);
 
 	int *Buffer = (int*)TX_BUFFER_BASE;
-	Buffer[0] = FloatToFixed(bias);
+	Buffer[0] = FloatToFixed(clv.scale_factor);
+	Buffer[1] = FloatToFixed(clv.avg_pool_bias);
+	Buffer[2] = FloatToFixed(clv.avg_pool_coefficient);
+	Buffer[3] = FloatToFixed(clv.bias);
 
-	std::reverse_copy(weights_temp.begin(), weights_temp.end(), &Buffer[1]);
-	std::transform(image.begin(), image.end(), &Buffer[1+weights.size()], FloatToFixed);
+	std::reverse_copy(weights_temp.begin(), weights_temp.end(), &Buffer[4]);
+	std::transform(clv.image.begin(), clv.image.end(), &Buffer[4+clv.weights.size()], FloatToFixed);
 }
 
-int CalculateClUsingHWAccelerator(const vec_t &image, const vec_t weights, const float bias, vec_it feature_map, const int img_dim, const int kernel_dim)
+int CalculateClUsingHWAccelerator(const ConvLayerValues cl_vals, vec_it feature_map)
 {
 	int Status;
 	XAxiDma_Config *Config;
+	const int img_dim = cl_vals.img_dim;
+	const int kernel_dim = cl_vals.kernel_dim;
+	u32 nof_outputs = ((img_dim-kernel_dim+1)/2)*((img_dim-kernel_dim+1)/2);
 
 	Config = XAxiDma_LookupConfig(DMA_DEV_ID);
 	if (!Config) {
@@ -66,14 +72,14 @@ int CalculateClUsingHWAccelerator(const vec_t &image, const vec_t weights, const
 		return XST_FAILURE;
 	}
 
-	u32 nof_outputs = (img_dim-kernel_dim+1)*(img_dim-kernel_dim+1);
+
 	Status = RxSetup(&AxiDma, nof_outputs);
 	if (Status != XST_SUCCESS) {
 		return XST_FAILURE;
 	}
 
 	/* Send a packet */
-	Status = SendPacket(&AxiDma, image, weights, bias);
+	Status = SendPacket(&AxiDma, cl_vals);
 	if (Status != XST_SUCCESS) {
 		return XST_FAILURE;
 	}
@@ -305,18 +311,18 @@ int TxSetup(XAxiDma * AxiDmaInstPtr)
 * @note     None.
 *
 ******************************************************************************/
-int SendPacket(XAxiDma * AxiDmaInstPtr, const vec_t &image, const vec_t &weights, const float bias)
+int SendPacket(XAxiDma * AxiDmaInstPtr, ConvLayerValues clv)
 {
 	XAxiDma_BdRing *TxRingPtr;
 	int *TxPacket;
 	XAxiDma_Bd *BdPtr;
 	int Status;
 	int Index;
-	const int MAX_PKT_LEN = (image.size()+weights.size()+1)*sizeof(int);
+	const int MAX_PKT_LEN = (clv.image.size()+clv.weights.size()+2)*sizeof(int);
 
 	TxRingPtr = XAxiDma_GetTxRing(AxiDmaInstPtr);
 
-	WriteDataToTxBuffer(image, weights, bias);
+	WriteDataToTxBuffer(clv);
 	/* Create pattern in the packet to transmit */
 	TxPacket = (int *) Packet;
 
@@ -395,7 +401,7 @@ int GetDataFromRxBuffer(vec_it iterator, int data_size)
 {
 	int *RxPacket = (int*)RX_BUFFER_BASE;
 
-	Xil_DCacheInvalidateRange((u32)RxPacket, data_size*4);
+	Xil_DCacheInvalidateRange((u32)RxPacket, data_size*4+32);
 	std::transform(RxPacket, RxPacket+data_size, iterator, FixedToFloat);
 
 	return XST_SUCCESS;

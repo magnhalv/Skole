@@ -27,6 +27,7 @@
 #include <c++/4.8.3/iostream>
 #include <c++/4.8.3/cmath>
 #include <c++/4.8.3/sstream>
+#include <c++/4.8.3/string>
 
 
 #include "xaxidma.h"
@@ -62,7 +63,7 @@ void load_weights(void) {
     typedef network<mse, gradient_descent_levenberg_marquardt> CNN;
     CNN nn;
     convolutional_layer_hw<CNN, tan_h> C1(32, 32, 5, 1, 6);
-    average_pooling_layer<CNN, tan_h> S2(28, 28, 6, 2);
+    //average_pooling_layer<CNN, tan_h> S2(28, 28, 6, 2);
 #define O true
 #define X false
     static const bool connection[] = {
@@ -79,15 +80,7 @@ void load_weights(void) {
     average_pooling_layer<CNN, tan_h> S4(10, 10, 16, 2);
     convolutional_layer<CNN, tan_h> C5(5, 5, 5, 16, 120);
     fully_connected_layer<CNN, tan_h> F6(120, 10);
-
-    assert(C1.param_size() == 156 && C1.connection_size() == 122304);
-    assert(S2.param_size() == 12 && S2.connection_size() == 5880);
-    assert(C3.param_size() == 1516 && C3.connection_size() == 151600);
-    assert(S4.param_size() == 32 && S4.connection_size() == 2000);
-    assert(C5.param_size() == 48120 && C5.connection_size() == 48120);
-
     nn.add(&C1);
-    nn.add(&S2);
     nn.add(&C3);
     nn.add(&S4);
     nn.add(&C5);
@@ -96,7 +89,8 @@ void load_weights(void) {
     std::stringstream stream;
     ReadFloatsFromSDFile(stream, std::string("weights.bin"));
 
-    stream >> C1 >> S2 >> C3 >> S4 >> C5 >> F6;
+    stream >> C1 >> C3 >> S4 >> C5 >> F6;
+
 
 
 
@@ -107,6 +101,7 @@ void load_weights(void) {
     parse_mnist_images("images.bin", &test_images);
 
     nn.test(test_images, test_labels).print_detail(std::cout);
+    return;
     //C1.print_weights();
 }
 

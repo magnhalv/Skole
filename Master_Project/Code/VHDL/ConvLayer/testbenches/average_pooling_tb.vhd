@@ -28,6 +28,7 @@ ARCHITECTURE behavior OF average_pooler_tb IS
         );
         Port ( 
             clk : in std_logic;
+            reset : in std_logic;
             conv_en : in std_logic;
             weight_in : in sfixed(INT_WIDTH-1 downto -FRAC_WIDTH);
             weight_we : in std_logic;
@@ -42,6 +43,7 @@ ARCHITECTURE behavior OF average_pooler_tb IS
 
     --Inputs
     signal clk : std_logic := '0';
+    signal reset : std_logic := '0';
     signal conv_en : std_logic := '0';
     signal weight_in : sfixed(INT_WIDTH-1 downto -FRAC_WIDTH) := (others => '0');
     signal weight_we : std_logic := '0';
@@ -55,6 +57,7 @@ ARCHITECTURE behavior OF average_pooler_tb IS
    -- Clock period definitions
     constant clk_period : time := 1 ns;
     
+    constant neg_one : sfixed(INT_WIDTH-1 downto -FRAC_WIDTH) := to_sfixed(-1, INT_WIDTH-1, -FRAC_WIDTH);
     constant zero : sfixed(INT_WIDTH-1 downto -FRAC_WIDTH) := to_sfixed(0, INT_WIDTH-1, -FRAC_WIDTH);
     constant one : sfixed(INT_WIDTH-1 downto -FRAC_WIDTH) := to_sfixed(1, INT_WIDTH-1, -FRAC_WIDTH);
     constant two : sfixed(INT_WIDTH-1 downto -FRAC_WIDTH) := to_sfixed(2, INT_WIDTH-1, -FRAC_WIDTH);
@@ -73,14 +76,14 @@ ARCHITECTURE behavior OF average_pooler_tb IS
 	   four, four,   five, five,     one, two,
 	   four, four,   five, five,     three, two,
 	   
-	   three, two,     one, one,     two, four,
-	   three, four,    five, one,    five, five
+	   three, two,     one, one,     neg_one, neg_one,
+	   three, four,    five, one,    neg_one, neg_one
 	);
 	
 	signal expected : sfixed_pooled_array := (
 	   one, two, three,
 	   four, five, two,
-	   three, two, four
+	   three, two, neg_one
 	);
  
 BEGIN
@@ -88,6 +91,7 @@ BEGIN
 	-- Instantiate the Unit Under Test (UUT)
    avg_pooler : average_pooler PORT MAP (
           clk => clk,
+          reset => reset,
           conv_en => conv_en,
           weight_in => weight_in,
           weight_we => weight_we,
@@ -110,8 +114,10 @@ BEGIN
    -- Stimulus process
     input: process
     begin		
+        reset <= '0';
         wait for 10*clk_period;
 
+        reset <= '1';
         weight_we <= '1';
         weight_in <= weight;
         wait for clk_period;
@@ -126,7 +132,7 @@ BEGIN
                 wait for clk_period;        
             end loop;
             input_valid <= '0';
-            wait for 5*clk_period;
+            wait for 2*clk_period;
         end loop;
         
         conv_en <= '0';

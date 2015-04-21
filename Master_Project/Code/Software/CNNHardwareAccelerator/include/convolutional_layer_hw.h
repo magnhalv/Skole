@@ -35,44 +35,24 @@
 
 namespace tiny_cnn {
 
-bool CompareFloats(float A, float B)
-{
-	const float EPSILON = 0.025;
-	const float diff = A - B;
-	return (diff < EPSILON) && (-diff < EPSILON);
-}
-
 
 template<typename N, typename Activation>
-class convolutional_layer_hw : public partial_connected_layer<N, Activation> {
+class convolutional_layer_hw : public layer<N, Activation> {
 public:
-	typedef std::vector<std::pair<unsigned short, unsigned short> > io_connections;
-	typedef std::vector<std::pair<unsigned short, unsigned short> > wi_connections;
-	typedef std::vector<std::pair<unsigned short, unsigned short> > wo_connections;
-    typedef partial_connected_layer<N, Activation> Base;
-    typedef typename Base::Optimizer Optimizer;
 
     convolutional_layer_hw(int in_width, int in_height, int window_size, int in_channels, int out_channels)
-    : partial_connected_layer<N, Activation>(in_width * in_height * in_channels, (in_width - window_size + 1) * (in_height - window_size + 1) * out_channels,
-    window_size * window_size * in_channels * out_channels, out_channels),
-    in_(in_width, in_height, in_channels),
-    out_((in_width - window_size + 1), (in_height - window_size + 1), out_channels),
-    weight_(window_size, window_size, in_channels*out_channels),
-    window_size_(window_size)
+    : layer<N, Activation>(in_width * in_height * in_channels, ((in_width - window_size + 1)/2) * ((in_width - window_size + 1)/2) * out_channels,
+    window_size * window_size * in_channels * out_channels, out_channels)
     {
-        init_connection(connection_table());
+    	avg_pool_coffs.resize(out_channels);
+    	avg_pool_bias.resize(out_channels);
     }
 
     convolutional_layer_hw(int in_width, int in_height, int window_size, int in_channels, int out_channels, const connection_table& connection_table)
-        : partial_connected_layer<N, Activation>(in_width * in_height * in_channels, (in_width - window_size + 1) * (in_height - window_size + 1) * out_channels,
-        window_size * window_size * in_channels * out_channels, out_channels),
-        in_(in_width, in_height, in_channels),
-        out_((in_width - window_size + 1), (in_height - window_size + 1), out_channels),
-        weight_(window_size, window_size, in_channels*out_channels),
-        connection_(connection_table),
-        window_size_(window_size)
+        : layer<N, Activation>(in_width * in_height * in_channels, (in_width - window_size + 1) * (in_height - window_size + 1) * out_channels,
+        window_size * window_size * in_channels * out_channels, out_channels)
+
     {
-        init_connection(connection_table);
         this->remap();
     }
 
@@ -81,7 +61,17 @@ public:
     	for (int i = 0; i < 6; i++) {
 			vec_t weights;
 			weights.insert(weights.end(), this->W_.begin()+i*25, this->W_.begin()+25*(i+1));
-			CalculateClUsingHWAccelerator(in, weights, this->b_[i], this->output_[index].begin()+i*28*28, 32, 5);
+			ConvLayerValues clv = {
+					in,
+					weights,
+					32,
+					5,
+					this->b_[i],
+					avg_pool_coffs[i],
+					avg_pool_bias[i],
+					0.25
+			};
+			CalculateClUsingHWAccelerator(clv, this->output_[index].begin()+i*14*14);
 		}
 
 //		for (int i = 0; i < this->out_size_; i++) {
@@ -106,72 +96,75 @@ public:
 		return this->next_ ? this->next_->forward_propagation(this->output_[index], index) : this->output_[index]; // 15.6%
 	}
 
+    int param_size() const {
+	}
 
-//    void weight_to_image(image& img) {
-//        const int border_width = 1;
-//        const int pitch = window_size_ + border_width;
-//        const int width = out_.depth_ * pitch + border_width;
-//        const int height = in_.depth_ * pitch + border_width;
-//        const image::intensity_t bg_color = 255;
-//
-//        img.resize(width, height);
-//        img.fill(bg_color);
-//
-//        auto minmax = std::minmax_element(this->W_.begin(), this->W_.end());
-//
-//        for (int r = 0; r < in_.depth_; r++) {
-//            for (int c = 0; c < out_.depth_; c++) {
-//                if (!connection_.is_connected(c, r)) continue;
-//
-//                const int top = r * pitch + border_width;
-//                const int left = c * pitch + border_width;
-//
-//                for (int y = 0; y < window_size_; y++) {
-//                    for (int x = 0; x < window_size_; x++) {
-//                        const float_t w = this->W_[weight_.get_index(x, y, c * in_.depth_ + r)];
-//
-//                        img.at(left + x, top + y)
-//                            = (image::intensity_t)rescale<float_t, int>(w, *minmax.first, *minmax.second, 0, 255);
-//                    }
-//                }
-//            }
-//        }
-//    }
+	int connection_size() const {
+
+	}
+
+	int fan_in_size() const {
+
+	}
+
+	void connect_weight(int input_index, int output_index, int weight_index) {
+
+	}
+
+	void connect_bias(int bias_index, int output_index) {
+	}
+
+	virtual const vec_t& back_propagation(const vec_t& current_delta, int index) {
+		vec_t lol;
+		return lol;
+	}
+
+	const vec_t& back_propagation_2nd(const vec_t& current_delta2) {
+		vec_t lol;
+		return lol;
+	}
+
+	// remove unused weight to improve cache hits
+	void remap() {
+	}
+
+	virtual void load(std::istream& is) {
+		for (auto& w : this->W_){
+			float f;
+			is.read((char*)&f, sizeof(f));
+			w = f;
+		}
+		for (auto& b : this->b_) {
+			float f;
+			is.read((char*)&f, sizeof(f));
+			b = f;
+		}
+		for (auto& c : avg_pool_coffs) {
+			float f;
+			is.read((char*)&f, sizeof(f));
+			c = f;
+		}
+
+		for (auto& avg_b : avg_pool_bias) {
+			float f;
+			is.read((char*)&f, sizeof(f));
+			avg_b = f;
+		}
+	}
+
+
+
 
 private:
-    void init_connection(const connection_table& table) {
-        for (int inc = 0; inc < in_.depth_; inc++) {
-            for (int outc = 0; outc < out_.depth_; outc++) {
-                if (!table.is_connected(outc, inc)) {
-                    continue;
-                }
-
-                for (int y = 0; y < out_.height_; y++)
-                    for (int x = 0; x < out_.width_; x++)
-                        connect_kernel(inc, outc, x, y);
-            }
-        }
-
-        for (int outc = 0; outc < out_.depth_; outc++)
-            for (int y = 0; y < out_.height_; y++)
-                for (int x = 0; x < out_.width_; x++)
-                    this->connect_bias(outc, out_.get_index(x, y, outc));
-    }
-
-    void connect_kernel(int inc, int outc, int x, int y) {
-        for (int dy = 0; dy < window_size_; dy++)
-            for (int dx = 0; dx < window_size_; dx++)
-                this->connect_weight(
-                    in_.get_index(x + dx, y + dy, inc),
-                    out_.get_index(x, y, outc),
-                    weight_.get_index(dx, dy, outc * in_.depth_ + inc));
-    }
-
-    tensor3d in_;
-    tensor3d out_;
-    tensor3d weight_;
-    connection_table connection_;
-    int window_size_;
+	vec_t avg_pool_coffs;
+	vec_t avg_pool_bias;
 };
+
+
+template <typename Char, typename CharTraits, typename N, typename Activation>
+std::basic_istream<Char, CharTraits>& operator >> (std::basic_istream<Char, CharTraits>& os, convolutional_layer_hw<N, Activation>& v) {
+	v.load(os);
+    return os;
+}
 
 } // namespace tiny_cnn
