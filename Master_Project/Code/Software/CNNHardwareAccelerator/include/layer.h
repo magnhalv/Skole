@@ -44,8 +44,11 @@ public:
     }
 
     void connect(layer_base<N>* tail) {
-        if (this->out_size() != 0 && tail->in_size() != this->out_size())
-            throw nn_error("dimension mismatch");
+        if (this->out_size() != 0 && tail->in_size() != this->out_size()) {
+        	printf("In was: %d. Out was: %d.\n\r", tail->in_size(), this->out_size());
+        	throw nn_error("dimension mismatch");
+        }
+
         next_ = tail;
         tail->prev_ = this;
     }

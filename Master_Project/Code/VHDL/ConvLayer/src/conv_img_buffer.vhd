@@ -26,17 +26,6 @@ end conv_img_buffer;
 
 architecture Behavioral of conv_img_buffer is
 	
-	component dual_block_mem
-		port (
-			clka		: in std_logic;
-			wea		    : in std_logic_vector(0 downto 0);
-			addra		: in std_logic_vector(6 downto 0);
-			dina		: in std_logic_vector(15 downto 0);
-			clkb		: in std_logic;
-			addrb		: in std_logic_vector(6 downto 0);
-			doutb		: out std_logic_vector(15 downto 0)
-		);
-	end component;
 	
 	signal write_addr 		: Natural range 0 to IMG_SIZE-1;
 	signal read_addr 			: Natural range 0 to IMG_SIZE-1;
@@ -58,16 +47,6 @@ begin
 	addra <= std_logic_vector(to_unsigned(write_addr, 7));
 	addrb <= std_logic_vector(to_unsigned(read_addr, 7));
 	
-	img_buffer : dual_block_mem port map(
-		clka 	=> clk,
-		wea(0)=> input_valid,
-		addra	=> addra,
-		dina 	=> to_slv(pixel_sum),
-		clkb 	=> clk,
-		addrb => addrb,
-		doutb => doutb
-		
-	);
 	
 	update_prev_valid : process(clk) 
 	begin

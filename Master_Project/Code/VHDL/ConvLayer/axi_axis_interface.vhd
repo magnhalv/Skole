@@ -95,7 +95,12 @@ architecture arch_imp of axi_axis_interface is
 
     component conv_layer_interface 
         generic (
-            C_S_AXI_DATA_WIDTH : integer
+            C_S_AXI_DATA_WIDTH : integer;
+            IMG_DIM             : Natural;
+            KERNEL_DIM          : Natural;
+            POOL_DIM            : Natural;
+            INT_WIDTH           : Natural;
+            FRAC_WIDTH          : Natural
         );
         Port (
             clk             : in std_logic;
@@ -321,7 +326,14 @@ begin
 
 	-- Add user logic here
     cnn_interface : conv_layer_interface 
-        generic map (C_S_AXI_DATA_WIDTH => C_S_AXI_DATA_WIDTH)
+        generic map (
+            C_S_AXI_DATA_WIDTH => C_S_AXI_DATA_WIDTH,
+            IMG_DIM => 32,
+            KERNEL_DIM => 5,
+            POOL_DIM => 2,
+            INT_WIDTH => 16,
+            FRAC_WIDTH => 16
+        )
         port map (
             clk             => S_AXI_ACLK,
             reset           => S_AXI_ARESETN,

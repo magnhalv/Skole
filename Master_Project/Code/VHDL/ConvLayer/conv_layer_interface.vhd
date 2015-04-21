@@ -9,9 +9,9 @@ use ieee_proposed.fixed_pkg.all;
 entity conv_layer_interface is
 	generic (
         C_S_AXI_DATA_WIDTH  : Natural := 32;
-        IMG_DIM             : Natural := 32;
-        KERNEL_DIM          : Natural := 5;
-        MAX_POOL_DIM        : Natural := 2;
+        IMG_DIM             : Natural := 6;
+        KERNEL_DIM          : Natural := 3;
+        POOL_DIM            : Natural := 2;
         INT_WIDTH           : Natural := 16;
         FRAC_WIDTH          : Natural := 16
     );
@@ -51,7 +51,7 @@ architecture Behavioral of conv_layer_interface is
         generic (
             IMG_DIM 		: Natural := IMG_DIM;
             KERNEL_DIM 		: Natural := KERNEL_DIM;
-            MAX_POOL_DIM 	: Natural := MAX_POOL_DIM;
+            POOL_DIM 	    : Natural := POOL_DIM;
             INT_WIDTH 		: Natural := INT_WIDTH;
             FRAC_WIDTH 		: Natural := FRAC_WIDTH
         );
@@ -169,7 +169,7 @@ begin
                 is_writing_weights <= '1';  
             elsif is_writing_weights = '1' then
                 if s_axis_tvalid = '1' then
-                    if nof_writes = KERNEL_DIM*KERNEL_DIM then
+                    if nof_writes = KERNEL_DIM*KERNEL_DIM+3 then
                         is_writing_weights <= '0';
                     else
                         nof_writes := nof_writes + 1;

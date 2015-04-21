@@ -8,10 +8,10 @@ use ieee_proposed.fixed_pkg.all;
 
 ENTITY conv_bias_tanh_tb IS
   generic (
-    IMG_DIM 			: Natural := 6;
+    IMG_DIM         : Natural := 6;
     KERNEL_DIM 		: Natural := 3;
-    MAX_POOL_DIM 	: Natural := 2;
-    INT_WIDTH 		: Natural := 16;
+    POOL_DIM 	    : Natural := 2;
+    INT_WIDTH       : Natural := 16;
     FRAC_WIDTH 		: Natural := 16
 	);
 END conv_bias_tanh_tb;
@@ -22,7 +22,7 @@ ARCHITECTURE behavior OF conv_bias_tanh_tb IS
     generic (
       IMG_DIM 			: Natural := IMG_DIM;
       KERNEL_DIM 		: Natural := KERNEL_DIM;
-      MAX_POOL_DIM 	    : Natural := MAX_POOL_DIM;
+      POOL_DIM 	        : Natural := POOL_DIM;
       INT_WIDTH 		: Natural := INT_WIDTH;
       FRAC_WIDTH 		: Natural := FRAC_WIDTH
       );
@@ -92,9 +92,9 @@ ARCHITECTURE behavior OF conv_bias_tanh_tb IS
   constant input34 : sfixed(INT_WIDTH-1 downto -FRAC_WIDTH) := to_sfixed(0.4, INT_WIDTH-1, -FRAC_WIDTH);
   constant input35 : sfixed(INT_WIDTH-1 downto -FRAC_WIDTH) := to_sfixed(-0.2, INT_WIDTH-1, -FRAC_WIDTH);
   
-  constant OUTPUT_DIM : Natural := (IMG_DIM-KERNEL_DIM+1)/MAX_POOL_DIM;
+  constant OUTPUT_DIM : Natural := (IMG_DIM-KERNEL_DIM+1)/POOL_DIM;
   type img_array is array ((IMG_DIM*IMG_DIM)-1 downto 0) of sfixed(INT_WIDTH-1 downto -FRAC_WIDTH);
-  type kernel_array is array ((KERNEL_DIM*KERNEL_DIM) downto 0) of sfixed(INT_WIDTH-1 downto -FRAC_WIDTH);
+  type kernel_array is array ((KERNEL_DIM*KERNEL_DIM)+1 downto 0) of sfixed(INT_WIDTH-1 downto -FRAC_WIDTH);
   type pooled_array is array ((OUTPUT_DIM*OUTPUT_DIM)-1 downto 0) of sfixed(INT_WIDTH-1 downto -FRAC_WIDTH);
   
   signal image 	: img_array := (
@@ -106,11 +106,12 @@ ARCHITECTURE behavior OF conv_bias_tanh_tb IS
     input5, input4, input3, input2, input1, input0
     );
   signal kernel 	: kernel_array := (
-    to_sfixed(0, INT_WIDTH-1, -FRAC_WIDTH), -- bias
-    kernel8, kernel7, kernel6,
-    kernel5, kernel4, kernel3,
-    kernel2, kernel1, kernel0
-    );
+      to_sfixed(0.25, INT_WIDTH-1, -FRAC_WIDTH), -- avg pool
+      to_sfixed(0, INT_WIDTH-1, -FRAC_WIDTH), -- bias
+      kernel8, kernel7, kernel6,
+      kernel5, kernel4, kernel3,
+      kernel2, kernel1, kernel0
+  );
   
   
   signal clk 				: std_logic := '0';
@@ -142,9 +143,9 @@ BEGIN
 
   clock : process
   begin
-    clk <= '1';
-    wait for clk_period/2;
     clk <= '0';
+    wait for clk_period/2;
+    clk <= '1';
     wait for clk_period/2;
   end process;
 
@@ -155,8 +156,11 @@ BEGIN
     reset <= '1';
 
     weight_we <= '1';
-    for i in 0 to KERNEL_DIM*KERNEL_DIM loop
-      weight_data <= kernel(KERNEL_DIM*KERNEL_DIM-i);
+    weight_data <= to_sfixed(1, weight_data);
+    wait for clk_period;
+    
+    for i in 0 to KERNEL_DIM*KERNEL_DIM+1 loop
+      weight_data <= kernel(KERNEL_DIM*KERNEL_DIM+1-i);
       wait for clk_period;
     end loop;
 
@@ -170,7 +174,7 @@ BEGIN
 
     pixel_in <= (others => '0');
     
-    wait for clk_period*5;
+    wait for clk_period*50;
     conv_en <= '0';
     
     wait; -- will wait forever

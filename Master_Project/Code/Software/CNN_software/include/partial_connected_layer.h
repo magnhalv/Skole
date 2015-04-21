@@ -80,7 +80,6 @@ public:
     }
 
     virtual const vec_t& forward_propagation(const vec_t& in, int index) {
-
         for_(this->parallelize_, 0, this->out_size_, [&](const blocked_range& r) {
             for (int i = r.begin(); i < r.end(); i++) {
                 const wi_connections& connections = out2wi_[i];
@@ -88,7 +87,6 @@ public:
 
                 for (auto connection : connections)// 13.1%
                     a += this->W_[connection.first] * in[connection.second]; // 3.2%
-
                 a *= scale_factor_;
                 a += this->b_[out2bias_[i]];
                 this->output_[index][i] = this->a_.f(a); // 9.6%
@@ -202,6 +200,10 @@ public:
             if(swaps[i] >= 0) weight2io_new[swaps[i]] = weight2io_[i];
 
         weight2io_ = weight2io_new;
+    }
+
+    void print_scale_factor() {
+    	printf("Scale factor: %f\n\r", scale_factor_);
     }
 
 protected:

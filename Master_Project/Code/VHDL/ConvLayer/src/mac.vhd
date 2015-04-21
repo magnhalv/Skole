@@ -46,7 +46,7 @@ begin
     result_register : process(clk) 
     begin
         if rising_edge(clk) then
-            result <= sum(INT_WIDTH-1 downto -FRAC_WIDTH);
+            result <= resize(sum, INT_WIDTH-1, -FRAC_WIDTH);
         end if;
     end process;
     
