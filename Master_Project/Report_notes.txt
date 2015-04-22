@@ -1,1 +1,2 @@
 - 100 MHz with non-pipelined tanh function.
+- FIFOs bigger than neccessary.
