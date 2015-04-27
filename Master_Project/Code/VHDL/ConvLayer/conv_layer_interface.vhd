@@ -5,6 +5,7 @@ use IEEE.NUMERIC_STD.ALL;
 library ieee_proposed;
 use ieee_proposed.fixed_float_types.all;
 use ieee_proposed.fixed_pkg.all;
+use ieee_proposed.float_pkg.all;
 
 entity conv_layer_interface is
 	generic (
@@ -62,10 +63,10 @@ architecture Behavioral of conv_layer_interface is
             conv_en		: in std_logic;
             layer_nr	: in std_logic;
             weight_we	: in std_logic;
-            weight_data	: in sfixed(INT_WIDTH-1 downto -FRAC_WIDTH);
-            pixel_in	: in sfixed(INT_WIDTH-1 downto -FRAC_WIDTH);
+            weight_data	: in float32;
+            pixel_in	: in float32;
             pixel_valid	: out std_logic;
-            pixel_out 	: out sfixed(INT_WIDTH-1 downto -FRAC_WIDTH);
+            pixel_out 	: out float32;
             dummy_bias	: out sfixed(INT_WIDTH-1 downto -FRAC_WIDTH)
         );
     end component;
@@ -87,17 +88,17 @@ architecture Behavioral of conv_layer_interface is
 	type sfixed_array_length_4 is array (3 downto 0) of sfixed(INT_WIDTH-1 downto -FRAC_WIDTH);
 	signal results : sfixed_array_length_4;
 	
-	
+   
 	
 	
 	-- Conv layer (cl) signals --
 	signal cl_conv_en		: std_logic;
     signal cl_layer_nr      : std_logic;
     signal cl_weight_we     : std_logic;
-    signal cl_weight_data   : sfixed(INT_WIDTH-1 downto -FRAC_WIDTH);
-    signal cl_pixel_in      : sfixed(INT_WIDTH-1 downto -FRAC_WIDTH);
+    signal cl_weight_data   : float32;
+    signal cl_pixel_in      : float32;
     signal cl_pixel_valid   : std_logic;
-    signal cl_pixel_out     : sfixed(INT_WIDTH-1 downto -FRAC_WIDTH);
+    signal cl_pixel_out     : float32;
     signal cl_dummy_bias    : sfixed(INT_WIDTH-1 downto -FRAC_WIDTH);
     
 
@@ -156,7 +157,7 @@ begin
     s_axis_tready <= is_writing_weights or is_executing_cl;
     
     cl_weight_we <= is_writing_weights and s_axis_tvalid;
-    cl_weight_data <= to_sfixed(s_axis_tdata(INT_WIDTH+FRAC_WIDTH-1 downto 0), cl_weight_data);
+    cl_weight_data <= to_float(s_axis_tdata(INT_WIDTH+FRAC_WIDTH-1 downto 0), cl_weight_data);
     
     WriteWeights : process(clk, reset)
         variable nof_writes : Natural;
@@ -183,7 +184,7 @@ begin
     end process;
     
     cl_conv_en <= is_executing_cl;
-    cl_pixel_in <= to_sfixed(s_axis_tdata(INT_WIDTH+FRAC_WIDTH-1 downto 0), cl_pixel_in);
+    cl_pixel_in <= to_float(s_axis_tdata(INT_WIDTH+FRAC_WIDTH-1 downto 0), cl_pixel_in);
     
     m_axis_tkeep <= (others => '1');
     m_axis_tdata <= out_sbuffer;
