@@ -17,6 +17,7 @@ entity convolution is
 		clk : in std_logic;
 		reset : in std_logic;
 		conv_en : in std_logic;
+        stall : in std_logic;
 		layer_nr : in std_logic;
 		weight_we : in std_logic;
 		weight_data : in sfixed(INT_WIDTH-1 downto -FRAC_WIDTH);
@@ -39,6 +40,7 @@ architecture Behavioral of convolution is
         port (
             clk : in  std_logic;
             conv_en : in  std_logic;
+            stall : in std_logic;
             output_valid : out  std_logic
         );
         end component;
@@ -52,6 +54,7 @@ architecture Behavioral of convolution is
         port (
             clk : in std_logic;
             reset : in std_logic;
+            stall : in std_logic;
             we : in std_logic;
             output_reg : in Natural;
             data_in : in sfixed(INT_WIDTH-1 downto -FRAC_WIDTH);
@@ -68,6 +71,7 @@ architecture Behavioral of convolution is
         port (
             clk : in std_logic;
             reset : in std_logic;
+            stall : in std_logic;
             weight_we : in std_logic;
             weight_in : in sfixed(INT_WIDTH-1 downto -FRAC_WIDTH);
             multi_value : in sfixed(INT_WIDTH-1 downto -FRAC_WIDTH);
@@ -96,6 +100,7 @@ begin
     controller : conv_controller port map (
         clk => clk,
         conv_en => conv_en,
+        stall => stall,
         output_valid => output_valid
     );
 
@@ -108,6 +113,7 @@ begin
                     mac1 : mac port map (
                         clk => clk,
                         reset => reset,
+                        stall => stall,
                         weight_we => weight_we,
                         weight_in => weight_data,
                         multi_value => pixel_in,
@@ -122,6 +128,7 @@ begin
                     mac1 : mac port map (
                         clk => clk,
                         reset => reset,
+                        stall => stall,
                         weight_we => weight_we,
                         weight_in => weight_values(row-1)(KERNEL_DIM-1),
                         multi_value => pixel_in,
@@ -136,6 +143,7 @@ begin
                     mac3 : mac port map (
                         clk => clk,
                         reset => reset,
+                        stall => stall,
                         weight_we => weight_we,
                         weight_in => weight_values(row)(col-1),
                         multi_value => pixel_in,
@@ -150,6 +158,7 @@ begin
                     mac4 : mac port map (
                         clk => clk,
                         reset => reset,
+                        stall => stall,
                         weight_we => weight_we,
                         weight_in => weight_values(row)(col-1),
                         multi_value => pixel_in,
@@ -164,6 +173,7 @@ begin
                     sr : sfixed_shift_registers port map (
                         clk => clk,
                         reset => reset,
+                        stall => stall,
                         we => conv_en,
                         output_reg => output_shift_reg_nr,
                         data_in => acc_values(row)(col),
@@ -196,7 +206,7 @@ begin
     
     conv_reg : process(clk) 
     begin
-        if rising_edge(clk) then
+        if rising_edge(clk) and stall = '0' then
             conv_en_out <= conv_en;
         end if;
     end process;

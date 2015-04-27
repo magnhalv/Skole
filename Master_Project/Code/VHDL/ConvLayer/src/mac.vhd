@@ -6,20 +6,21 @@ use ieee_proposed.fixed_float_types.all;
 use ieee_proposed.fixed_pkg.all;
 
 entity mac is
-	generic  (
-					INT_WIDTH 	: Natural := 8;
-					FRAC_WIDTH 	: Natural := 8
-				);
-	Port( 	
-			clk 		: in std_logic;
-			reset 		: in std_logic;		
-			weight_we 	: in std_logic;
-			weight_in 	: in sfixed(INT_WIDTH-1 downto -FRAC_WIDTH);
-			multi_value : in sfixed(INT_WIDTH-1 downto -FRAC_WIDTH);
-			acc_value 	: in sfixed(INT_WIDTH-1 downto -FRAC_WIDTH);
-			weight_out	: out sfixed(INT_WIDTH-1 downto -FRAC_WIDTH);
-			result 		: out sfixed(INT_WIDTH-1 downto -FRAC_WIDTH)
-		);
+	generic (
+        INT_WIDTH 	: Natural := 8;
+        FRAC_WIDTH 	: Natural := 8
+    );
+	port ( 	
+        clk 		: in std_logic;
+        reset 		: in std_logic;		
+        stall       : in std_logic;
+        weight_we 	: in std_logic;
+        weight_in 	: in sfixed(INT_WIDTH-1 downto -FRAC_WIDTH);
+        multi_value : in sfixed(INT_WIDTH-1 downto -FRAC_WIDTH);
+        acc_value 	: in sfixed(INT_WIDTH-1 downto -FRAC_WIDTH);
+        weight_out	: out sfixed(INT_WIDTH-1 downto -FRAC_WIDTH);
+        result 		: out sfixed(INT_WIDTH-1 downto -FRAC_WIDTH)
+	);
 end mac;
 
 architecture Behavioral of mac is
@@ -34,7 +35,7 @@ begin
 	
 	weight_register : process(clk) 
 	begin
-		if rising_edge(clk) then
+		if rising_edge(clk) and stall = '0' then
 			if (reset = '0') then
 				weight_reg <= (others => '0');
 			elsif(weight_we = '1') then
@@ -45,7 +46,7 @@ begin
 	
     result_register : process(clk) 
     begin
-        if rising_edge(clk) then
+        if rising_edge(clk) and stall = '0' then
             result <= resize(sum, INT_WIDTH-1, -FRAC_WIDTH);
         end if;
     end process;

@@ -16,6 +16,7 @@ entity average_pooler is
 	Port ( 
 		clk : in std_logic;
         reset : in std_logic;
+        stall : in std_logic;
         conv_en : in std_logic;
         weight_in : in sfixed(INT_WIDTH-1 downto -FRAC_WIDTH);
         weight_we : in std_logic;
@@ -35,10 +36,11 @@ architecture Behavioral of average_pooler is
 			FRAC_WIDTH 	: positive := FRAC_WIDTH
 		);
 		Port ( 
-			clk 		: in std_logic;
-			reset		: in std_logic;
-			we 		: in std_logic;
-			data_in 	: in sfixed(INT_WIDTH-1 downto -FRAC_WIDTH);
+			clk : in std_logic;
+			reset : in std_logic;
+            stall : in std_logic;   
+			we : in std_logic;
+			data_in : in sfixed(INT_WIDTH-1 downto -FRAC_WIDTH);
 			data_out : out sfixed(INT_WIDTH-1 downto -FRAC_WIDTH)
 		);
 	end component;
@@ -51,8 +53,8 @@ architecture Behavioral of average_pooler is
 	signal buffer_values : sfixed_array;
 	signal reset_buffers : std_logic;
 	signal write_buffers : std_logic;
-    signal pool_sum	     : sfixed(INT_WIDTH-1 downto -FRAC_WIDTH);
-    signal weight        : sfixed(INT_WIDTH-1 downto -FRAC_WIDTH);
+    signal pool_sum : sfixed(INT_WIDTH-1 downto -FRAC_WIDTH);
+    signal weight : sfixed(INT_WIDTH-1 downto -FRAC_WIDTH);
     signal output_valid_buf : std_logic;
 	signal pool_x : Natural range 0 to POOL_ARRAY_DIM-1 := 0;
     signal buf_reset : std_logic;
@@ -65,10 +67,11 @@ begin
 	begin
 		first_buffer : if i = 0 generate
 		begin
-			uf_buffer : sfixed_buffer port map (
+			sf_buffer : sfixed_buffer port map (
 				clk => clk,
 				reset => buf_reset,
-				we => write_buffers,
+                stall => stall,
+                we => write_buffers,
 				data_in => pool_sum,
 				data_out => buffer_values(i)
 			);
@@ -79,6 +82,7 @@ begin
 			uf_buffer : sfixed_buffer port map (
 				clk => clk,
 				reset => buf_reset,
+                stall => stall,
 				we => write_buffers,
 				data_in => buffer_values(i-1),
 				data_out => buffer_values(i)
@@ -90,7 +94,7 @@ begin
         variable x : integer;
         variable y : integer;
     begin
-        if rising_edge(clk) then
+        if rising_edge(clk) and stall = '0' then
             if conv_en = '0' or reset = '0' then
                 output_valid_buf <= '0';
                 reset_buffers <= '1';
@@ -141,7 +145,7 @@ begin
 	
     update_sum : process(clk)
 	begin
-        if rising_edge(clk) then
+        if rising_edge(clk) and stall = '0' then
             if conv_en = '0' or reset_buffers = '0' or reset = '0' then
                 pool_sum <= (others => '0');
             elsif input_valid = '1' then
@@ -158,7 +162,7 @@ begin
 
     weight_reg : process(clk)
     begin
-        if rising_edge(clk) then
+        if rising_edge(clk) and stall = '0' then
             if reset = '0' then
                 weight <= (others => '0');
             elsif weight_we = '1' then
@@ -169,7 +173,7 @@ begin
 
     output_reg : process(clk)
     begin
-        if rising_edge(clk) then
+        if rising_edge(clk) and stall = '0' then
             if reset = '0' then
                 data_out <= (others => '0');
                 output_valid <= '0';

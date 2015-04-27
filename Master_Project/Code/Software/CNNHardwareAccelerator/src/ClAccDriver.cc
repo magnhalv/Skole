@@ -84,10 +84,10 @@ int CalculateClUsingHWAccelerator(const ConvLayerValues cl_vals, vec_it feature_
 		return XST_FAILURE;
 	}
 
-	Status = WaitForTxToFinish(&AxiDma);
-	if (Status != XST_SUCCESS) {
-		return XST_FAILURE;
-	}
+//	Status = WaitForTxToFinish(&AxiDma);
+//	if (Status != XST_SUCCESS) {
+//		return XST_FAILURE;
+//	}
 	ConfigureAndRunAccelerator(nof_outputs);
 
 	Status = WaitForRxToFinish(&AxiDma);
@@ -318,7 +318,7 @@ int SendPacket(XAxiDma * AxiDmaInstPtr, ConvLayerValues clv)
 	XAxiDma_Bd *BdPtr;
 	int Status;
 	int Index;
-	const int MAX_PKT_LEN = (clv.image.size()+clv.weights.size()+2)*sizeof(int);
+	const int MAX_PKT_LEN = (clv.image.size()+clv.weights.size()+3)*sizeof(int);
 
 	TxRingPtr = XAxiDma_GetTxRing(AxiDmaInstPtr);
 
@@ -333,49 +333,49 @@ int SendPacket(XAxiDma * AxiDmaInstPtr, ConvLayerValues clv)
 
 
 	/* Allocate a BD */
-	Status = XAxiDma_BdRingAlloc(TxRingPtr, 1, &BdPtr);
+	Status = XAxiDma_BdRingAlloc(TxRingPtr, 2, &BdPtr);
 	if (Status != XST_SUCCESS) {
 		return XST_FAILURE;
 	}
 
 	/* Set up the BD using the information of the packet to transmit */
-	Status = XAxiDma_BdSetBufAddr(BdPtr, (u32) TxPacket);
-	if (Status != XST_SUCCESS) {
-		xil_printf("Tx set buffer addr %x on BD %x failed %d\r\n",
-		    (unsigned int)Packet, (unsigned int)BdPtr, Status);
 
-		return XST_FAILURE;
+	for (int i = 0; i < 2; i++) {
+
+		Status = XAxiDma_BdSetBufAddr(&BdPtr[i], (u32) TxPacket+(MAX_PKT_LEN/2*i));
+		if (Status != XST_SUCCESS) {
+			xil_printf("Tx set buffer addr %x on BD %x failed %d\r\n",
+			    (unsigned int)Packet, (unsigned int)BdPtr, Status);
+
+			return XST_FAILURE;
+		}
+
+
+		Status = XAxiDma_BdSetLength(&BdPtr[i], MAX_PKT_LEN/2,TxRingPtr->MaxTransferLen);
+		if (Status != XST_SUCCESS) {
+			xil_printf("Tx set length %d on BD %x failed %d\r\n",
+				MAX_PKT_LEN, (unsigned int)BdPtr, Status);
+
+			return XST_FAILURE;
+		}
+
+		/* For single packet, both SOF and EOF are to be set
+		 */
+		if (i == 0) {
+			XAxiDma_BdSetCtrl(&BdPtr[i], XAXIDMA_BD_CTRL_TXSOF_MASK);
+		}
+		else if (i == 1) {
+			XAxiDma_BdSetCtrl(&BdPtr[i], XAXIDMA_BD_CTRL_TXEOF_MASK);
+		}
+
+
+		XAxiDma_BdSetId(BdPtr, (u32)i);
+
+
+
 	}
-
-	Status = XAxiDma_BdSetLength(BdPtr, MAX_PKT_LEN,
-				TxRingPtr->MaxTransferLen);
-	if (Status != XST_SUCCESS) {
-		xil_printf("Tx set length %d on BD %x failed %d\r\n",
-		    MAX_PKT_LEN, (unsigned int)BdPtr, Status);
-
-		return XST_FAILURE;
-	}
-
-#if (XPAR_AXIDMA_0_SG_INCLUDE_STSCNTRL_STRM == 1)
-	Status = XAxiDma_BdSetAppWord(BdPtr,
-	    XAXIDMA_LAST_APPWORD, MAX_PKT_LEN);
-
-	/* If Set app length failed, it is not fatal
-	 */
-	if (Status != XST_SUCCESS) {
-		xil_printf("Set app word failed with %d\r\n", Status);
-	}
-#endif
-
-	/* For single packet, both SOF and EOF are to be set
-	 */
-	XAxiDma_BdSetCtrl(BdPtr, XAXIDMA_BD_CTRL_TXEOF_MASK |
-						XAXIDMA_BD_CTRL_TXSOF_MASK);
-
-	XAxiDma_BdSetId(BdPtr, (u32) TxPacket);
-
 	/* Give the BD to DMA to kick off the transmission. */
-	Status = XAxiDma_BdRingToHw(TxRingPtr, 1, BdPtr);
+	Status = XAxiDma_BdRingToHw(TxRingPtr, 2, BdPtr);
 	if (Status != XST_SUCCESS) {
 		xil_printf("to hw failed %d\r\n", Status);
 		return XST_FAILURE;

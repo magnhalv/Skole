@@ -14,6 +14,7 @@ entity tan_h is
     );
 	Port (
 		clk : in std_logic;
+        stall : in std_logic;
 		input_valid : in std_logic;
 		x : in  sfixed (INT_WIDTH-1 downto -FRAC_WIDTH);
 		output_valid : out std_logic;
@@ -61,7 +62,7 @@ begin
     
     process_input_c1 : process(clk) 
     begin
-        if rising_edge(clk) then
+        if rising_edge(clk) and stall = '0' then
             abs_x_c1 <= abs_x;
             pow_x_c1 <= resize(abs_x*abs_x, INT_WIDTH-1, -FRAC_WIDTH);
             signed_bit_c1 <= x(INT_WIDTH-1);
@@ -69,10 +70,9 @@ begin
         end if;
     end process;
     
-    
     calculate_terms_c2 : process(clk)
     begin
-        if rising_edge(clk) then
+        if rising_edge(clk) and stall = '0' then
             signed_bit_c2 <= signed_bit_c1;
             input_valid_c2 <= input_valid_c1;
             if abs_x_c1 <= a and abs_x_c1 >= 0 then
@@ -93,7 +93,7 @@ begin
     
     add_terms_c3 : process(clk) 
     begin
-        if rising_edge(clk) then
+        if rising_edge(clk) and stall = '0' then
             signed_bit_c3 <= signed_bit_c2;
             input_valid_c3 <= input_valid_c2;
             tanh_x_c3 <= resize(term1_c2 + term2_c2 + term3_c2, INT_WIDTH-1, -FRAC_WIDTH);
@@ -101,17 +101,15 @@ begin
     end process;
     
     set_output_c4: process(clk)
-        begin 
-            if rising_edge(clk) then
-                if signed_bit_c3 = '1' then
-                    y <= resize(-tanh_x_c3, INT_WIDTH-1, -FRAC_WIDTH);
-                else
-                    y <= tanh_x_c3;
-                end if;
-                output_valid <= input_valid_c3;
+    begin 
+        if rising_edge(clk) and stall = '0' then
+            if signed_bit_c3 = '1' then
+                y <= resize(-tanh_x_c3, INT_WIDTH-1, -FRAC_WIDTH);
+            else
+                y <= tanh_x_c3;
             end if;
-        end process;
-        
-
-	
+            output_valid <= input_valid_c3;
+        end if;
+    end process;
+    
 end Behavioral;

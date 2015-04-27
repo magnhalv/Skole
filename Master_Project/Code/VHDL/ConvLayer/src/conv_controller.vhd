@@ -8,30 +8,31 @@ entity conv_controller is
 		KERNEL_DIM 	: Natural := 2
 	);
 	port (
-		clk 				: in  std_logic;
-		conv_en 			: in  std_logic;
-		output_valid 	: out std_logic
+		clk : in  std_logic;
+        stall : in std_logic; 
+		conv_en : in  std_logic;
+		output_valid : out std_logic
 	);
 end conv_controller;
 
 architecture Behavioral of conv_controller is
 
-	signal row_num 				: Natural range 0 to IMAGE_DIM := 0;
-	signal column_num 			: Natural range 0 to IMAGE_DIM := 0;
-	signal reached_valid_row 	: std_logic;
+	signal row_num : Natural range 0 to IMAGE_DIM := 0;
+	signal column_num : Natural range 0 to IMAGE_DIM := 0;
+	signal reached_valid_row : std_logic;
 	
 	signal conv_en_buf	: std_logic;
 	
-	signal output_valid_buf			: std_logic;
-	constant TOTAL_NOF_CYCLES		: Natural := (IMAGE_DIM*IMAGE_DIM)+1;
-	constant INVALID_INTERVAL		: Natural := KERNEL_DIM-1;
+	signal output_valid_buf : std_logic;
+	constant TOTAL_NOF_CYCLES : Natural := (IMAGE_DIM*IMAGE_DIM)+1;
+	constant INVALID_INTERVAL : Natural := KERNEL_DIM-1;
 
 begin
 
 
 	count_pixels : process (clk)
 	begin
-		if rising_edge(clk) then
+		if rising_edge(clk) and stall = '0' then
 			conv_en_buf <= conv_en;
 			if conv_en = '1' then
 				if (column_num = IMAGE_DIM and row_num = IMAGE_DIM) then
@@ -61,7 +62,7 @@ begin
 	
 	is_output_valid : process(clk)
 	begin
-		if rising_edge(clk) then
+		if rising_edge(clk) and stall = '0' then
 			if conv_en_buf = '1'
 			and reached_valid_row = '1' 
 			and (column_num >= KERNEL_DIM-1 and column_num < IMAGE_DIM) then

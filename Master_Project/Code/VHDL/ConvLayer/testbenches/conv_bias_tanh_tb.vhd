@@ -30,6 +30,7 @@ ARCHITECTURE behavior OF conv_bias_tanh_tb IS
     port ( 
       clk 			: in std_logic;
       reset			: in std_logic;
+      stall         : in std_logic;
       conv_en		: in std_logic;
       layer_nr      : in std_logic;
       weight_we	    : in std_logic;
@@ -116,6 +117,7 @@ ARCHITECTURE behavior OF conv_bias_tanh_tb IS
   
   signal clk 				: std_logic := '0';
   signal reset			: std_logic := '0';
+  signal stall          : std_logic := '0';
   signal conv_en			: std_logic := '0';
   signal layer_nr        : std_logic := '0';
   signal weight_we		: std_logic := '0';
@@ -132,6 +134,7 @@ BEGIN
   conv_layer : convolution_layer port map(
     clk 			=> clk,
     reset			=> reset,
+    stall => stall,
     conv_en		=> conv_en,
     layer_nr => layer_nr,
     weight_we	=> weight_we,
@@ -157,8 +160,9 @@ BEGIN
 
     weight_we <= '1';
     weight_data <= to_sfixed(1, weight_data);
-    wait for clk_period;
+    wait for clk_period*2;
     
+        
     for i in 0 to KERNEL_DIM*KERNEL_DIM+1 loop
       weight_data <= kernel(KERNEL_DIM*KERNEL_DIM+1-i);
       wait for clk_period;
@@ -169,6 +173,11 @@ BEGIN
     
     for i in 0 to IMG_DIM*IMG_DIM-1 loop
       pixel_in <= image(i);
+      if (i = 5 or i = 10) then
+        stall <= '1';
+        wait for clk_period*5;
+        stall <= '0';
+      end if;
       wait for clk_period;
     end loop;
 

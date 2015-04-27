@@ -14,6 +14,7 @@ entity sfixed_buffer is
 	Port ( 
         clk : in std_logic;
         reset : in std_logic;
+        stall : in std_logic;
         we : in std_logic;
         data_in : in sfixed(INT_WIDTH-1 downto -FRAC_WIDTH);
         data_out : out sfixed(INT_WIDTH-1 downto -FRAC_WIDTH)
@@ -31,7 +32,7 @@ begin
 		if rising_edge(clk) then
 			if (reset ='0') then
 				stored_value <= (others => '0');
-			elsif (we='1') then
+			elsif (we='1') and stall='0' then
 				stored_value <= data_in;
 			end if;
 		end if;

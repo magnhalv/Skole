@@ -41,7 +41,7 @@ entity conv_layer_interface is
         m_axis_tlast    : out std_logic
     );
     
-    
+
      
 end conv_layer_interface;
 
@@ -58,6 +58,7 @@ architecture Behavioral of conv_layer_interface is
         
         port ( 
             clk 		: in std_logic;
+            stall       : in std_logic;
             reset		: in std_logic;
             conv_en		: in std_logic;
             layer_nr	: in std_logic;
@@ -92,6 +93,7 @@ architecture Behavioral of conv_layer_interface is
 	
 	-- Conv layer (cl) signals --
 	signal cl_conv_en		: std_logic;
+    signal cl_stall         : std_logic;
     signal cl_layer_nr      : std_logic;
     signal cl_weight_we     : std_logic;
     signal cl_weight_data   : sfixed(INT_WIDTH-1 downto -FRAC_WIDTH);
@@ -100,7 +102,8 @@ architecture Behavioral of conv_layer_interface is
     signal cl_pixel_out     : sfixed(INT_WIDTH-1 downto -FRAC_WIDTH);
     signal cl_dummy_bias    : sfixed(INT_WIDTH-1 downto -FRAC_WIDTH);
     
-
+    signal nof_pixels_in : integer;
+    signal disable_stall : std_logic;
 	
 begin   
     
@@ -147,8 +150,8 @@ begin
             when b"011" => s_axi_rdata <= to_slv(results(3)); -- 12
             when b"100" => s_axi_rdata <= (0 => is_writing_weights, others => '0'); -- 16
             when b"101" => s_axi_rdata <= (0 => is_executing_cl, others => '0'); -- 20
-            when b"110" => s_axi_rdata <= nof_outputs; -- 24
-            when b"111" => s_axi_rdata <= to_slv(cl_dummy_bias); -- 28
+            when b"110" => s_axi_rdata <= (0 => s_axis_tvalid, others => '0'); -- 24
+            when b"111" => s_axi_rdata <= s_axis_tdata; -- 28
             when others => s_axi_rdata <= (others => '1');
         end case;
     end process;
@@ -184,6 +187,16 @@ begin
     
     cl_conv_en <= is_executing_cl;
     cl_pixel_in <= to_sfixed(s_axis_tdata(INT_WIDTH+FRAC_WIDTH-1 downto 0), cl_pixel_in);
+    cl_stall <= ((is_executing_cl or is_writing_weights) and not s_axis_tvalid) and not disable_stall;
+
+    DisableStall : process(nof_pixels_in)
+    begin
+        if nof_pixels_in > 1024 then
+            disable_stall <= '1';
+        else
+            disable_stall <= '0';
+        end if;
+    end process;
     
     m_axis_tkeep <= (others => '1');
     m_axis_tdata <= out_sbuffer;
@@ -196,29 +209,35 @@ begin
             is_executing_cl <= '0';
             m_axis_tvalid <= '0';
             m_axis_tlast <= '0';
+            nof_pixels_in <= 0;
         elsif rising_edge(clk) then
             if start_cl = '1' then
                 nof_results := 0;
+                nof_pixels_in <= 0;
                 is_executing_cl <= '1';
             elsif is_executing_cl = '1' then
-                if cl_pixel_valid = '1' then
-                    out_sbuffer <= to_slv(cl_pixel_out);
-                    m_axis_tvalid <= '1';
-                    if nof_results = to_integer(unsigned(nof_outputs))-1 then
-                        is_executing_cl <= '0';
-                        m_axis_tlast <= '1';
+                if cl_stall = '0' then
+                    nof_pixels_in <= nof_pixels_in + 1;
+                    if cl_pixel_valid = '1' then
+                        out_sbuffer <= to_slv(cl_pixel_out);
+                        m_axis_tvalid <= '1';
+                        if nof_results = to_integer(unsigned(nof_outputs))-1 then
+                            is_executing_cl <= '0';
+                            m_axis_tlast <= '1';
+                        else
+                            nof_results := nof_results + 1;
+                            m_axis_tlast <= '0';
+                        end if;
                     else
-                        nof_results := nof_results + 1;
+                        m_axis_tvalid <= '0';
                         m_axis_tlast <= '0';
                     end if;
-                else
-                    m_axis_tvalid <= '0';
-                    m_axis_tlast <= '0';
                 end if;
             else
                 m_axis_tvalid <= '0';
                 m_axis_tlast <= '0';
                 nof_results := 0;
+                nof_pixels_in <= 0;
                 is_executing_cl <= '0';
             end if;
         end if;
@@ -229,6 +248,7 @@ begin
     conv_layer_port_map : convolution_layer port map(
         clk         => clk,
         reset       => reset,
+        stall       => cl_stall,
         conv_en     => cl_conv_en,
         layer_nr    => cl_layer_nr,
         weight_we   => cl_weight_we,

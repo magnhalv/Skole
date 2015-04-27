@@ -44,6 +44,7 @@ entity sfixed_shift_registers is
     port (
         clk : in std_logic;
         reset : in std_logic;
+        stall : in std_logic;
         we : in std_logic;
         output_reg : in Natural;
         data_in : in sfixed(INT_WIDTH-1 downto -FRAC_WIDTH);
@@ -63,6 +64,7 @@ architecture Behavioral of sfixed_shift_registers is
         port (
             clk : in std_logic;
             reset : in std_logic;
+            stall : in std_logic;
             we : in std_logic;
             data_in : in sfixed(INT_WIDTH-1 downto -FRAC_WIDTH);
             data_out : out sfixed(INT_WIDTH-1 downto -FRAC_WIDTH)
@@ -85,6 +87,7 @@ begin
             shift_reg : sfixed_buffer port map (
                 clk => clk,
                 reset => reset,
+                stall => stall,
                 we => we,
                 data_in => data_in,
                 data_out => shift_reg_values(reg)
@@ -96,6 +99,7 @@ begin
             shift_reg : sfixed_buffer port map (
                 clk => clk,
                 reset => reset,
+                stall => stall,
                 we => we,
                 data_in => shift_reg_values(reg-1),
                 data_out => shift_reg_values(reg)

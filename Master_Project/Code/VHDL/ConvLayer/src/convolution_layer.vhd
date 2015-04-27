@@ -20,6 +20,7 @@ entity convolution_layer is
 		clk 		: in std_logic;
 		reset		: in std_logic;
 		conv_en		: in std_logic;
+        stall       : in std_logic;
 		layer_nr	: in std_logic;
 		weight_we	: in std_logic;
 		weight_data	: in sfixed(INT_WIDTH-1 downto -FRAC_WIDTH);
@@ -43,6 +44,7 @@ architecture Behavioral of convolution_layer is
 			clk				: in std_logic;
 			reset			: in std_logic;
 			conv_en 		: in std_logic;
+            stall           : in std_logic;
 			layer_nr        : in std_logic;
 			weight_we		: in std_logic;
 			weight_data 	: in sfixed(INT_WIDTH-1 downto -FRAC_WIDTH);
@@ -64,6 +66,7 @@ architecture Behavioral of convolution_layer is
         Port ( 
             clk : in std_logic;
             reset : in std_logic;
+            stall : in std_logic;
             conv_en : in std_logic;
             weight_in : in sfixed(INT_WIDTH-1 downto -FRAC_WIDTH);
             weight_we : in std_logic;
@@ -97,6 +100,7 @@ architecture Behavioral of convolution_layer is
 	component tan_h is
 		Port (
             clk 	     : in std_logic;
+            stall        : in std_logic;
 			input_valid  : in std_logic;
 			x 		     : in  sfixed (INT_WIDTH-1 downto -FRAC_WIDTH);
 			output_valid : out std_logic;
@@ -136,6 +140,7 @@ begin
 		clk				=> clk,
 		reset			=> reset,
 		conv_en 		=> conv_en,
+        stall           => stall,
 		layer_nr        => layer_nr,
 		weight_we		=> weight_we,
 		weight_data 	=> weight_data,
@@ -149,10 +154,7 @@ begin
 	
 	add_bias : process(clk)
 	begin
-	   if rising_edge(clk) then
-	       
-    --        pixel_out <= resize(bias + pixelOut_convToBias, pixel_biasToTanh);
-    --        pixel_valid <= outputValid_convToBias;
+	   if rising_edge(clk) and stall = '0' then
 	       pixel_biasToTanh <= resize(bias + pixelOut_convToBias, INT_WIDTH-1, -FRAC_WIDTH);
 	       valid_biasToTanh <= outputValid_convToBias;
 	   end if;
@@ -160,7 +162,8 @@ begin
 	
     activation_function : tan_h port map (
 	    clk => clk,
-	    input_valid => valid_biasToTanh,
+        stall => stall,
+        input_valid => valid_biasToTanh,
         x => pixel_biasToTanh(INT_WIDTH-1 downto -FRAC_WIDTH),
         output_valid => pixelValid_TanhToAvgPool,
         y => pixelOut_TanhToAvgPool
@@ -202,6 +205,7 @@ begin
 	avg_pooler : average_pooler port map ( 
 		clk 			=> clk,
         reset           => reset,
+        stall           => stall,
         conv_en			=> conv_en,
         weight_in       => bias,
         weight_we       => weight_we,
@@ -214,7 +218,7 @@ begin
 
     apply_scale_factor : process(clk)
     begin
-        if rising_edge(clk) then
+        if rising_edge(clk) and stall = '0' then
             pixelOut_ScaleFactorToBias2 <= resize(scale_factor*pixelOut_AvgPoolToScaleFactor, INT_WIDTH-1, -FRAC_WIDTH);
             pixelValid_ScaleFactorToBias2 <= pixelValid_AvgPoolToScaleFactor;
         end if;
@@ -223,7 +227,7 @@ begin
     
     add_bias_after_ap : process(clk)
     begin
-       if rising_edge(clk) then
+       if rising_edge(clk) and stall = '0' then
            pixelOut_Bias2ToTanh2 <= resize(bias2 + pixelOut_ScaleFactorToBias2, INT_WIDTH-1, -FRAC_WIDTH);
            pixelValid_Bias2ToTanh2 <= pixelValid_ScaleFactorToBias2;
        end if;
@@ -232,6 +236,7 @@ begin
     
     activation_function2 : tan_h port map (
 	    clk => clk,
+        stall => stall,
 	    input_valid => pixelValid_Bias2ToTanh2,
         x => pixelOut_Bias2ToTanh2(INT_WIDTH-1 downto -FRAC_WIDTH),
         output_valid => pixel_valid,
@@ -240,10 +245,10 @@ begin
 
     bias2_register : process (clk)
     begin
-        if rising_edge(clk) then
+        if rising_edge(clk) and stall = '0' then
             if reset = '0' then
                 bias2 <= (others => '0');
-            elsif weight_we = '1' then
+            elsif weight_we = '1' and stall = '0' then
                 bias2 <= weight_avgPoolToBias2; 
            end if;
         end if;     
@@ -251,10 +256,10 @@ begin
 
     scale_factor_reg : process(clk)
     begin
-        if rising_edge(clk) then
+        if rising_edge(clk) and stall = '0' then
             if reset = '0' then
                 scale_factor <= (others => '0');
-            elsif weight_we = '1' then
+            elsif weight_we = '1' and stall = '0' then
                 scale_factor <= bias2;
             end if;
         end if;
