@@ -5,6 +5,7 @@ use IEEE.NUMERIC_STD.ALL;
 library ieee_proposed;
 use ieee_proposed.fixed_float_types.all;
 use ieee_proposed.fixed_pkg.all;
+use ieee_proposed.float_pkg.all;
 
 entity conv_layer_interface is
 	generic (
@@ -65,7 +66,7 @@ architecture Behavioral of conv_layer_interface is
             weight_data	: in sfixed(INT_WIDTH-1 downto -FRAC_WIDTH);
             pixel_in	: in sfixed(INT_WIDTH-1 downto -FRAC_WIDTH);
             pixel_valid	: out std_logic;
-            pixel_out 	: out sfixed(INT_WIDTH-1 downto -FRAC_WIDTH);
+            pixel_out 	: out float32;
             dummy_bias	: out sfixed(INT_WIDTH-1 downto -FRAC_WIDTH)
         );
     end component;
@@ -97,7 +98,7 @@ architecture Behavioral of conv_layer_interface is
     signal cl_weight_data   : sfixed(INT_WIDTH-1 downto -FRAC_WIDTH);
     signal cl_pixel_in      : sfixed(INT_WIDTH-1 downto -FRAC_WIDTH);
     signal cl_pixel_valid   : std_logic;
-    signal cl_pixel_out     : sfixed(INT_WIDTH-1 downto -FRAC_WIDTH);
+    signal cl_pixel_out     : float32;
     signal cl_dummy_bias    : sfixed(INT_WIDTH-1 downto -FRAC_WIDTH);
     
 

@@ -5,7 +5,7 @@ use IEEE.NUMERIC_STD.ALL;
 library ieee_proposed;
 use ieee_proposed.fixed_float_types.all;
 use ieee_proposed.fixed_pkg.all;
-
+use ieee_proposed.float_pkg.all;
 
 entity convolution_layer is
 	generic (
@@ -25,7 +25,7 @@ entity convolution_layer is
 		weight_data	: in sfixed(INT_WIDTH-1 downto -FRAC_WIDTH);
 		pixel_in	: in sfixed(INT_WIDTH-1 downto -FRAC_WIDTH);
 		pixel_valid	: out std_logic;
-		pixel_out 	: out sfixed(INT_WIDTH-1 downto -FRAC_WIDTH);
+		pixel_out 	: out float32;
 		dummy_bias	: out sfixed(INT_WIDTH-1 downto -FRAC_WIDTH)
 	);
 end convolution_layer;
@@ -129,7 +129,11 @@ architecture Behavioral of convolution_layer is
     
     signal pixelValid_Bias2ToTanh2 : std_logic;
     signal pixelOut_Bias2ToTanh2 : sfixed(INT_WIDTH-1 downto -FRAC_WIDTH);
-    
+
+    signal pixelValid_Tanh2ToF2F : std_logic;
+    signal pixelOut_Tanh2ToF2F : sfixed(INT_WIDTH-1 downto -FRAC_WIDTH);
+
+    signal float_size : float32;
 begin
 
 	conv : convolution port map (
@@ -234,9 +238,17 @@ begin
 	    clk => clk,
 	    input_valid => pixelValid_Bias2ToTanh2,
         x => pixelOut_Bias2ToTanh2(INT_WIDTH-1 downto -FRAC_WIDTH),
-        output_valid => pixel_valid,
-        y => pixel_out
+        output_valid => pixelValid_Tanh2ToF2F,
+        y => pixelOut_Tanh2ToF2F
 	);
+
+    FixedToFloat : process (clk)
+    begin
+        if rising_edge(clk) then
+            pixel_out <= to_float(pixelOut_Tanh2ToF2F, float_size);
+            pixel_valid <= pixelValid_Tanh2ToF2F; 
+        end if;
+    end process;
 
     bias2_register : process (clk)
     begin
