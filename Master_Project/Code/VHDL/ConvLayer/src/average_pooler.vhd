@@ -56,7 +56,10 @@ architecture Behavioral of average_pooler is
     signal output_valid_buf : std_logic;
 	signal pool_x : Natural range 0 to POOL_ARRAY_DIM-1 := 0;
     signal buf_reset : std_logic;
-        
+
+    signal averaged_sum : sfixed(INT_WIDTH-1 downto -FRAC_WIDTH);
+    signal averaged_sum_valid : std_logic;
+    
 begin
 
     buf_reset <= reset and reset_buffers;
@@ -167,16 +170,24 @@ begin
         end if;
     end process;
 
-    output_reg : process(clk)
+    average_reg : process(clk)
     begin
         if rising_edge(clk) then
             if reset = '0' then
-                data_out <= (others => '0');
-                output_valid <= '0';
+                averaged_sum <= (others => '0');
+                averaged_sum_valid <= '0';
             else
-                data_out <= resize(weight*pool_sum, INT_WIDTH-1, -FRAC_WIDTH);
-                output_valid <= output_valid_buf;
+                averaged_sum <= resize(weight*pool_sum, INT_WIDTH-1, -FRAC_WIDTH);
+                averaged_sum_valid <= output_valid_buf;
             end if;
+        end if;
+    end process;
+
+    output_reg : process(clk)
+    begin
+        if rising_edge(clk) then
+            output_valid <= averaged_sum_valid;
+            data_out <= averaged_sum;
         end if;
     end process;
 
