@@ -18,7 +18,7 @@ architecture Behavioral of sigmoid is
 	
 begin
 
-	y <= to_fixed(x, 15, -16);
+	y <= to_ufixed(x, 15, -16);
 	
 end Behavioral;
 

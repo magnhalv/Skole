@@ -5,6 +5,7 @@ use IEEE.NUMERIC_STD.ALL;
 library ieee_proposed;
 use ieee_proposed.fixed_float_types.all;
 use ieee_proposed.fixed_pkg.all;
+use ieee_proposed.float_pkg.all;
 
 ENTITY conv_bias_tanh_tb IS
   generic (
@@ -33,69 +34,71 @@ ARCHITECTURE behavior OF conv_bias_tanh_tb IS
       conv_en		: in std_logic;
       layer_nr      : in std_logic;
       weight_we	    : in std_logic;
-      weight_data	: in sfixed(INT_WIDTH-1 downto -FRAC_WIDTH);
-      pixel_in		: in sfixed(INT_WIDTH-1 downto -FRAC_WIDTH);
+      weight_data	: in float32;
+      pixel_in		: in float32;
       pixel_valid	: out std_logic;
-      pixel_out 	: out sfixed(INT_WIDTH-1 downto -FRAC_WIDTH)
+      pixel_out 	: out float32
       );
   END COMPONENT;
+
+  signal float_size : float32;
   
-  constant kernel0 : sfixed(INT_WIDTH-1 downto -FRAC_WIDTH) := to_sfixed(0.4, INT_WIDTH-1, -FRAC_WIDTH);
-  constant kernel1 : sfixed(INT_WIDTH-1 downto -FRAC_WIDTH) := to_sfixed(0.7, INT_WIDTH-1, -FRAC_WIDTH);
-  constant kernel2 : sfixed(INT_WIDTH-1 downto -FRAC_WIDTH) := to_sfixed(0.3, INT_WIDTH-1, -FRAC_WIDTH);
-  constant kernel3 : sfixed(INT_WIDTH-1 downto -FRAC_WIDTH) := to_sfixed(0.4, INT_WIDTH-1, -FRAC_WIDTH);
-  constant kernel4 : sfixed(INT_WIDTH-1 downto -FRAC_WIDTH) := to_sfixed(-0.1, INT_WIDTH-1, -FRAC_WIDTH);
-  constant kernel5 : sfixed(INT_WIDTH-1 downto -FRAC_WIDTH) := to_sfixed(-0.8, INT_WIDTH-1, -FRAC_WIDTH);
-  constant kernel6 : sfixed(INT_WIDTH-1 downto -FRAC_WIDTH) := to_sfixed(-0.7, INT_WIDTH-1, -FRAC_WIDTH);
-  constant kernel7 : sfixed(INT_WIDTH-1 downto -FRAC_WIDTH) := to_sfixed(0.4, INT_WIDTH-1, -FRAC_WIDTH);
-  constant kernel8 : sfixed(INT_WIDTH-1 downto -FRAC_WIDTH) := to_sfixed(-0.3, INT_WIDTH-1, -FRAC_WIDTH);
+  constant kernel0 : float32 := to_float(0.4, float_size);
+  constant kernel1 : float32 := to_float(0.7, float_size);
+  constant kernel2 : float32 := to_float(0.3, float_size);
+  constant kernel3 : float32 := to_float(0.4, float_size);
+  constant kernel4 : float32 := to_float(-0.1, float_size);
+  constant kernel5 : float32 := to_float(-0.8, float_size);
+  constant kernel6 : float32 := to_float(-0.7, float_size);
+  constant kernel7 : float32 := to_float(0.4, float_size);
+  constant kernel8 : float32 := to_float(-0.3, float_size);
   
-  constant input0 : sfixed(INT_WIDTH-1 downto -FRAC_WIDTH) := to_sfixed(-0.6, INT_WIDTH-1, -FRAC_WIDTH);
-  constant input1 : sfixed(INT_WIDTH-1 downto -FRAC_WIDTH) := to_sfixed(-0.4, INT_WIDTH-1, -FRAC_WIDTH);
-  constant input2 : sfixed(INT_WIDTH-1 downto -FRAC_WIDTH) := to_sfixed(0.6, INT_WIDTH-1, -FRAC_WIDTH);
-  constant input3 : sfixed(INT_WIDTH-1 downto -FRAC_WIDTH) := to_sfixed(0.4, INT_WIDTH-1, -FRAC_WIDTH);
-  constant input4 : sfixed(INT_WIDTH-1 downto -FRAC_WIDTH) := to_sfixed(0.8, INT_WIDTH-1, -FRAC_WIDTH);
-  constant input5 : sfixed(INT_WIDTH-1 downto -FRAC_WIDTH) := to_sfixed(0.6, INT_WIDTH-1, -FRAC_WIDTH);
+  constant input0 : float32 := to_float(-0.6, float_size);
+  constant input1 : float32 := to_float(-0.4, float_size);
+  constant input2 : float32 := to_float(0.6, float_size);
+  constant input3 : float32 := to_float(0.4, float_size);
+  constant input4 : float32 := to_float(0.8, float_size);
+  constant input5 : float32 := to_float(0.6, float_size);
   
-  constant input6 : sfixed(INT_WIDTH-1 downto -FRAC_WIDTH) := to_sfixed(-0.9, INT_WIDTH-1, -FRAC_WIDTH);
-  constant input7 : sfixed(INT_WIDTH-1 downto -FRAC_WIDTH) := to_sfixed(0.9, INT_WIDTH-1, -FRAC_WIDTH);
-  constant input8 : sfixed(INT_WIDTH-1 downto -FRAC_WIDTH) := to_sfixed(0.5, INT_WIDTH-1, -FRAC_WIDTH);
-  constant input9 : sfixed(INT_WIDTH-1 downto -FRAC_WIDTH) := to_sfixed(0.6, INT_WIDTH-1, -FRAC_WIDTH);
-  constant input10 : sfixed(INT_WIDTH-1 downto -FRAC_WIDTH) := to_sfixed(0.9, INT_WIDTH-1, -FRAC_WIDTH);
-  constant input11 : sfixed(INT_WIDTH-1 downto -FRAC_WIDTH) := to_sfixed(-0.6, INT_WIDTH-1, -FRAC_WIDTH);
+  constant input6 : float32 := to_float(-0.9, float_size);
+  constant input7 : float32 := to_float(0.9, float_size);
+  constant input8 : float32 := to_float(0.5, float_size);
+  constant input9 : float32 := to_float(0.6, float_size);
+  constant input10 : float32 := to_float(0.9, float_size);
+  constant input11 : float32 := to_float(-0.6, float_size);
   
-  constant input12 : sfixed(INT_WIDTH-1 downto -FRAC_WIDTH) := to_sfixed(-0.7, INT_WIDTH-1, -FRAC_WIDTH);
-  constant input13 : sfixed(INT_WIDTH-1 downto -FRAC_WIDTH) := to_sfixed(0.5, INT_WIDTH-1, -FRAC_WIDTH);
-  constant input14 : sfixed(INT_WIDTH-1 downto -FRAC_WIDTH) := to_sfixed(-0.8, INT_WIDTH-1, -FRAC_WIDTH);
-  constant input15 : sfixed(INT_WIDTH-1 downto -FRAC_WIDTH) := to_sfixed(-0.2, INT_WIDTH-1, -FRAC_WIDTH);
-  constant input16 : sfixed(INT_WIDTH-1 downto -FRAC_WIDTH) := to_sfixed(-0.2, INT_WIDTH-1, -FRAC_WIDTH);
-  constant input17 : sfixed(INT_WIDTH-1 downto -FRAC_WIDTH) := to_sfixed(1.0, INT_WIDTH-1, -FRAC_WIDTH);
+  constant input12 : float32 := to_float(-0.7, float_size);
+  constant input13 : float32 := to_float(0.5, float_size);
+  constant input14 : float32 := to_float(-0.8, float_size);
+  constant input15 : float32 := to_float(-0.2, float_size);
+  constant input16 : float32 := to_float(-0.2, float_size);
+  constant input17 : float32 := to_float(1.0, float_size);
   
-  constant input18 : sfixed(INT_WIDTH-1 downto -FRAC_WIDTH) := to_sfixed(0.5, INT_WIDTH-1, -FRAC_WIDTH);
-  constant input19 : sfixed(INT_WIDTH-1 downto -FRAC_WIDTH) := to_sfixed(0.7, INT_WIDTH-1, -FRAC_WIDTH);
-  constant input20 : sfixed(INT_WIDTH-1 downto -FRAC_WIDTH) := to_sfixed(-0.9, INT_WIDTH-1, -FRAC_WIDTH);
-  constant input21 : sfixed(INT_WIDTH-1 downto -FRAC_WIDTH) := to_sfixed(-0.3, INT_WIDTH-1, -FRAC_WIDTH);
-  constant input22 : sfixed(INT_WIDTH-1 downto -FRAC_WIDTH) := to_sfixed(-0.5, INT_WIDTH-1, -FRAC_WIDTH);
-  constant input23 : sfixed(INT_WIDTH-1 downto -FRAC_WIDTH) := to_sfixed(0.8, INT_WIDTH-1, -FRAC_WIDTH);
+  constant input18 : float32 := to_float(0.5, float_size);
+  constant input19 : float32 := to_float(0.7, float_size);
+  constant input20 : float32 := to_float(-0.9, float_size);
+  constant input21 : float32 := to_float(-0.3, float_size);
+  constant input22 : float32 := to_float(-0.5, float_size);
+  constant input23 : float32 := to_float(0.8, float_size);
   
-  constant input24 : sfixed(INT_WIDTH-1 downto -FRAC_WIDTH) := to_sfixed(1.0, INT_WIDTH-1, -FRAC_WIDTH);
-  constant input25 : sfixed(INT_WIDTH-1 downto -FRAC_WIDTH) := to_sfixed(0.7, INT_WIDTH-1, -FRAC_WIDTH);
-  constant input26 : sfixed(INT_WIDTH-1 downto -FRAC_WIDTH) := to_sfixed(0.7, INT_WIDTH-1, -FRAC_WIDTH);
-  constant input27 : sfixed(INT_WIDTH-1 downto -FRAC_WIDTH) := to_sfixed(1.0, INT_WIDTH-1, -FRAC_WIDTH);
-  constant input28 : sfixed(INT_WIDTH-1 downto -FRAC_WIDTH) := to_sfixed(-0.2, INT_WIDTH-1, -FRAC_WIDTH);
-  constant input29 : sfixed(INT_WIDTH-1 downto -FRAC_WIDTH) := to_sfixed(0.3, INT_WIDTH-1, -FRAC_WIDTH);
+  constant input24 : float32 := to_float(1.0, float_size);
+  constant input25 : float32 := to_float(0.7, float_size);
+  constant input26 : float32 := to_float(0.7, float_size);
+  constant input27 : float32 := to_float(1.0, float_size);
+  constant input28 : float32 := to_float(-0.2, float_size);
+  constant input29 : float32 := to_float(0.3, float_size);
   
-  constant input30 : sfixed(INT_WIDTH-1 downto -FRAC_WIDTH) := to_sfixed(0.5, INT_WIDTH-1, -FRAC_WIDTH);
-  constant input31 : sfixed(INT_WIDTH-1 downto -FRAC_WIDTH) := to_sfixed(0.3, INT_WIDTH-1, -FRAC_WIDTH);
-  constant input32 : sfixed(INT_WIDTH-1 downto -FRAC_WIDTH) := to_sfixed(0.5, INT_WIDTH-1, -FRAC_WIDTH);
-  constant input33 : sfixed(INT_WIDTH-1 downto -FRAC_WIDTH) := to_sfixed(-0.9, INT_WIDTH-1, -FRAC_WIDTH);
-  constant input34 : sfixed(INT_WIDTH-1 downto -FRAC_WIDTH) := to_sfixed(0.4, INT_WIDTH-1, -FRAC_WIDTH);
-  constant input35 : sfixed(INT_WIDTH-1 downto -FRAC_WIDTH) := to_sfixed(-0.2, INT_WIDTH-1, -FRAC_WIDTH);
+  constant input30 : float32 := to_float(0.5, float_size);
+  constant input31 : float32 := to_float(0.3, float_size);
+  constant input32 : float32 := to_float(0.5, float_size);
+  constant input33 : float32 := to_float(-0.9, float_size);
+  constant input34 : float32 := to_float(0.4, float_size);
+  constant input35 : float32 := to_float(-0.2, float_size);
   
   constant OUTPUT_DIM : Natural := (IMG_DIM-KERNEL_DIM+1)/POOL_DIM;
-  type img_array is array ((IMG_DIM*IMG_DIM)-1 downto 0) of sfixed(INT_WIDTH-1 downto -FRAC_WIDTH);
-  type kernel_array is array ((KERNEL_DIM*KERNEL_DIM)+1 downto 0) of sfixed(INT_WIDTH-1 downto -FRAC_WIDTH);
-  type pooled_array is array ((OUTPUT_DIM*OUTPUT_DIM)-1 downto 0) of sfixed(INT_WIDTH-1 downto -FRAC_WIDTH);
+  type img_array is array ((IMG_DIM*IMG_DIM)-1 downto 0) of float32;
+  type kernel_array is array ((KERNEL_DIM*KERNEL_DIM)+3 downto 0) of float32;
+  type pooled_array is array ((OUTPUT_DIM*OUTPUT_DIM)-1 downto 0) of float32;
   
   signal image 	: img_array := (
     input35, input34, input33, input32, input31, input30,
@@ -105,9 +108,15 @@ ARCHITECTURE behavior OF conv_bias_tanh_tb IS
     input11, input10, input9, input8, input7, input6,
     input5, input4, input3, input2, input1, input0
     );
+    
+    constant test_float : float32 := "01000100101001110010000000000000";
+    
   signal kernel 	: kernel_array := (
-      to_sfixed(0.25, INT_WIDTH-1, -FRAC_WIDTH), -- avg pool
-      to_sfixed(0, INT_WIDTH-1, -FRAC_WIDTH), -- bias
+      --to_float(1, float_size), -- scale factor
+      test_float,
+      to_float(0, float_size), -- bias
+      to_float(0.25, float_size), -- avg pool
+      to_float(0, float_size), -- bias
       kernel8, kernel7, kernel6,
       kernel5, kernel4, kernel3,
       kernel2, kernel1, kernel0
@@ -118,13 +127,16 @@ ARCHITECTURE behavior OF conv_bias_tanh_tb IS
   signal reset			: std_logic := '0';
   signal conv_en			: std_logic := '0';
   signal layer_nr        : std_logic := '0';
+  signal weight_data	: float32 := (others => '0');
   signal weight_we		: std_logic := '0';
-  signal weight_data	: sfixed(INT_WIDTH-1 downto -FRAC_WIDTH) := (others => '0');
-  signal pixel_in		: sfixed(INT_WIDTH-1 downto -FRAC_WIDTH) := (others => '0');
+  signal pixel_in		: float32 := (others => '0');
   signal pixel_valid	: std_logic := '0';
-  signal pixel_out 		: sfixed(INT_WIDTH-1 downto -FRAC_WIDTH) := (others => '0');
+  signal pixel_out 		: float32 := (others => '0');
   
   constant clk_period : time := 1 ns; 
+
+  signal test_slv : std_logic_vector(31 downto 0) := "01000100101001110010000000000000";
+  signal float_test : float32;
   
 
 BEGIN
@@ -155,12 +167,10 @@ BEGIN
     wait for clk_period*10;
     reset <= '1';
 
+    float_test <= to_float(test_slv, float_test);
     weight_we <= '1';
-    weight_data <= to_sfixed(1, weight_data);
-    wait for clk_period;
-    
-    for i in 0 to KERNEL_DIM*KERNEL_DIM+1 loop
-      weight_data <= kernel(KERNEL_DIM*KERNEL_DIM+1-i);
+    for i in 0 to KERNEL_DIM*KERNEL_DIM+3 loop
+      weight_data <= kernel(KERNEL_DIM*KERNEL_DIM+3-i);
       wait for clk_period;
     end loop;
 

@@ -54,7 +54,6 @@ package float_pkg is
   subtype U_float is UNRESOLVED_float;
 
   subtype float is UNRESOLVED_float;
-  
   -----------------------------------------------------------------------------
   -- Use the float type to define your own floating point numbers.
   -- There must be a negative index or the packages will error out.

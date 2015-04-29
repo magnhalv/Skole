@@ -101,9 +101,19 @@ architecture Behavioral of conv_layer_interface is
     signal cl_pixel_out     : float32;
     signal cl_dummy_bias    : sfixed(INT_WIDTH-1 downto -FRAC_WIDTH);
     
+    signal tdata_float : float32;
+    signal tdata_sfixed : sfixed(INT_WIDTH-1 downto -FRAC_WIDTH);
 
-	
 begin   
+
+    
+    test : process(clk)
+    begin
+        if rising_edge(clk) then
+            tdata_float <= to_float(s_axis_tdata, tdata_float);
+            tdata_sfixed <= to_sfixed(tdata_float, INT_WIDTH-1, -FRAC_WIDTH);
+        end if;
+    end process;
     
     op_code <= s_axi_wdata(1 downto 0);
     cl_layer_nr <= '0'; -- CHANGE LATER
@@ -142,10 +152,10 @@ begin
     Read : process(nof_outputs, s_axis_tdata, s_axi_raddr, results, cl_dummy_bias, is_writing_weights, is_executing_cl)
     begin
         case s_axi_raddr is
-            when b"000" => s_axi_rdata <= to_slv(results(0)); -- 0
-            when b"001" => s_axi_rdata <= to_slv(results(1)); -- 4
-            when b"010" => s_axi_rdata <= to_slv(results(2)); -- 8
-            when b"011" => s_axi_rdata <= to_slv(results(3)); -- 12
+            when b"000" => s_axi_rdata <= s_axis_tdata; -- 0
+            when b"001" => s_axi_rdata <= (others => '1'); -- 4
+            when b"010" => s_axi_rdata <= to_slv(tdata_sfixed); -- 8
+            when b"011" => s_axi_rdata <= to_slv(tdata_float); -- 12
             when b"100" => s_axi_rdata <= (0 => is_writing_weights, others => '0'); -- 16
             when b"101" => s_axi_rdata <= (0 => is_executing_cl, others => '0'); -- 20
             when b"110" => s_axi_rdata <= nof_outputs; -- 24

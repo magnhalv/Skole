@@ -137,22 +137,24 @@ architecture Behavioral of convolution_layer is
     signal pixelValid_TanhToF2F : std_logic;
     signal pixelOut_TanhToF2F : sfixed(INT_WIDTH-1 downto -FRAC_WIDTH);
     
+    signal float_size : float32;
+    
 begin
 
     FloatToFixed : process(clk)
     begin
         if rising_edge(clk) then
-            pixelIn_FloatToFixed <= to_sfixed(pixel_in, INT_WIDTH-1, -FRAC_WIDTH);
-            convEn_convToBias <= conv_en;
+            pixelIn_FloatToFixed <= to_sfixed(pixel_in, pixelIn_FloatToFixed);
+            convEn_FloatToFixed <= conv_en;
             weightWe_FloatToFixed <= weight_we;
-            weightData_FloatToFixed <= to_sfixed(weight_data, INT_WIDTH-1, -FRAC_WIDTH);
+            weightData_FloatToFixed <= to_sfixed(weight_data, weightData_FloatToFixed);
         end if;
     end process;
 
 	conv : convolution port map (
 		clk				=> clk,
 		reset			=> reset,
-		conv_en 		=> convEn_convToBias,
+		conv_en 		=> convEn_FloatToFixed,
 		layer_nr        => layer_nr,
 		weight_we		=> weightWe_FloatToFixed,
 		weight_data 	=> weightData_FloatToFixed,
@@ -259,7 +261,7 @@ begin
     begin
         if rising_edge(clk) then
             pixel_valid <= pixelValid_TanhToF2F;
-            pixel_out <= to_float(pixelOut_TanhToF2F, 8, -23);
+            pixel_out <= to_float(pixelOut_TanhToF2F, float_size);
         end if;
          
     end process;
@@ -286,7 +288,8 @@ begin
             end if;
         end if;
     end process;
-	
+
+    dummy_bias <= bias;
 
 end Behavioral;
 
