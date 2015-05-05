@@ -1,0 +1,749 @@
+This is pdfTeX, Version 3.1415926-2.5-1.40.14 (MiKTeX 2.9) (preloaded format=pdflatex 2014.1.18)  5 MAY 2015 15:19
+entering extended mode
+**template_Report.tex
+(D:\Github\Skole\Master_Project\Report\template_Report.tex
+LaTeX2e <2011/06/27>
+Babel <v3.8m> and hyphenation patterns for english, afrikaans, ancientgreek, ar
+abic, armenian, assamese, basque, bengali, bokmal, bulgarian, catalan, coptic, 
+croatian, czech, danish, dutch, esperanto, estonian, farsi, finnish, french, ga
+lician, german, german-x-2013-05-26, greek, gujarati, hindi, hungarian, iceland
+ic, indonesian, interlingua, irish, italian, kannada, kurmanji, latin, latvian,
+ lithuanian, malayalam, marathi, mongolian, mongolianlmc, monogreek, ngerman, n
+german-x-2013-05-26, nynorsk, oriya, panjabi, pinyin, polish, portuguese, roman
+ian, russian, sanskrit, serbian, slovak, slovenian, spanish, swedish, swissgerm
+an, tamil, telugu, turkish, turkmen, ukenglish, ukrainian, uppersorbian, usengl
+ishmax, welsh, loaded.
+(D:\MiKTeX\tex\latex\base\report.cls
+Document Class: report 2007/10/19 v1.4h Standard LaTeX document class
+(D:\MiKTeX\tex\latex\base\size10.clo
+File: size10.clo 2007/10/19 v1.4h Standard LaTeX file (size option)
+)
+\c@part=\count79
+\c@chapter=\count80
+\c@section=\count81
+\c@subsection=\count82
+\c@subsubsection=\count83
+\c@paragraph=\count84
+\c@subparagraph=\count85
+\c@figure=\count86
+\c@table=\count87
+\abovecaptionskip=\skip41
+\belowcaptionskip=\skip42
+\bibindent=\dimen102
+) (D:\MiKTeX\tex\latex\amsmath\amsmath.sty
+Package: amsmath 2013/01/14 v2.14 AMS math features
+\@mathmargin=\skip43
+For additional information on amsmath, use the `?' option.
+(D:\MiKTeX\tex\latex\amsmath\amstext.sty
+Package: amstext 2000/06/29 v2.01
+
+(D:\MiKTeX\tex\latex\amsmath\amsgen.sty
+File: amsgen.sty 1999/11/30 v2.0
+\@emptytoks=\toks14
+\ex@=\dimen103
+))
+(D:\MiKTeX\tex\latex\amsmath\amsbsy.sty
+Package: amsbsy 1999/11/29 v1.2d
+\pmbraise@=\dimen104
+)
+(D:\MiKTeX\tex\latex\amsmath\amsopn.sty
+Package: amsopn 1999/12/14 v2.01 operator names
+)
+\inf@bad=\count88
+LaTeX Info: Redefining \frac on input line 210.
+\uproot@=\count89
+\leftroot@=\count90
+LaTeX Info: Redefining \overline on input line 306.
+\classnum@=\count91
+\DOTSCASE@=\count92
+LaTeX Info: Redefining \ldots on input line 378.
+LaTeX Info: Redefining \dots on input line 381.
+LaTeX Info: Redefining \cdots on input line 466.
+\Mathstrutbox@=\box26
+\strutbox@=\box27
+\big@size=\dimen105
+LaTeX Font Info:    Redeclaring font encoding OML on input line 566.
+LaTeX Font Info:    Redeclaring font encoding OMS on input line 567.
+\macc@depth=\count93
+\c@MaxMatrixCols=\count94
+\dotsspace@=\muskip10
+\c@parentequation=\count95
+\dspbrk@lvl=\count96
+\tag@help=\toks15
+\row@=\count97
+\column@=\count98
+\maxfields@=\count99
+\andhelp@=\toks16
+\eqnshift@=\dimen106
+\alignsep@=\dimen107
+\tagshift@=\dimen108
+\tagwidth@=\dimen109
+\totwidth@=\dimen110
+\lineht@=\dimen111
+\@envbody=\toks17
+\multlinegap=\skip44
+\multlinetaggap=\skip45
+\mathdisplay@stack=\toks18
+LaTeX Info: Redefining \[ on input line 2665.
+LaTeX Info: Redefining \] on input line 2666.
+)
+(D:\MiKTeX\tex\latex\graphics\graphicx.sty
+Package: graphicx 1999/02/16 v1.0f Enhanced LaTeX Graphics (DPC,SPQR)
+
+(D:\MiKTeX\tex\latex\graphics\keyval.sty
+Package: keyval 1999/03/16 v1.13 key=value parser (DPC)
+\KV@toks@=\toks19
+)
+(D:\MiKTeX\tex\latex\graphics\graphics.sty
+Package: graphics 2009/02/05 v1.0o Standard LaTeX Graphics (DPC,SPQR)
+
+(D:\MiKTeX\tex\latex\graphics\trig.sty
+Package: trig 1999/03/16 v1.09 sin cos tan (DPC)
+)
+(D:\MiKTeX\tex\latex\00miktex\graphics.cfg
+File: graphics.cfg 2007/01/18 v1.5 graphics configuration of teTeX/TeXLive
+)
+Package graphics Info: Driver file: pdftex.def on input line 91.
+
+(D:\MiKTeX\tex\latex\pdftex-def\pdftex.def
+File: pdftex.def 2011/05/27 v0.06d Graphics/color for pdfTeX
+
+(D:\MiKTeX\tex\generic\oberdiek\infwarerr.sty
+Package: infwarerr 2010/04/08 v1.3 Providing info/warning/error messages (HO)
+)
+(D:\MiKTeX\tex\generic\oberdiek\ltxcmds.sty
+Package: ltxcmds 2011/11/09 v1.22 LaTeX kernel commands for general use (HO)
+)
+\Gread@gobject=\count100
+))
+\Gin@req@height=\dimen112
+\Gin@req@width=\dimen113
+)
+(D:\MiKTeX\tex\latex\natbib\natbib.sty
+Package: natbib 2010/09/13 8.31b (PWD, AO)
+\bibhang=\skip46
+\bibsep=\skip47
+LaTeX Info: Redefining \cite on input line 694.
+\c@NAT@ctr=\count101
+) (D:\MiKTeX\tex\latex\tools\array.sty
+Package: array 2008/09/09 v2.4c Tabular extension package (FMi)
+\col@sep=\dimen114
+\extrarowheight=\dimen115
+\NC@list=\toks20
+\extratabsurround=\skip48
+\backup@length=\skip49
+)
+(D:\Github\Skole\Master_Project\Report\template_Report.aux
+(D:\Github\Skole\Master_Project\Report\front.aux)
+(D:\Github\Skole\Master_Project\Report\assignment.aux)
+(D:\Github\Skole\Master_Project\Report\introduction.aux)
+(D:\Github\Skole\Master_Project\Report\background.aux)
+(D:\Github\Skole\Master_Project\Report\related_work.aux)
+(D:\Github\Skole\Master_Project\Report\method.aux)
+(D:\Github\Skole\Master_Project\Report\result.aux)
+(D:\Github\Skole\Master_Project\Report\future_work.aux)
+(D:\Github\Skole\Master_Project\Report\conclusion.aux))
+LaTeX Font Info:    Checking defaults for OML/cmm/m/it on input line 12.
+LaTeX Font Info:    ... okay on input line 12.
+LaTeX Font Info:    Checking defaults for T1/cmr/m/n on input line 12.
+LaTeX Font Info:    ... okay on input line 12.
+LaTeX Font Info:    Checking defaults for OT1/cmr/m/n on input line 12.
+LaTeX Font Info:    ... okay on input line 12.
+LaTeX Font Info:    Checking defaults for OMS/cmsy/m/n on input line 12.
+LaTeX Font Info:    ... okay on input line 12.
+LaTeX Font Info:    Checking defaults for OMX/cmex/m/n on input line 12.
+LaTeX Font Info:    ... okay on input line 12.
+LaTeX Font Info:    Checking defaults for U/cmr/m/n on input line 12.
+LaTeX Font Info:    ... okay on input line 12.
+
+(D:\MiKTeX\tex\context\base\supp-pdf.mkii
+[Loading MPS to PDF converter (version 2006.09.02).]
+\scratchcounter=\count102
+\scratchdimen=\dimen116
+\scratchbox=\box28
+\nofMPsegments=\count103
+\nofMParguments=\count104
+\everyMPshowfont=\toks21
+\MPscratchCnt=\count105
+\MPscratchDim=\dimen117
+\MPnumerator=\count106
+\makeMPintoPDFobject=\count107
+\everyMPtoPDFconversion=\toks22
+) (D:\Github\Skole\Master_Project\Report\front.tex
+<Figures/ntnu.png, id=1, 359.4228pt x 120.45pt>
+File: Figures/ntnu.png Graphic file (type png)
+ <use Figures/ntnu.png>
+Package pdftex.def Info: Figures/ntnu.png used on input line 4.
+(pdftex.def)             Requested size: 107.82767pt x 36.13527pt.
+
+Underfull \hbox (badness 10000) in paragraph at lines 4--6
+
+ []
+
+) [1
+
+
+{C:/Users/Magnus/AppData/Local/MiKTeX/2.9/pdftex/config/pdftex.map} <D:/Github/
+Skole/Master_Project/Report/Figures/ntnu.png>]
+(D:\Github\Skole\Master_Project\Report\assignment.tex
+Underfull \hbox (badness 10000) in paragraph at lines 3--9
+
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 3--9
+
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 3--9
+
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 3--9
+
+ []
+
+) [1
+
+
+] [1
+
+] (D:\Github\Skole\Master_Project\Report\template_Report.toc)
+\tf@toc=\write3
+ [1
+
+]
+(D:\Github\Skole\Master_Project\Report\template_Report.lof)
+\tf@lof=\write4
+ [2
+
+]
+(D:\Github\Skole\Master_Project\Report\template_Report.lot)
+\tf@lot=\write5
+ [1
+
+]
+(D:\Github\Skole\Master_Project\Report\introduction.tex
+Chapter 1.
+
+Package natbib Warning: Citation `Duranton2013' on page 2 undefined on input li
+ne 5.
+
+
+Package natbib Warning: Citation `Venkatesh2010' on page 2 undefined on input l
+ine 5.
+
+
+Package natbib Warning: Citation `Olukotun2011' on page 2 undefined on input li
+ne 8.
+
+
+Package natbib Warning: Citation `NTNU2014' on page 2 undefined on input line 1
+1.
+
+[2
+
+
+]
+Underfull \hbox (badness 10000) in paragraph at lines 21--28
+
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 21--28
+
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 21--28
+
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 21--28
+
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 21--28
+
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 21--28
+
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 21--28
+
+ []
+
+[3]
+Underfull \hbox (badness 10000) in paragraph at lines 34--41
+
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 34--41
+
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 34--41
+
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 34--41
+
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 34--41
+
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 34--41
+
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 34--41
+
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 34--41
+
+ []
+
+) [4] (D:\Github\Skole\Master_Project\Report\background.tex
+Chapter 2.
+
+Package natbib Warning: Citation `Minsky1969' on page 5 undefined on input line
+ 7.
+
+
+Package natbib Warning: Citation `Bishop2006' on page 5 undefined on input line
+ 7.
+
+[5
+
+
+
+] <Figures/Background/Neuron.jpg, id=41, 451.6875pt x 262.9825pt>
+File: Figures/Background/Neuron.jpg Graphic file (type jpg)
+
+<use Figures/Background/Neuron.jpg>
+Package pdftex.def Info: Figures/Background/Neuron.jpg used on input line 40.
+(pdftex.def)             Requested size: 45.17139pt x 26.29977pt.
+ [6 <D:/Github/Skole/Master_Project/Report/Figures/Background/Neuron.jpg>]
+<Figures/Background/ann.jpg, id=52, 690.58pt x 581.17125pt>
+File: Figures/Background/ann.jpg Graphic file (type jpg)
+
+<use Figures/Background/ann.jpg>
+Package pdftex.def Info: Figures/Background/ann.jpg used on input line 56.
+(pdftex.def)             Requested size: 172.5pt x 145.1683pt.
+
+
+Package natbib Warning: Citation `Rumelhart1986' on page 7 undefined on input l
+ine 63.
+
+
+Package natbib Warning: Citation `Leonard1990' on page 7 undefined on input lin
+e 63.
+
+
+Package natbib Warning: Citation `LeCun1998' on page 7 undefined on input line 
+63.
+
+
+Overfull \hbox (63.47546pt too wide) in paragraph at lines 71--73
+\OT1/cmr/m/n/10 cor-rect out-put. Then the cost func-tion for \OT1/cmr/m/it/10 
+m \OT1/cmr/m/n/10 train-ing ex-am-ples $((\OML/cmm/m/it/10 x[]; y[]\OT1/cmr/m/n
+/10 )\OML/cmm/m/it/10 ; \OT1/cmr/m/n/10 (\OML/cmm/m/it/10 x[]; y[]\OT1/cmr/m/n/
+10 )\OML/cmm/m/it/10 ; [] ; \OT1/cmr/m/n/10 (\OML/cmm/m/it/10 x[]; y[]\OT1/cmr/
+m/n/10 ))$
+ []
+
+[7 <D:/Github/Skole/Master_Project/Report/Figures/Background/ann.jpg>] [8]
+Overfull \hbox (19.98927pt too wide) in paragraph at lines 124--125
+[]\OT1/cmr/m/n/10 Use the back-prop-a-ga-tion al-go-rithm to com-pute $\OMS/cms
+y/m/n/10 r[]\OML/cmm/m/it/10 Cost\OT1/cmr/m/n/10 ([]; \OML/cmm/m/it/10 x[]; y[]
+\OT1/cmr/m/n/10 )$
+ []
+
+
+Package natbib Warning: Citation `LeCun1998' on page 9 undefined on input line 
+140.
+
+
+Package natbib Warning: Citation `LeCun1998' on page 9 undefined on input line 
+159.
+
+[9] <Figures/Background/convnet.png, id=66, 1037.8775pt x 322.20375pt>
+File: Figures/Background/convnet.png Graphic file (type png)
+
+<use Figures/Background/convnet.png>
+Package pdftex.def Info: Figures/Background/convnet.png used on input line 164.
+
+(pdftex.def)             Requested size: 413.99895pt x 128.52522pt.
+
+Overfull \hbox (68.99895pt too wide) in paragraph at lines 164--165
+ [][] 
+ []
+
+
+Package natbib Warning: Citation `LeCun1998' on page 10 undefined on input line
+ 165.
+
+
+Package natbib Warning: Citation `LeCun1998' on page 10 undefined on input line
+ 165.
+
+[10 <D:/Github/Skole/Master_Project/Report/Figures/Background/convnet.png>]
+Overfull \hbox (7.31897pt too wide) in paragraph at lines 181--182
+\OT1/cmr/m/n/10 These fea-ture maps are pro-duced us-ing a set of \OT1/cmr/m/it
+/10 m \OT1/cmr/m/n/10 learned ker-nels $\OML/cmm/m/it/10 W[]; W[]; [] ; W[]$\OT
+1/cmr/m/n/10 .
+ []
+
+LaTeX Font Info:    Try loading font information for OMS+cmr on input line 206.
+
+(D:\MiKTeX\tex\latex\base\omscmr.fd
+File: omscmr.fd 1999/05/25 v2.5h Standard LaTeX font definitions
+)
+LaTeX Font Info:    Font shape `OMS/cmr/m/n' in size <10> not available
+(Font)              Font shape `OMS/cmsy/m/n' tried instead on input line 206.
+ [11]
+<Figures/Background/Convolution-Maxpooling.png, id=73, 1184.425pt x 294.09875pt
+>
+File: Figures/Background/Convolution-Maxpooling.png Graphic file (type png)
+ <use Figures/Background/Convolution-Maxpooling.png>
+Package pdftex.def Info: Figures/Background/Convolution-Maxpooling.png used on 
+input line 212.
+(pdftex.def)             Requested size: 345.0pt x 85.6634pt.
+
+<Figures/Background/Convolution_subsample_pool.jpg, id=75, 2007.5pt x 432.61626
+pt>
+File: Figures/Background/Convolution_subsample_pool.jpg Graphic file (type jpg)
+
+ <use Figures/Background/Convolution_subsample_pool.jpg>
+Package pdftex.def Info: Figures/Background/Convolution_subsample_pool.jpg used
+ on input line 244.
+(pdftex.def)             Requested size: 448.50105pt x 96.64793pt.
+
+Overfull \hbox (103.50105pt too wide) in paragraph at lines 244--245
+ [][] 
+ []
+
+
+LaTeX Warning: `!h' float specifier changed to `!ht'.
+
+[12 <D:/Github/Skole/Master_Project/Report/Figures/Background/Convolution-Maxpo
+oling.png>] [13 <D:/Github/Skole/Master_Project/Report/Figures/Background/Convo
+lution_subsample_pool.jpg>]
+
+Package natbib Warning: Citation `Chakradhar2010' on page 14 undefined on input
+ line 284.
+
+
+Overfull \hbox (1.22504pt too wide) in paragraph at lines 284--285
+\OT1/cmr/m/n/10 spond-ing sub-sam-pling/pooling. Which [\OT1/cmr/bx/n/10 ? \OT1
+/cmr/m/n/10 ] re-ferred to as \OT1/cmr/m/it/10 inter-parallelism\OT1/cmr/m/n/10
+ . 
+ []
+
+
+Package natbib Warning: Citation `Chakradhar2010' on page 14 undefined on input
+ line 285.
+
+) [14] (D:\Github\Skole\Master_Project\Report\related_work.tex
+Chapter 3.
+
+Package natbib Warning: Citation `Fukushima1980' on page 15 undefined on input 
+line 6.
+
+
+Package natbib Warning: Citation `Fukushima1982' on page 15 undefined on input 
+line 6.
+
+Missing character: There is no Ã in font cmr10!
+Missing character: There is no © in font cmr10!
+
+Package natbib Warning: Citation `Simard2000' on page 15 undefined on input lin
+e 6.
+
+
+Package natbib Warning: Citation `Cires2003' on page 15 undefined on input line
+ 6.
+
+
+Package natbib Warning: Citation `Ciresan2012' on page 15 undefined on input li
+ne 8.
+
+
+Package natbib Warning: Citation `DanC.Ciresan2012' on page 15 undefined on inp
+ut line 8.
+
+[15
+
+
+
+]
+
+Package natbib Warning: Citation `Benkrid2002' on page 16 undefined on input li
+ne 13.
+
+
+Package natbib Warning: Citation `Cardells-Tormo2005' on page 16 undefined on i
+nput line 13.
+
+
+Package natbib Warning: Citation `Hui2007' on page 16 undefined on input line 1
+3.
+
+
+Package natbib Warning: Citation `Savich2007' on page 16 undefined on input lin
+e 13.
+
+
+Package natbib Warning: Citation `Girones2005' on page 16 undefined on input li
+ne 13.
+
+
+Package natbib Warning: Citation `Farabet2009' on page 16 undefined on input li
+ne 15.
+
+
+Package natbib Warning: Citation `Farabet2010' on page 16 undefined on input li
+ne 17.
+
+
+Package natbib Warning: Citation `Chakradhar2010' on page 16 undefined on input
+ line 21.
+
+
+Package natbib Warning: Citation `Paper' on page 16 undefined on input line 23.
+
+
+Missing character: There is no â in font cmr10!
+Missing character: There is no € in font cmr10!
+Missing character: There is no ™ in font cmr10!
+[16]) [17] (D:\Github\Skole\Master_Project\Report\method.tex
+Chapter 4.
+
+LaTeX Warning: Reference `MyGithub' on page 18 undefined on input line 3.
+
+<Figures/Method/Network_topology.jpg, id=96, 1979.395pt x 629.35126pt>
+File: Figures/Method/Network_topology.jpg Graphic file (type jpg)
+
+<use Figures/Method/Network_topology.jpg>
+Package pdftex.def Info: Figures/Method/Network_topology.jpg used on input line
+ 7.
+(pdftex.def)             Requested size: 413.99385pt x 142.26053pt.
+
+Overfull \hbox (68.99385pt too wide) in paragraph at lines 7--8
+ [][] 
+ []
+
+
+Overfull \hbox (21.85242pt too wide) in paragraph at lines 18--19
+[]\OT1/cmr/bx/n/10 S2, subsampling/average-pooling layer. \OT1/cmr/m/n/10 Per-f
+orms the subsample/average-
+ []
+
+[18
+
+
+
+ <D:/Github/Skole/Master_Project/Report/Figures/Method/Network_topology.jpg>]
+Overfull \hbox (21.85242pt too wide) in paragraph at lines 20--21
+[]\OT1/cmr/bx/n/10 S4, subsampling/average-pooling layer. \OT1/cmr/m/n/10 Per-f
+orms the subsample/average-
+ []
+
+<Figures/Method/partial_connections.jpg, id=100, 760.8425pt x 289.08pt>
+File: Figures/Method/partial_connections.jpg Graphic file (type jpg)
+
+<use Figures/Method/partial_connections.jpg>
+Package pdftex.def Info: Figures/Method/partial_connections.jpg used on input l
+ine 28.
+(pdftex.def)             Requested size: 345.0pt x 131.08609pt.
+
+
+LaTeX Warning: Reference `MNIST' on page 19 undefined on input line 33.
+
+[19 <D:/Github/Skole/Master_Project/Report/Figures/Method/partial_connections.j
+pg>]
+
+Package natbib Warning: Citation `XXXXX' on page 20 undefined on input line 42.
+
+
+
+Package natbib Warning: Citation `Chakradhar2010' on page 20 undefined on input
+ line 50.
+
+[20] <Figures/Method/conv_layer_arch.jpg, id=108, 2007.5pt x 573.14125pt>
+File: Figures/Method/conv_layer_arch.jpg Graphic file (type jpg)
+
+<use Figures/Method/conv_layer_arch.jpg>
+Package pdftex.def Info: Figures/Method/conv_layer_arch.jpg used on input line 
+65.
+(pdftex.def)             Requested size: 345.0pt x 98.4909pt.
+
+
+Package natbib Warning: Citation `Napocensis2009' on page 21 undefined on input
+ line 75.
+
+
+Package natbib Warning: Citation `Holt1993' on page 21 undefined on input line 
+75.
+
+
+Package natbib Warning: Citation `Chen2014' on page 21 undefined on input line 
+75.
+
+
+Package natbib Warning: Citation `Farabet2009' on page 21 undefined on input li
+ne 82.
+
+[21 <D:/Github/Skole/Master_Project/Report/Figures/Method/conv_layer_arch.jpg>]
+<Figures/Method/Convolver.jpg, id=112, 744.7825pt x 433.62pt>
+File: Figures/Method/Convolver.jpg Graphic file (type jpg)
+
+<use Figures/Method/Convolver.jpg>
+Package pdftex.def Info: Figures/Method/Convolver.jpg used on input line 90.
+(pdftex.def)             Requested size: 241.49895pt x 140.60062pt.
+Missing character: There is no Â in font cmr10!
+Missing character: There is no   in font cmr10!
+Missing character: There is no Â in font cmr10!
+Missing character: There is no   in font cmr10!
+Missing character: There is no Â in font cmr10!
+Missing character: There is no   in font cmr10!
+Missing character: There is no Â in font cmr10!
+Missing character: There is no   in font cmr10!
+Missing character: There is no Â in font cmr10!
+Missing character: There is no   in font cmr10!
+
+
+LaTeX Warning: Reference `sec_related_work' on page 22 undefined on input line 
+100.
+
+
+Package natbib Warning: Citation `LeCun1998' on page 22 undefined on input line
+ 100.
+
+Missing character: There is no Â in font cmr10!
+Missing character: There is no   in font cmr10!
+[22 <D:/Github/Skole/Master_Project/Report/Figures/Method/Convolver.jpg>]
+<Figures/Method/Conv_example.jpg, id=116, 2007.5pt x 1789.68625pt>
+File: Figures/Method/Conv_example.jpg Graphic file (type jpg)
+
+<use Figures/Method/Conv_example.jpg>
+Package pdftex.def Info: Figures/Method/Conv_example.jpg used on input line 104
+.
+(pdftex.def)             Requested size: 379.5021pt x 338.3235pt.
+
+Overfull \hbox (34.5021pt too wide) in paragraph at lines 104--105
+ [][] 
+ []
+
+
+Package natbib Warning: Citation `Napocensis2009' on page 23 undefined on input
+ line 110.
+
+[23 <D:/Github/Skole/Master_Project/Report/Figures/Method/Conv_example.jpg>]
+Missing character: There is no Â in font cmr10!
+Missing character: There is no   in font cmr10!
+
+<Figures/Method/submax.jpg, id=120, 658.46pt x 407.5225pt>
+File: Figures/Method/submax.jpg Graphic file (type jpg)
+
+<use Figures/Method/submax.jpg>
+Package pdftex.def Info: Figures/Method/submax.jpg used on input line 135.
+(pdftex.def)             Requested size: 172.5pt x 106.75551pt.
+Missing character: There is no Â in font cmr10!
+Missing character: There is no   in font cmr10!
+Missing character: There is no Â in font cmr10!
+Missing character: There is no   in font cmr10!
+) [24 <D:/Github/Skole/Master_Project/Report/Figures/Method/submax.jpg>] [25] (
+D:\Github\Skole\Master_Project\Report\result.tex
+Chapter 5.
+) [26
+
+
+
+] (D:\Github\Skole\Master_Project\Report\future_work.tex
+Chapter 6.
+) [27
+
+
+
+] (D:\Github\Skole\Master_Project\Report\conclusion.tex
+Chapter 7.
+) [28
+
+
+
+] (D:\Github\Skole\Master_Project\Report\template_Report.bbl
+
+Package natbib Warning: Empty `thebibliography' environment on input line 3.
+
+) (D:\Github\Skole\Master_Project\Report\template_Report.bbl [29
+
+
+]
+
+Package natbib Warning: Empty `thebibliography' environment on input line 3.
+
+)
+
+Package natbib Warning: There were undefined citations.
+
+[30
+
+] (D:\Github\Skole\Master_Project\Report\template_Report.aux
+(D:\Github\Skole\Master_Project\Report\front.aux)
+(D:\Github\Skole\Master_Project\Report\assignment.aux)
+(D:\Github\Skole\Master_Project\Report\introduction.aux)
+(D:\Github\Skole\Master_Project\Report\background.aux)
+(D:\Github\Skole\Master_Project\Report\related_work.aux)
+(D:\Github\Skole\Master_Project\Report\method.aux)
+(D:\Github\Skole\Master_Project\Report\result.aux)
+(D:\Github\Skole\Master_Project\Report\future_work.aux)
+(D:\Github\Skole\Master_Project\Report\conclusion.aux))
+
+LaTeX Warning: There were undefined references.
+
+ ) 
+Here is how much of TeX's memory you used:
+ 2344 strings out of 493921
+ 32086 string characters out of 3154497
+ 89052 words of memory out of 3000000
+ 5562 multiletter control sequences out of 15000+200000
+ 8148 words of font info for 29 fonts, out of 3000000 for 9000
+ 841 hyphenation exceptions out of 8191
+ 27i,11n,28p,1579b,232s stack positions out of 5000i,500n,10000p,200000b,50000s
+<D:/MiKTeX/fonts/type1/public/amsfonts/cm/cmbx10.pfb><D:/MiKTeX/fonts/type1/p
+ublic/amsfonts/cm/cmbx12.pfb><D:/MiKTeX/fonts/type1/public/amsfonts/cm/cmbx5.pf
+b><D:/MiKTeX/fonts/type1/public/amsfonts/cm/cmbx7.pfb><D:/MiKTeX/fonts/type1/pu
+blic/amsfonts/cm/cmbxti10.pfb><D:/MiKTeX/fonts/type1/public/amsfonts/cm/cmex10.
+pfb><D:/MiKTeX/fonts/type1/public/amsfonts/cm/cmmi10.pfb><D:/MiKTeX/fonts/type1
+/public/amsfonts/cm/cmmi5.pfb><D:/MiKTeX/fonts/type1/public/amsfonts/cm/cmmi7.p
+fb><D:/MiKTeX/fonts/type1/public/amsfonts/cm/cmr10.pfb><D:/MiKTeX/fonts/type1/p
+ublic/amsfonts/cm/cmr12.pfb><D:/MiKTeX/fonts/type1/public/amsfonts/cm/cmr17.pfb
+><D:/MiKTeX/fonts/type1/public/amsfonts/cm/cmr5.pfb><D:/MiKTeX/fonts/type1/publ
+ic/amsfonts/cm/cmr7.pfb><D:/MiKTeX/fonts/type1/public/amsfonts/cm/cmsy10.pfb><D
+:/MiKTeX/fonts/type1/public/amsfonts/cm/cmsy7.pfb><D:/MiKTeX/fonts/type1/public
+/amsfonts/cm/cmti10.pfb>
+Output written on template_Report.pdf (35 pages, 989602 bytes).
+PDF statistics:
+ 196 PDF objects out of 1000 (max. 8388607)
+ 0 named destinations out of 1000 (max. 500000)
+ 61 words of extra memory for PDF output out of 10000 (max. 10000000)
+
