@@ -2,7 +2,7 @@
 
 The aim of this project was to investigate the possibility of creating a hardware accelerator for a machine learning algorithm. We decided implement a module that could support the \textit{the LeNet-5} \cite{LeCun1998} (see Figure \ref{fig_cnn}). It was chosen for the reason that it is one of the easier CNN architectures to implement, and the module is only intended as a proof of concept. The input image is relatively small compared to the other architectures mentioned in Chapter \ref{chap_related_work}, which greatly reduces the amount of intermediate storage needed on chip. In addition the size of the kernels are the same in both convolution layers, making us able to reuse the convolution hardware accelerator for both layers, without adding configuration logic for different kernel sizes. 
 
-Sadly, creating a module that provides the full functionality of a CNN requires more time than what was available for this project. But we were able to realize part of the network, the forward pass of the convolution and the subsampling/pooling layer, in VHDL code. For future references we will refer to our architecture as \textit{Imagezor}. This chapter will describe its design and the reasoning behind it. 
+
 
 
 \section{Imagezor's Architecture}
@@ -17,7 +17,6 @@ Imagezors pipeline consists of five major components (Figure \ref{fig_imagezor_a
 \begin{itemize}
 	\item \textbf{The convoluter}. Performs the convolution operation on the input.
 	\item \textbf{The intermediate convolution buffer}. Since the resulting feature map is the sum of the convolutions of all the input images (with the exception of the first layer), this buffer is needed to store the results from the previous convolution, so that it can be accumulated with the current convolution. In the first layer of the network there is only one input image (i.e. $ n = 1 $), thus no summation is needed.
-	\item \textbf{Bias register}. Contains the bias value, and adds it to each convoluted pixel. 
 	\item \textbf{Sigmoid}. Performs the non-linear sigmoid function  on the feature maps.
 	\item \textbf{Subsample/max-pooler}. Performs the subsample/max-pool operation on the feature maps. 
 \end{itemize}
@@ -31,12 +30,10 @@ Imagezors pipeline consists of five major components (Figure \ref{fig_imagezor_a
 
 The \textit{layer\_nr} signal is used to define if it is the first or the second layer that is being computed. The input image in the first layer is bigger than in the second ($ 32 \times 32 $ vs $ 14 \times 14 $), which the convoluter and the max pooler need to compensate for (see Section \ref{sec_convoluter} and \ref{sec_max_pooler}). In addition in the second layer the intermediate convolution buffer needs to be activated so it accumulate and store all the convolutions needed to compute a single feature map. Thus the mux is needed to propagate the data directly from the convoluter in the first layer, and from the buffer in the second layer. 
 
-Using this design one can compute a subsampled/pooled feature map with a single macro instruction. Thus it is the software's job to make the data available for the module in some kind of buffer, and then module will perform the actual computations.
 
+In order to reduce resources spent and execution time, Imagezor uses Q16.16 fixed-point arithmetic, which is shown to give virtually the same network accuracy as floating-point arithmetic\cite{Napocensis2009} \cite{Holt1993} \cite{Chen2014}. 
 
-In order to reduce resources spent and execution time, Imagezor uses Q8.8 fixed-point arithmetic, which is shown to give virtually the same network accuracy as floating-point arithmetic\cite{Napocensis2009} \cite{Holt1993} \cite{Chen2014}. 
-
-In the sections below we will provide a more detailed description of the convoluter, the sigmoid unit and the max pooler. 
+In the sections below we will provide a more detailed description of the convoluter, the hyperblock tangent unit and the max pooler. 
 
 
 \subsection{The Convoluter} \label{sec_convoluter}
@@ -67,28 +64,48 @@ The loading of the weights takes $ k \times k $ clock cycles, and the processin
   \caption[Convolution example]{Example showing the five first clock cycle of an convolution. The weights of the kernel is already loaded into the MAC units, and every cycle a new pixel from the image in inputted. In the last example you can see that 42 is provided as the first output.}
 \end{figure}
 
-\subsection{The Sigmoid} 
+\subsection{The Hyperbolic Tangent} 
 
-This module is based upon \cite{Napocensis2009} using PLAN approximation. It takes input a single value \textit{x} and outputs a linear approximation of the sigmoid function. Using a lookup table (Table \ref{tab_sigmoid}) the module decides which linear approximation to use.
+This module is based upon \cite{XXXXXXXXXX} using \textit{piecewise linear approximation}. It takes input a single value \textit{x} and outfputs a linear approximation of the hyperbolic function. Using a lookup table (Table \ref{tab_tanh}) and the constants from Table \ref{tab_tanh_constants} the module decides which linear approximation to use. 
+In order to meet the timing constraints on the FPGA the module has a pipeline length of three. 
 
 
 \begin{table}
 	\centering
-    \begin{tabular}{| >{\centering\arraybackslash}m{2in} | >{\centering\arraybackslash}m{1.2in} |} 
+    \begin{tabular}{| >{\centering\arraybackslash}m{1.2in} | >{\centering\arraybackslash}m{2.5in} |} 
     \hline
-    PLAN(X) & Conditions \\ \hline
-    1 & $ |x| \geq 5 $ \\ \hline
-    $ 0.03125 \times |X| + 0.84375 $ & $ 2.375 \leq |x| \le 5 $\\ \hline
-    $ 0.0125 \times |X| + 0.625 $ & $ 1 \leq |x| \le 2.375 $\\ \hline
-   	$ 0.25 \times |X| + 0.5 $ & $ 0 \leq |x| \le 1 $\\ \hline
-    \end{tabular}
-    \caption{The PLAN approximation of the sigmoid function.}
-   	\label{tab_sigmoid}
+    Conditions & Output \\ \hline
+    $ 0 \le |x| \le a $ & $ sign(x) \times [0.5 \times m_1 \times |x|^2 + c_1 \ times |x| + d_1] $\\ \hline
+    $ a \le |x| \le b $ & $ sign(x) \times [0.5 \times m_2 \times |x|^2 + c_2 \ times |x| + d_2] $\\ \hline
+   	$ otherswise $ & $ signed(x) $\\ \hline
+        \end{tabular}
+    \caption{The piecewise linear approximation of the hyperbolic tangent.}
+   	\label{tab_tanh}
+    
+\end{table}
+
+
+\begin{table}
+	\centering
+    \begin{tabular}{| >{\centering\arraybackslash}m{1.2in} |} 
+    \hline
+    Constants \\ \hline
+    $ m_1 = -0.54324 $ \\ \hline
+    $ m_2 = -0.16957 $ \\ \hline
+    $ c_1 = 1 $ \\ \hline
+    $ c_2 = 0.42654 $ \\ \hline
+    $ d_1 = 0.016 $ \\ \hline
+    $ d_2 = 0.4519 $ \\ \hline
+    $ a = 1.52 $ \\ \hline
+    $ b = 2.57 $ \\ \hline
+        \end{tabular}
+    \caption{The constant used for the hyperbolic tangent approximation.}
+   	\label{tab_tanh_constants}
     
 \end{table}
 
 \vspace*{1\baselineskip}
-\subsection{The Max Pooler} \label{sec_max_pooler}
+\subsection{The Average Pooler} \label{sec_average_pooler}
 
 The max pooler performs the subsample/max-pooling operation described in Section \ref{sec_cnn_def}. The input is a $ (n-k+1) \times (n-k+1) $ feature map, and the output is a $ (n-k+1)/p \times (n-k+1)/p $ subsampled/max-pooled feature map, where \textit{p} is the dimension of subsample neighborhood. As with the convoluter, one pixel is streamed in every cycle, and streamed out whenever a valid pixel is ready. Designed this way the max pooler can process in parallel with the convoluter, by directly streaming the output of the convoluter into the max pooler module. In other words, the operations of convolution layer and subsampling/pooling layer is pipelined.
 
