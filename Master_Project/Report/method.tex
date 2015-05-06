@@ -2,9 +2,6 @@
 
 In this chapter we will present our suggested architecture for a hardware accelerated Convolutional Neural Network. The architecuture will be presented in a top-down approach, starting with the topology and dataset of the network, followed by an overview of the software used, and finally, the hardware architecture of the accelerator. The source files for the VHDL and software code used in this project can for the time being be found at \ref{MyGithub}
 
-
-
-
 \begin{figure}[h!]
   \centering
       \includegraphics[width=1.2\textwidth, height=5cm]{Figures/Method/Network_topology}
@@ -33,13 +30,10 @@ We chose to implement a network with a smiliar topology as the LetNet-5 for digi
     \label{table_partial_connections}
 \end{figure}
 
-    using \textit{the MNIST dataset}, available at \ref{MNIST}. 
-The MNIST dataset consist of 50 000 samples of handwritten digits ranging from 0-9, where 40 000 of the samples are used for
-training and 10 000 samples are used to determine the accuracy of the network. The reason for choosing the LetNet-5 network is
-mostly due to it being a fairly small and simple network, making it eaiser to implement and debug. In addition it has been shown
-to work very well on the MNIST dataset. This is important since the aim of this project is hardware acceleration of Convolutional
-Neural Networks, not configuring a network with the optimal topology for a specfic task. Thus using a network that is already
-configured for a dataset gives us more time to explore the hardware part. 
+There are three primary reasons for choosing this network. First, it is a relatively small network, which simplifies the implementation by reducing the chances of bugs and memory problems. Secondly, the kernel size of all the convolution layers are the same. This allowed for a less complex implementation, since we did not have to design our accelerator to support different kernel sizes, making it easier for the accelerator support all the convolution layers. Thirdly, this network have been shown to work very well with the MNIST dataset, i.e. our own experiments gave an accuracy of 99.1\%. Since the aim of this project is exploring hardware acceleration, we did not wish to spend time finding a working topology for a given dataset. Using a topology that has been shown to give high accuracy allowed us to focus more on acceleration rather than topology theory.   
+
+ As mentioned, we used the \textit{the MNIST dataset}, available at \ref{MNIST}. It consists of 50 000 samples of handwritten digits ranging from 0-9, where 40 000 of the samples are used for
+training and 10 000 samples are used to determine the accuracy of the network. 
 
 We used XXXXX's framework for neural networks for the pure software implementation of the LeNet-5, which is available at
 XXXXX. For a detailed introduction of the LeNet-5 network, please refer to the orignal paper \cite{XXXXX}. We later extended the
