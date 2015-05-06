@@ -1,7 +1,49 @@
 \chapter{Architecture} \label{architecture}
 
-The aim of this project was to investigate the possibility of creating a hardware accelerator for a machine learning algorithm. We decided implement a module that could support the \textit{the LeNet-5} \cite{LeCun1998} (see Figure \ref{fig_cnn}). It was chosen for the reason that it is one of the easier CNN architectures to implement, and the module is only intended as a proof of concept. The input image is relatively small compared to the other architectures mentioned in Chapter \ref{chap_related_work}, which greatly reduces the amount of intermediate storage needed on chip. In addition the size of the kernels are the same in both convolution layers, making us able to reuse the convolution hardware accelerator for both layers, without adding configuration logic for different kernel sizes. 
+In this chapter we will present our suggested architecture for a hardware accelerated Convolutional Neural Network. The architecuture will be presented in a top-down approach, starting with the topology and dataset of the network, followed by an overview of the software used, and finally, the hardware architecture of the accelerator. The source files for the VHDL and software code used in this project can for the time being be found at \ref{MyGithub}
 
+
+
+
+\begin{figure}[h!]
+  \centering
+      \includegraphics[width=1.2\textwidth, height=5cm]{Figures/Method/Network_topology}
+    \caption{The topology of the implemented network.}
+    \label{fig_network_topology}
+\end{figure}
+
+\section{Network Topology and Dataset}
+
+We chose to implement a network with a smiliar topology as the LetNet-5 for digit recognition, as seen in Figure \ref{fig_network_topology}. It consist of six layers: 
+
+\begin{itemize}
+  \item \textbf{C1, convolution layer}. Takes in a single $ 32 \times 32 $ image of an digit. The image is convoluted using six different trained kernels, and outputs six respective $ 28 \times 28 $ feature maps. 
+  \item \textbf{S2, subsampling/average-pooling layer.} Performs the subsample/average-pooling operation on each of the six $ 28 \times 28 $ feature maps from the previous layer, using a respective trained value for each map. The resulting output is six $ 14 \times 14 $ subsampled feature maps. 
+  \item \textbf{C3, partially-connected convolutin layer.} Takes in six $ 14 \times 14 $ feature maps which are partially connected to the sixteen $ 10 \times 10 $ output feature maps. These connections are shown in Table \ref{table_partial_connections}. The connections specifices which inputs are needed to compute a given output. E.g. in order to compute feature map 13, input 2, 4 and 5 are to be convoluted with the 13's kernel. The respective convoluted inputs are then combined into a single matrice, where a bias and activation function is applied to every element - which give the resulting output feature map. 
+  \item \textbf{S4, subsampling/average-pooling layer.} Performs the subsample/average-pooling operation on each of the sixteen $ 10 \times 10 $ feature maps from the previous layer, using a respective trained value for each map. The resulting output is sixteen $ 5 \times 5 $ subsampled feature maps.
+  \item \textbf{C5, fully connected convolution layer.} Takes in a sixteen $ 5 \times 5 $ feature maps which are fully connected to the 120 $ 1 \times 1 $ output feature maps. Since the size of the output feature maps are a single value, the feature maps are basically standard neurons. 
+  \item \textbf{F6, output layer}. Takes in 120 neurons which are fully connected to the 10 output neurons. The output neuron with the highest value is the predicted value of the network. 
+\end{itemize}
+
+
+\begin{figure}[h!]
+  \centering
+      \includegraphics[width=1.0\textwidth]{Figures/Method/partial_connections}
+    \caption{Table showing which of the six feature maps from S2 that are needed in order compute the feature maps of C3.}
+    \label{table_partial_connections}
+\end{figure}
+
+    using \textit{the MNIST dataset}, available at \ref{MNIST}. 
+The MNIST dataset consist of 50 000 samples of handwritten digits ranging from 0-9, where 40 000 of the samples are used for
+training and 10 000 samples are used to determine the accuracy of the network. The reason for choosing the LetNet-5 network is
+mostly due to it being a fairly small and simple network, making it eaiser to implement and debug. In addition it has been shown
+to work very well on the MNIST dataset. This is important since the aim of this project is hardware acceleration of Convolutional
+Neural Networks, not configuring a network with the optimal topology for a specfic task. Thus using a network that is already
+configured for a dataset gives us more time to explore the hardware part. 
+
+We used XXXXX's framework for neural networks for the pure software implementation of the LeNet-5, which is available at
+XXXXX. For a detailed introduction of the LeNet-5 network, please refer to the orignal paper \cite{XXXXX}. We later extended the
+framework to include our hardware accelerator, this is described in more detail in section \section{XXXXXX}.
 
 
 

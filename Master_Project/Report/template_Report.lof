@@ -1,0 +1,18 @@
+\addvspace {10\p@ }
+\addvspace {10\p@ }
+\contentsline {figure}{\numberline {2.1}{\ignorespaces Neuron}}{6}
+\contentsline {figure}{\numberline {2.2}{\ignorespaces An Artificial Neural Network.}}{7}
+\contentsline {figure}{\numberline {2.3}{\ignorespaces The LeNet-5}}{10}
+\contentsline {figure}{\numberline {2.4}{\ignorespaces Convolution and subsampling/max-pooling operation}}{12}
+\contentsline {figure}{\numberline {2.5}{\ignorespaces Convolutional layer operation}}{13}
+\addvspace {10\p@ }
+\addvspace {10\p@ }
+\contentsline {figure}{\numberline {4.1}{\ignorespaces The topology of the implemented network.}}{18}
+\contentsline {figure}{\numberline {4.2}{\ignorespaces Table showing which of the six feature maps from S2 that are needed in order compute the feature maps of C3.}}{19}
+\contentsline {figure}{\numberline {4.3}{\ignorespaces The architecture of Imagezor.}}{21}
+\contentsline {figure}{\numberline {4.4}{\ignorespaces The convoluter }}{22}
+\contentsline {figure}{\numberline {4.5}{\ignorespaces Convolution example}}{23}
+\contentsline {figure}{\numberline {4.6}{\ignorespaces The max pooler.}}{24}
+\addvspace {10\p@ }
+\addvspace {10\p@ }
+\addvspace {10\p@ }
