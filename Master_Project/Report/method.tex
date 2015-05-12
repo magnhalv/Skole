@@ -37,9 +37,11 @@ training and 10 000 samples are used to determine the accuracy of the network.
 
 \section{Write something about profiling and which parts I decided on accelerating}
 
+Remember to quote newest LeChun article. 
+
 \section{Software}
 
-We have made extensive use of Taiga Nomi's C++ framework for neural networks, available at \cite{SoftwareGithub}, in our project. The framework was used in order to train the parameters of our network, for measuring the efficency of a pure software implementation, and as a basis for the implementation that uses the hardware accelerator. The framework treats each layer in the network as a seperate software module, which makes it easy to swap diffrent implementations of a layer. This simplified the process of integrating the hardware accelerator into the network.
+We have made extensive use of Taiga Nomi's C++ framework for neural networks, available at \cite{SoftwareGithub}, in our project. The framework was used in order to train the parameters of our network, for measuring the efficency of a pure software implementation, and as a basis for the implementation that uses the hardware accelerator. The framework treats each layer in the network as a seperate software module, which makes it easy to swap diffrent implementations of a layer. This simplified the process of integrating the hardware accelerator into the network, since we could simply exchange the original modules with our own.
 
 Figure \ref{fig_software_architecture} A shows a simplified version of the architecture of the pure software implementation of our network. Each layer contains a set of pretrained weights which are loaded before the network starts processing the images. When an image is inputted to the first layer, it performs the calculations described in Chapter \ref{chap_background} in software, and propegates the result to the next layer. 
 
