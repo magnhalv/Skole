@@ -278,16 +278,32 @@ Using this we can calculate the gradient:
 
 \section{Potential for parallelism} \label{sec_pot_parallelism} 
 
-A vast amount of the computation required by a CNN can be parallelized. Thus, in order to accelerate the processing of the network it is important that these potential parallelizations are identified and exploited. The most obvious being:
+A vast amount of the computation required by a CNN can be parallelized. Thus, in order to achieve the processing of the network it is important that these potential parallelizations are identified and exploited. The most obvious being:
 
 \begin{enumerate}
-	\item The computation of each of the individual feature maps and their corresponding subsampling/pooling. Which \cite{Chakradhar2010} referred to as \textit{inter-parallelism}.
-	\item It is also possible to parallelize the computation of the feature maps that take more than one matrix as input. This is the case in the subsequent layers after the first. Which \cite{Chakradhar2010} referred to as \textit{intra-parallelism}.
-	\item The activation of each neuron in the fully connected layer. 	
+    
+    \item The convolution of a matrix $ n \times n $ using a $ k \times k $ kernel consists of $ (n - k + 1) \times (n - k + 1) $ convolution operation, which each can be done in parallel. Thus convoluting the whole matrix could potentially take only the time it takes to perform one convolution operation. 
+    
+    \item The subsampling/pooling operation can also be parallelized by pooling all of the individual submatrices at the same time.  
+	
+    \item The computation of each of the individual feature maps and their corresponding subsampling/pooling. Which \cite{Chakradhar2010} referred to as \textit{inter-parallelism}.
+	
+    \item It is also possible to parallelize the computation of the feature maps that take more than one matrix as input. This is the case in the subsequent layers after the first. Which \cite{Chakradhar2010} referred to as \textit{intra-parallelism}.
+	
+    \item The activation of each neuron in the fully connected. One option is to parallelize them by creating a binary tree multiplier, where you have \textit{n} units compute the product of the input and its respective weight, then you use $ \frac{n}{2} $ units to add two of the results each, and so on until you have a single value. This will reduce the time it takes from \textit{n} time to $ log_2 n $ time if they can all be done in parallel.   
 \end{enumerate}
 
-One can also parallelize the mentioned parallelizations themselves. The convolution of a matrix $ n \times n $ using a $ k \times k $ kernel consists of $ (n - k + 1) \times (n - k + 1) $ convolution operation, which each can be done in parallel. Thus convoluting the whole matrix could potentially take only the time it takes to perform one convolution operation. The subsampling/pooling operation can also be parallelized by pooling all of the individual submatrices at the same time.  
 	
-It is also possible to compute the neuron activation function in parallel, since its a series of  \textit{n} multiply and accumulate operations. One option is to parallelize them by creating a binary tree multiplier, where you have \textit{n} units compute the product of the input and its respective weight, then you use $ \frac{n}{2} $ units to add two of the results each, and so on until you have a single value. This will reduce the time it takes from \textit{n} time to $ log_2 n $ time. But considering the vast amount of activation functions that are to be computed, hardware resource are better spent on computing as many activation functions in parallel as possible. Unless you have an unlimited amount of hardware resources.   
 
+\section{Why Hardware Accelerate?}
+
+TODO
+
+\begin{itemize}
+    \item CPUs are bad at exploiting parallelism.
+    \item FPGA/ASIC can be faster, and generally uses less power. 
+    \item Low power usage have become increasingly important, due to data centers and mobile computers. 
+    \item FPGA/ASIC vs GPU. Generally, slower but more power efficient (application specific though). 
+    \item Dark Silicon effect motivates heterogenious cores, i.e. hardware accelerators.
+\end{itemize}
 

@@ -56,14 +56,20 @@ In order to decide which part of the network that should be accelerated one has 
    	\label{tab_nofOps}
 \end{table}
 
-Table \ref{tab_nofOps} shows the number of connections for each layer in the network. Each connection corresponds to a multiply-and-accumulate (MAC) operation, e.g. 122304 MAC operations are required to compute C1. 
+Table \ref{tab_nofOps} shows the number of connections for each layer in the network. Each connection corresponds to a multiply-and-accumulate (MAC) operation, e.g. 122304 MAC operations are required to compute C1. Since the number of activation functions to be computed is strongly correlated to the number of connections, we refrained from including them in the analysis. 
+We see that 97\% of the computations in our network is performed in the convolution layers, giving a clear indication of what layers should be accelerated. 
 
-Since the number of activation functions to be computed is strongly correlated to the number of connections, we refrained from including them in the analysis. 
+We also decided to accelerating the subsampling/pooling layers, even though only 0.8\% of computations are done there. The reason for this that we were able to make a design where the subsampling/pooling could be done virtually in parallel with the convolution, at a minimal cost to hardware resources (see Section \ref{sec_average_pooler}. We deemed the small cost worth the 0.8\% potential performance boost. But more importantly, it makes our architecture eaiser to extend to compute several layers in a row, without going back to software, which would greatly reduce off-chip traffic and performance (see Chapter \ref{chap_future_work}).
 
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% Software
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-Remember to quote newest LeChun article. 
+\section{Software Architecture}
 
-\section{Software}
+This section gives an overview of software architecture used to compute the network and to control the accelerator.
+
+\subsection{Network Software}
 
 We have made extensive use of Taiga Nomi's C++ framework for neural networks, available at \cite{SoftwareGithub}, in our project. The framework was used in order to train the parameters of our network, for measuring the efficency of a pure software implementation, and as a basis for the implementation that uses the hardware accelerator. The framework treats each layer in the network as a seperate software module, which makes it easy to swap diffrent implementations of a layer. This simplified the process of integrating the hardware accelerator into the network, since we could simply exchange the original modules with our own.
 
@@ -98,11 +104,11 @@ For data transfer the driver uses a \textit{direct memory access controller} (DM
 \end{figure}
  
 
-\section{Hardware}
+\section{Hardware Architecture}
 
-In this section we will describe the hardware architecture of the system as a whole, and more specifically, our accelerator. Do note that the descriptions and the figures are simplified to some extent. This simplication is done with the intent of not making the description and explainations too complex. We rather focus on conveying the important ideas of the design, instead of describing the implementation to the last detail. 
+In this section we will describe the hardware architecture of the system as a whole, and more specifically, our accelerator. Do note that the descriptions and the figures are simplified to some extent. This simplication is done with the intent avoiding complex description and explainations. We will rather focus on conveying the important ideas behind the design, instead of describing every tiny detail of the architecture. 
 
-\subsection{Overview of hardware achitecture}
+\subsection{Overview of Hardware Achitecture}
 
 
 \subsection{Accelerator Interface}
@@ -225,21 +231,20 @@ In order to meet the timing constraints on the FPGA the module has a pipeline le
 
 The average pooler performs the subsample/average-pooling operation described in Section \ref{sec_cnn_def}. The input is a $ (n-k+1) \times (n-k+1) $ feature map, and the output is a $ (n-k+1)/p \times (n-k+1)/p $ subsampled/average-pooled feature map, where \textit{p} is the dimension of subsample neighborhood. 
 
-The operation of the average pooler can be divided into two tasks, pooling and averaging the pooled value. The input is divided into $ p \times p $ non-overlapping pools.  
+The average pooler performs basically two operations, pooling and averaging. The input is divided into $ p \times p $ non-overlapping neighbourhoods, which are also refered to as pools. The pooling operation consist of simply summing the data within the respective neighbourhoods. The averaging operation is to multiply the summed pools with a trained average value, which produces a valid output. Figure \ref{fig_average_pooler} gives an overview of the average pooler architecture, where the SUM module and the shift registers are used for the pooling operation, while the trained C value is used to average the sums. 
 
+Since the input is a 2D matrice that is inputted one value at a time left to right, one row at a time, the average pooler will have to keep track of data from $(n-k+1)/p $ different neighbourhoods simultaniously. That is, after the average pooler has received $ p $ inputs from the first neighbourhood, it will next receive $ p $ inputs from the next neighbourhood, and so on until the end of the first row is reached. It will then receive data from the first neighbourhood again. This will continue until it has processed $ p $ rows, after which it will have processed the first $ (n-k+1)/p $ neighbourhoods, i.e. a row of neighbourhoods. It can then continue with the next row of neighbourhoods.
 
-As with the convoluter, one pixel is streamed in every cycle, and streamed out whenever a valid pixel is ready. Designed this way the max pooler can process in parallel with the convoluter, by directly streaming the output of the convoluter into the max pooler module. In other words, the operations of convolution layer and subsampling/pooling layer are pipelined for maximum throughput.
+In order to keep track of $ (n-k+1)/p $ neighbourhoods at a time, the average pooler contains a set of $ (n-k+1)/p - 1 $ shift registers which are used to store the intermediate sum of the neighbourhoods. The sum module keeps track of the current neighbourhood and accumulate the input data if it belongs to said neghbourhood. When a new neighbourhood is about to be inputted all the shift registers are shifted one to the right, and the sum module extracts the value of the rightmost register. 
+
+The control unit keeps track of when to shift the registers and when a neighbourhood is fully summed. To do this the unit contains two counters, \textit{row\_num} and \textit{column\_num}. When a new pixel is inputted the \textit{column\_num} counter is incremented, and when it reaches the end of the row the \textit{row\_num} counter is incremented. Every time $ column\_num~mod~p = 0 $ another pool is encounted, and the shift registers are shifted one to the right. When $ column\_num~mod~p = 0 $ and $ row\_num~mod~p = 0 $ the final value in a pool has been reached, and the final sum is multiplied with the trained value C and outputted. 
 
 \begin{figure}[h!]
   \centering
       \includegraphics[width=0.5\textwidth]{Figures/Method/submax}
   \caption{The average pooler. The summation module and the shift registers are used to sum up the respective pools. The trained value C is used to average the summed pools.}
+  \label{fig_average_pooler}
 \end{figure}
 
+The execution speed of the average pooler module is bounded by the size of the feature map, $ (n-k+1) \times (n-k+1) $ clock cycles, finishing one cycle after the last pixel has been inputted. Thus by streaming the output of the convoluter to the average pooler, both will finish only a few cycles apart, effectively running both jobs in parallel. The resource usage of the module is bounded by the size of the subsampling dimension, since it requires a number of shift registers equal to the size of the dimension. In addition is consumes one DSP, which is used for the averaging operation at the end. But essentially its resource usage is quite low.  
 
-The mod compares the input with the current max value, and updates the max value accordingly. It contains a set of \textit{(n-k+1)/p} shift registers. Since the image is divided into $ p \times p $ non-overlapping neighborhoods, the module needs to store the current maximum value of previous neighborhood when a pixel from a new neighborhood is inputted. To do this the module contains two counters, \textit{row\_num} and \textit{column\_num}. When a new pixel is inputted the \textit{column\_num} counter is incremented, and when it reaches the end of the row the \textit{row\_num} counter is incremented. Every time $ column\_num~mod~p = 0 $ another pool is encounted, and the shift registers are shifted one to the right. When $ column\_num~mod~p = 0 $ and $ row\_num~mod~p = 0 $ the final value in a pool has been reached, and the final sum is multiplied with the trained value C and outputted. 
-
-
-
-The execution speed of the max pooler module is bounded by the size of the feature map, $ (n-k+1) \times (n-k+1) $ clock cycles, finishing one cycle after the last pixel has been inputted. 
-Thus by streaming the output of the convoluter to the max pooler, both will finish only a few cycles apart, effectively running both jobs in parallel. The resource usage of the module is bounded by the size of the subsampling dimension, since it requires a number of shift registers equal to the size of the dimension. But essentially its resource usage is quite low.  
