@@ -10,8 +10,8 @@ use ieee_proposed.float_pkg.all;
 entity conv_layer_interface is
 	generic (
         C_S_AXI_DATA_WIDTH  : Natural := 32;
-        IMG_DIM             : Natural := 6;
-        KERNEL_DIM          : Natural := 3;
+        IMG_DIM             : Natural := 32;
+        KERNEL_DIM          : Natural := 5;
         POOL_DIM            : Natural := 2;
         INT_WIDTH           : Natural := 16;
         FRAC_WIDTH          : Natural := 16

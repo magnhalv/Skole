@@ -1,5 +1,6 @@
 #include "../include/ClAccDriver.h"
-
+#include <c++/4.8.3/bitset>
+#include <c++/4.8.3/iostream>
 
 
 
@@ -20,8 +21,15 @@ int FloatToFixed(float n) {
 	return fixed;
 }
 
-float FixedToFloat(int n) {
-	return n/65536.0;
+float FixedToFloat(float n) {
+	float new_num;
+	char *num = (char*)&n;
+	char *reverse_num = (char*)&new_num;
+	reverse_num[0] = num[3];
+	reverse_num[1] = num[2];
+	reverse_num[2] = num[1];
+	reverse_num[3] = num[0];
+	return n;
 }
 
 void WriteDataToTxBuffer(ConvLayerValues clv) {
@@ -386,20 +394,61 @@ int SendPacket(XAxiDma * AxiDmaInstPtr, ConvLayerValues clv)
 	return XST_SUCCESS;
 }
 
+void printInfo() {
+	int msg;
+	char *msg2;
+
+	msg = Xil_In32(XPAR_CL_ACCELERATOR_0_BASEADDR);
+	msg2 = (char*) &msg;
+	std::bitset<8> x0(msg2[0]);
+	std::bitset<8> x1(msg2[1]);
+	std::bitset<8> x2(msg2[2]);
+	std::bitset<8> x3(msg2[3]);
+	std::cout << "tdata: " << x0 << x1 << x2 << x3 << std::endl;
+//
+//	msg = Xil_In32(XPAR_CL_ACCELERATOR_0_BASEADDR+4);
+//	msg2 = (char*) &msg;
+//	std::bitset<8> xa(msg2[0]);
+//	std::bitset<8> xb(msg2[1]);
+//	std::bitset<8> xc(msg2[2]);
+//	std::bitset<8> xd(msg2[3]);
+//	std::cout << "TEST: " << xa << xb << xc << xd << std::endl;
+//
+//	msg = Xil_In32(XPAR_CL_ACCELERATOR_0_BASEADDR+8);
+//	msg2 = (char*) &msg;
+//	std::bitset<8> x4(msg2[0]);
+//	std::bitset<8> x5(msg2[1]);
+//	std::bitset<8> x6(msg2[2]);
+//	std::bitset<8> x7(msg2[3]);
+//	std::cout << "tdata_fixed: " << x4 << x5 << x6 << x7 << std::endl;
+
+	msg = Xil_In32(XPAR_CL_ACCELERATOR_0_BASEADDR+28);
+	msg2 = (char*) &msg;
+	std::bitset<8> x8(msg2[0]);
+	std::bitset<8> x9(msg2[1]);
+	std::bitset<8> x10(msg2[2]);
+	std::bitset<8> x11(msg2[3]);
+	std::cout << "tdata_float: " << x8 << x9 << x10 << x11 << std::endl;
+
+
+}
+
 void ConfigureAndRunAccelerator(int nof_outputs) {
+
+	//printInfo();
 	Xil_Out32(XPAR_CL_ACCELERATOR_0_BASEADDR, 0); //Write weights
 	while(Xil_In32(XPAR_CL_ACCELERATOR_0_BASEADDR+16) == 1); // Wait until done writing.
 
 	Xil_Out32(XPAR_CL_ACCELERATOR_0_BASEADDR+4, nof_outputs); //Set nof outputs
 
+	//printInfo();
 	Xil_Out32(XPAR_CL_ACCELERATOR_0_BASEADDR, 1); //Start cl
 	while(Xil_In32(XPAR_CL_ACCELERATOR_0_BASEADDR+20) == 1); //Wait until cl is done
-
 }
 
 int GetDataFromRxBuffer(vec_it iterator, int data_size)
 {
-	int *RxPacket = (int*)RX_BUFFER_BASE;
+	float *RxPacket = (float*)RX_BUFFER_BASE;
 
 	Xil_DCacheInvalidateRange((u32)RxPacket, data_size*4+32);
 	std::transform(RxPacket, RxPacket+data_size, iterator, FixedToFloat);

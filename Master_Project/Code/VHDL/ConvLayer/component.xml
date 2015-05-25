@@ -341,7 +341,7 @@
         <spirit:parameters>
           <spirit:parameter>
             <spirit:name>viewChecksum</spirit:name>
-            <spirit:value>9c2de412</spirit:value>
+            <spirit:value>b0a7713d</spirit:value>
           </spirit:parameter>
         </spirit:parameters>
       </spirit:view>
@@ -960,7 +960,7 @@
       <spirit:file>
         <spirit:name>axi_axis_interface.vhd</spirit:name>
         <spirit:fileType>vhdlSource</spirit:fileType>
-        <spirit:userFileType>CHECKSUM_ba7a097e</spirit:userFileType>
+        <spirit:userFileType>CHECKSUM_f4850ba3</spirit:userFileType>
       </spirit:file>
     </spirit:fileSet>
     <spirit:fileSet>
@@ -1090,8 +1090,8 @@
         <xilinx:taxonomy>/UserIP</xilinx:taxonomy>
       </xilinx:taxonomies>
       <xilinx:displayName>cl_accelerator</xilinx:displayName>
-      <xilinx:coreRevision>103</xilinx:coreRevision>
-      <xilinx:coreCreationDateTime>2015-04-29T16:09:49Z</xilinx:coreCreationDateTime>
+      <xilinx:coreRevision>105</xilinx:coreRevision>
+      <xilinx:coreCreationDateTime>2015-05-25T09:30:50Z</xilinx:coreCreationDateTime>
       <xilinx:tags>
         <xilinx:tag xilinx:name="user.org:user:axi_axis_interface:1.0_ARCHIVE_LOCATION">/home/magnhalv/Github/Skole/Master_Project/Code/VHDL/ConvLayer</xilinx:tag>
         <xilinx:tag xilinx:name="Magnus:user:axi_axis_interface:1.0_ARCHIVE_LOCATION">/home/magnhalv/Github/Skole/Master_Project/Code/VHDL/ConvLayer</xilinx:tag>
@@ -1102,7 +1102,7 @@
       <xilinx:xilinxVersion>2014.4</xilinx:xilinxVersion>
       <xilinx:checksum xilinx:scope="busInterfaces" xilinx:value="7773626f"/>
       <xilinx:checksum xilinx:scope="memoryMaps" xilinx:value="fe93afb1"/>
-      <xilinx:checksum xilinx:scope="fileGroups" xilinx:value="17328dad"/>
+      <xilinx:checksum xilinx:scope="fileGroups" xilinx:value="6905518e"/>
       <xilinx:checksum xilinx:scope="ports" xilinx:value="e5432fff"/>
       <xilinx:checksum xilinx:scope="hdlParameters" xilinx:value="8a8d3f4e"/>
       <xilinx:checksum xilinx:scope="parameters" xilinx:value="ba4408a6"/>
