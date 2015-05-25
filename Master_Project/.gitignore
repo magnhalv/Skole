@@ -1,0 +1,27 @@
+#Ignore everything
+*.*
+!.gitignore
+
+#But don't ignore source code
+!*.vhd
+!*.c
+!*.cpp
+!*.cc
+!*.h
+!*.hpp
+!*.py
+
+
+!*.xml
+!*.tcl
+
+#And don't ignore report related files.
+!*.txt
+!*.tex
+
+#Images
+!*.png
+!*.jpg
+
+#But ignore these dictionaries
+Code/VHDL/ConvLayer/IP/*
