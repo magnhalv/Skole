@@ -22,8 +22,8 @@ entity convolution_layer is
 		conv_en		: in std_logic;
 		layer_nr	: in std_logic;
 		weight_we	: in std_logic;
-		weight_data	: in float32;
-		pixel_in	: in float32;
+		weight_data	: in sfixed(INT_WIDTH-1 downto -FRAC_WIDTH);
+		pixel_in	: in sfixed(INT_WIDTH-1 downto -FRAC_WIDTH);
 		pixel_valid	: out std_logic;
 		pixel_out 	: out float32;
 		dummy_bias	: out sfixed(INT_WIDTH-1 downto -FRAC_WIDTH)
@@ -105,11 +105,7 @@ architecture Behavioral of convolution_layer is
 	end component;
 	
 
-    signal pixelIn_FloatToFixed : sfixed(INT_WIDTH-1 downto -FRAC_WIDTH);
-    signal convEn_FloatToFixed : std_logic;
-    signal weightWe_FloatToFixed : std_logic;
-    signal weightData_FloatToFixed : sfixed(INT_WIDTH-1 downto -FRAC_WIDTH);
-    
+
 	signal bias : sfixed(INT_WIDTH-1 downto -FRAC_WIDTH);
 	signal bias2 : sfixed(INT_WIDTH-1 downto -FRAC_WIDTH);
     signal weight_avgPoolToBias2 : sfixed(INT_WIDTH-1 downto -FRAC_WIDTH);
@@ -134,31 +130,20 @@ architecture Behavioral of convolution_layer is
     signal pixelValid_Bias2ToTanh2 : std_logic;
     signal pixelOut_Bias2ToTanh2 : sfixed(INT_WIDTH-1 downto -FRAC_WIDTH);
 
-    signal pixelValid_TanhToF2F : std_logic;
-    signal pixelOut_TanhToF2F : sfixed(INT_WIDTH-1 downto -FRAC_WIDTH);
-    
-    signal float_size : float32;
-    
-begin
+    signal pixelValid_Tanh2ToF2F : std_logic;
+    signal pixelOut_Tanh2ToF2F : sfixed(INT_WIDTH-1 downto -FRAC_WIDTH);
 
-    FloatToFixed : process(clk)
-    begin
-        if rising_edge(clk) then
-            pixelIn_FloatToFixed <= to_sfixed(pixel_in, pixelIn_FloatToFixed);
-            convEn_FloatToFixed <= conv_en;
-            weightWe_FloatToFixed <= weight_we;
-            weightData_FloatToFixed <= to_sfixed(weight_data, weightData_FloatToFixed);
-        end if;
-    end process;
+    signal float_size : float32;
+begin
 
 	conv : convolution port map (
 		clk				=> clk,
 		reset			=> reset,
-		conv_en 		=> convEn_FloatToFixed,
+		conv_en 		=> conv_en,
 		layer_nr        => layer_nr,
-		weight_we		=> weightWe_FloatToFixed,
-		weight_data 	=> weightData_FloatToFixed,
-		pixel_in 		=> pixelIn_FloatToFixed,
+		weight_we		=> weight_we,
+		weight_data 	=> weight_data,
+		pixel_in 		=> pixel_in,
 		output_valid	=> outputValid_convToBias,--dv_conv_to_buf_and_mux,
 		conv_en_out		=> convEn_convToBias,
 		pixel_out 		=> pixelOut_convToBias,--data_conv_to_buf_and_mux,
@@ -223,7 +208,7 @@ begin
         reset           => reset,
         conv_en			=> conv_en,
         weight_in       => bias,
-        weight_we        => weightWe_FloatToFixed,
+        weight_we       => weight_we,
         input_valid		=> pixelValid_TanhToAvgPool,
         data_in         => pixelOut_TanhToAvgPool,
         data_out		=> pixelOut_AvgPoolToScaleFactor,
@@ -253,26 +238,24 @@ begin
 	    clk => clk,
 	    input_valid => pixelValid_Bias2ToTanh2,
         x => pixelOut_Bias2ToTanh2(INT_WIDTH-1 downto -FRAC_WIDTH),
-        output_valid => pixelValid_TanhToF2F,
-        y => pixelOut_TanhToF2F
+        output_valid => pixelValid_Tanh2ToF2F,
+        y => pixelOut_Tanh2ToF2F
 	);
 
-    FixedToFloat : process(clk)
+    FixedToFloat : process (clk)
     begin
         if rising_edge(clk) then
-            pixel_valid <= pixelValid_TanhToF2F;
-            pixel_out <= to_float(pixelOut_TanhToF2F, float_size);
+            pixel_out <= to_float(pixelOut_Tanh2ToF2F, float_size);
+            pixel_valid <= pixelValid_Tanh2ToF2F; 
         end if;
-         
     end process;
 
-    
     bias2_register : process (clk)
     begin
         if rising_edge(clk) then
             if reset = '0' then
                 bias2 <= (others => '0');
-            elsif weightWe_FloatToFixed = '1' then
+            elsif weight_we = '1' then
                 bias2 <= weight_avgPoolToBias2; 
            end if;
         end if;     
@@ -283,13 +266,12 @@ begin
         if rising_edge(clk) then
             if reset = '0' then
                 scale_factor <= (others => '0');
-            elsif weightWe_FloatToFixed = '1' then
+            elsif weight_we = '1' then
                 scale_factor <= bias2;
             end if;
         end if;
     end process;
-
-    dummy_bias <= bias;
+	
 
 end Behavioral;
 
