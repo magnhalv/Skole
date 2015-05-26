@@ -74,8 +74,15 @@ architecture Behavioral of sfixed_shift_registers is
     signal shift_reg_values : sfixed_array; 
 
 begin
-    
-    data_out <= shift_reg_values(output_reg);
+
+    set_output : process(output_reg, shift_reg_values)
+    begin
+        if output_reg >= 0 then
+            data_out <= shift_reg_values(output_reg);
+        else
+            data_out <= shift_reg_values(0);
+        end if;
+    end process;
     
     gen_regs_loop : for reg in 0 to NOF_REGS-1 generate
     begin

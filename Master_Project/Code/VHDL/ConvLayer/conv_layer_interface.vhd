@@ -71,11 +71,16 @@ architecture Behavioral of conv_layer_interface is
         );
     end component;
 
+    -- Constants
+    constant Layer0_Nof_Outputs : std_logic_vector := std_logic_vector(to_unsigned(14*14, 32));
+    constant Layer1_Nof_Outputs : std_logic_vector := std_logic_vector(to_unsigned(5*5, 32));
+    constant Layer1_Set_Size    : std_logic_vector := std_logic_vector(to_unsigned(14*14, 32));
+                                                                       
 	-- Control signals
-	signal op_code         : std_logic_vector(1 downto 0);
-	signal write_weights   : std_logic;
-	signal start_cl        : std_logic;
-	signal nof_outputs     : std_logic_vector(C_S_AXI_DATA_WIDTH-1 downto 0);
+	signal op_code          : std_logic_vector(1 downto 0);
+	signal start_processing : std_logic;
+	signal nof_outputs      : std_logic_vector(C_S_AXI_DATA_WIDTH-1 downto 0);
+    signal nof_input_sets   : std_logic_vector(C_S_AXI_DATA_WIDTH-1 downto 0);
 	
 	-- State signals
 	signal is_writing_weights : std_logic;
@@ -88,7 +93,7 @@ architecture Behavioral of conv_layer_interface is
 	type sfixed_array_length_4 is array (3 downto 0) of sfixed(INT_WIDTH-1 downto -FRAC_WIDTH);
 	signal results : sfixed_array_length_4;
 	
-	
+   
 	
 	
 	-- Conv layer (cl) signals --
@@ -102,39 +107,45 @@ architecture Behavioral of conv_layer_interface is
     signal cl_dummy_bias    : sfixed(INT_WIDTH-1 downto -FRAC_WIDTH);
     
 
-	
 begin   
+
     
     op_code <= s_axi_wdata(1 downto 0);
-    cl_layer_nr <= '0'; -- CHANGE LATER
     
-    WriteControlRegisters : process(clk) 
+    
+    WriteControlRegisters : process(clk, reset)
     begin
-        if rising_edge(clk) then
+        if reset = '0' then
+            cl_layer_nr <= '0';
+            nof_outputs <= (others => '0');
+            start_processing <= '0';
+            nof_input_sets <= (others => '0');
+        elsif rising_edge(clk) then
             if s_axi_we = '1' then
                 if s_axi_waddr = "000" then
                     case op_code is
                         when "00" =>
-                            write_weights <= '1';
-                            start_cl <= '0';
-                        when "01" =>
-                            write_weights <= '0';
-                            start_cl <= '1';
+                            start_processing <= '1';
                         when others =>
-                            write_weights <= '0';
-                            start_cl <= '0';
+                            start_processing <= '0';
                     end case;
                 elsif s_axi_waddr = "001" then
-                    write_weights <= '0';
-                    start_cl <= '0';
-                    nof_outputs <= s_axi_wdata;
+                    start_processing <= '0';
+                    if s_axi_wdata(0) = '1' then
+                        nof_outputs <= Layer0_Nof_Outputs;
+                        cl_layer_nr <= '0';
+                    elsif s_axi_wdata(1) = '1' then
+                        nof_outputs <= Layer1_Nof_Outputs;
+                        cl_layer_nr <= '1';
+                    end if;
+                elsif s_axi_waddr = "010" then
+                    start_processing <= '0';
+                    nof_input_sets <= s_axi_wdata;
                 else
-                    write_weights <= '0';
-                    start_cl <= '0';
+                    start_processing <= '0';
                 end if;
             else
-                write_weights <= '0';
-                start_cl <= '0';
+                start_processing <= '0';
             end if;
         end if;
     end process;
@@ -142,12 +153,12 @@ begin
     Read : process(nof_outputs, s_axis_tdata, s_axi_raddr, results, cl_dummy_bias, is_writing_weights, is_executing_cl)
     begin
         case s_axi_raddr is
-            when b"000" => s_axi_rdata <= to_slv(results(0)); -- 0
-            when b"001" => s_axi_rdata <= to_slv(results(1)); -- 4
-            when b"010" => s_axi_rdata <= to_slv(results(2)); -- 8
-            when b"011" => s_axi_rdata <= to_slv(results(3)); -- 12
-            when b"100" => s_axi_rdata <= (0 => is_writing_weights, others => '0'); -- 16
-            when b"101" => s_axi_rdata <= (0 => is_executing_cl, others => '0'); -- 20
+            when b"000" => s_axi_rdata <= s_axis_tdata; -- 0
+            when b"001" => s_axi_rdata <= (others => '1'); -- 4
+            when b"010" => s_axi_rdata <= (others => '1'); -- 8
+            when b"011" => s_axi_rdata <= (others => '1'); -- 12
+            when b"100" => s_axi_rdata <= (0 => (is_writing_weights or is_executing_cl), others => '0'); -- 16
+            when b"101" => s_axi_rdata <= (others => '1'); -- 20
             when b"110" => s_axi_rdata <= nof_outputs; -- 24
             when b"111" => s_axi_rdata <= to_slv(cl_dummy_bias); -- 28
             when others => s_axi_rdata <= (others => '1');
@@ -157,74 +168,105 @@ begin
     s_axis_tready <= is_writing_weights or is_executing_cl;
     
     cl_weight_we <= is_writing_weights and s_axis_tvalid;
-    cl_weight_data <= to_sfixed(s_axis_tdata(INT_WIDTH+FRAC_WIDTH-1 downto 0), cl_weight_data);
-    
-    WriteWeights : process(clk, reset)
-        variable nof_writes : Natural;
+    cl_weight_data <= to_sfixed(s_axis_tdata, cl_weight_data);
+
+
+    Controller : process(clk, reset)
+        variable nof_processed_outputs : integer;
+        variable nof_data_written : integer;
+        variable nof_weights_written : integer;
+        variable nof_input_sets_processed : integer;
+        variable set_size : integer;
     begin
         if reset = '0' then
-            nof_writes := 0;
+            nof_processed_outputs := 0;
+            nof_data_written := 0;
+            nof_weights_written := 0;
+            nof_input_sets_processed := 0;
+            set_size := to_integer(unsigned(Layer1_Set_Size));
+            
+            is_executing_cl <= '0';
             is_writing_weights <= '0';
+
+            m_axis_tlast <= '0';
+            m_axis_tvalid <= '0';
+            
         elsif rising_edge(clk) then
-            if write_weights = '1' then
-                is_writing_weights <= '1';  
+
+            if start_processing = '1' then
+                is_writing_weights <= '1';
+
+            -- WEIGHT HANDLING
             elsif is_writing_weights = '1' then
                 if s_axis_tvalid = '1' then
-                    if nof_writes = KERNEL_DIM*KERNEL_DIM+3 then
+                    if nof_weights_written = KERNEL_DIM*KERNEL_DIM+3 then
                         is_writing_weights <= '0';
+                        nof_weights_written := 0;
+                        is_executing_cl <= '1';
                     else
-                        nof_writes := nof_writes + 1;
+                        nof_weights_written := nof_weights_written + 1;
+                    end if;
+                end if;
+
+            -- PROCESSING HANDLING
+                
+            elsif is_executing_cl = '1' then
+
+                -- PROCESSING FINAL INPUT SET
+                
+                if nof_input_sets_processed = to_integer(unsigned(nof_input_sets))-1 then
+                    if cl_pixel_valid = '1' then
+                        out_sbuffer <= to_slv(cl_pixel_out);
+                        m_axis_tvalid <= '1';
+                        if nof_processed_outputs = to_integer(unsigned(nof_outputs)) -1 then
+                            is_executing_cl <= '0';
+                            m_axis_tlast <= '1';
+                            nof_processed_outputs := 0;
+                            nof_input_sets_processed := 0;
+                        else
+                            nof_processed_outputs := nof_processed_outputs + 1;
+                            m_axis_tlast <= '0';
+                        end if;
+                    else
+                        m_axis_tlast <= '0';
+                        m_axis_tvalid <= '0';
+                    end if;
+
+                -- PROCESSING ALL OTHER SETS
+
+                else
+                    m_axis_tvalid <= '0';
+                    m_axis_tlast <= '0';
+                    if nof_data_written = set_size-1 then
+                        is_writing_weights <= '1';
+                        is_executing_cl <= '0';
+                        nof_input_sets_processed := nof_input_sets_processed + 1;
+                    else
+                        nof_data_written := nof_data_written + 1;
                     end if;
                 end if;
             else
-                nof_writes := 0;
+                nof_processed_outputs := 0;
+                nof_data_written := 0;
+                nof_weights_written := 0;
+                nof_input_sets_processed := 0;
+                set_size := to_integer(unsigned(Layer1_Set_Size));
+                
+                is_executing_cl <= '0';
                 is_writing_weights <= '0';
+
+                m_axis_tlast <= '0';
+                m_axis_tvalid <= '0';
             end if;
         end if;
     end process;
-    
+        
     cl_conv_en <= is_executing_cl;
-    cl_pixel_in <= to_sfixed(s_axis_tdata(INT_WIDTH+FRAC_WIDTH-1 downto 0), cl_pixel_in);
+    cl_pixel_in <= to_sfixed(s_axis_tdata, cl_pixel_in);
     
     m_axis_tkeep <= (others => '1');
     m_axis_tdata <= out_sbuffer;
     
-    ExecuteCl : process(clk, reset)
-        variable nof_results : integer;
-     begin
-        if (reset = '0') then
-            nof_results := 0;
-            is_executing_cl <= '0';
-            m_axis_tvalid <= '0';
-            m_axis_tlast <= '0';
-        elsif rising_edge(clk) then
-            if start_cl = '1' then
-                nof_results := 0;
-                is_executing_cl <= '1';
-            elsif is_executing_cl = '1' then
-                if cl_pixel_valid = '1' then
-                    out_sbuffer <= to_slv(cl_pixel_out);
-                    m_axis_tvalid <= '1';
-                    if nof_results = to_integer(unsigned(nof_outputs))-1 then
-                        is_executing_cl <= '0';
-                        m_axis_tlast <= '1';
-                    else
-                        nof_results := nof_results + 1;
-                        m_axis_tlast <= '0';
-                    end if;
-                else
-                    m_axis_tvalid <= '0';
-                    m_axis_tlast <= '0';
-                end if;
-            else
-                m_axis_tvalid <= '0';
-                m_axis_tlast <= '0';
-                nof_results := 0;
-                is_executing_cl <= '0';
-            end if;
-        end if;
-     end process;
-
     -- PORT MAPS --
     
     conv_layer_port_map : convolution_layer port map(
