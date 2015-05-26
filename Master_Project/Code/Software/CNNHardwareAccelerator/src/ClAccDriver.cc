@@ -436,14 +436,17 @@ void printInfo() {
 void ConfigureAndRunAccelerator(int nof_outputs) {
 
 	//printInfo();
-	Xil_Out32(XPAR_CL_ACCELERATOR_0_BASEADDR, 0); //Write weights
-	while(Xil_In32(XPAR_CL_ACCELERATOR_0_BASEADDR+16) == 1); // Wait until done writing.
+	Xil_Out32(XPAR_CL_ACCELERATOR_0_BASEADDR+4, 1); //Set nof outputs
+	Xil_Out32(XPAR_CL_ACCELERATOR_0_BASEADDR+8, 1); //Set nof input sets
 
-	Xil_Out32(XPAR_CL_ACCELERATOR_0_BASEADDR+4, nof_outputs); //Set nof outputs
+	Xil_Out32(XPAR_CL_ACCELERATOR_0_BASEADDR, 0); //Write weights
+	while(Xil_In32(XPAR_CL_ACCELERATOR_0_BASEADDR+16) == 1 || Xil_In32(XPAR_CL_ACCELERATOR_0_BASEADDR+20) == 1); // Wait until done writing.
+
+
 
 	//printInfo();
-	Xil_Out32(XPAR_CL_ACCELERATOR_0_BASEADDR, 1); //Start cl
-	while(Xil_In32(XPAR_CL_ACCELERATOR_0_BASEADDR+20) == 1); //Wait until cl is done
+	//Xil_Out32(XPAR_CL_ACCELERATOR_0_BASEADDR, 1); //Start cl
+	//while(Xil_In32(XPAR_CL_ACCELERATOR_0_BASEADDR+20) == 1); //Wait until cl is done
 }
 
 int GetDataFromRxBuffer(vec_it iterator, int data_size)

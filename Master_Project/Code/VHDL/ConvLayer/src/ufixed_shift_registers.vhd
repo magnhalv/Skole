@@ -75,7 +75,15 @@ architecture Behavioral of sfixed_shift_registers is
 
 begin
     
-    data_out <= shift_reg_values(output_reg);
+    outputRegisters : process(output_reg)
+    begin
+        if (output_reg >= 0) then
+            data_out <= shift_reg_values(output_reg);
+        else
+            data_out <= shift_reg_values(0);
+        end if;
+    end process;
+
     
     gen_regs_loop : for reg in 0 to NOF_REGS-1 generate
     begin
