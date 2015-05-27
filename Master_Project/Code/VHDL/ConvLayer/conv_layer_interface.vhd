@@ -61,6 +61,7 @@ architecture Behavioral of conv_layer_interface is
             clk 		: in std_logic;
             reset		: in std_logic;
             conv_en		: in std_logic;
+            final_set : in std_logic;
             layer_nr	: in std_logic;
             weight_we	: in std_logic;
             weight_data	: in sfixed(INT_WIDTH-1 downto -FRAC_WIDTH);
@@ -72,9 +73,9 @@ architecture Behavioral of conv_layer_interface is
     end component;
 
     -- Constants
-    constant Layer0_Nof_Outputs : std_logic_vector := std_logic_vector(to_unsigned(14*14, 32));
-    constant Layer1_Nof_Outputs : std_logic_vector := std_logic_vector(to_unsigned(5*5, 32));
-    constant Layer1_Set_Size    : std_logic_vector := std_logic_vector(to_unsigned(14*14, 32));
+    constant Layer0_Nof_Outputs : std_logic_vector := std_logic_vector(to_unsigned(8*8, 32));
+    constant Layer1_Nof_Outputs : std_logic_vector := std_logic_vector(to_unsigned(6*6, 32));
+    constant Layer1_Set_Size    : std_logic_vector := std_logic_vector(to_unsigned(8*8, 32));
                                                                        
 	-- Control signals
 	signal op_code          : std_logic_vector(1 downto 0);
@@ -97,8 +98,11 @@ architecture Behavioral of conv_layer_interface is
 	
 	
 	-- Conv layer (cl) signals --
+    signal cl_reset         : std_logic;
+    signal conv_layer_reset : std_logic;
 	signal cl_conv_en		: std_logic;
     signal cl_layer_nr      : std_logic;
+    signal cl_final_set     : std_logic;
     signal cl_weight_we     : std_logic;
     signal cl_weight_data   : sfixed(INT_WIDTH-1 downto -FRAC_WIDTH);
     signal cl_pixel_in      : sfixed(INT_WIDTH-1 downto -FRAC_WIDTH);
@@ -188,16 +192,25 @@ begin
             is_executing_cl <= '0';
             is_writing_weights <= '0';
 
+            cl_final_set <= '0';
+            
             m_axis_tlast <= '0';
             m_axis_tvalid <= '0';
-            
+
+            cl_reset <= '1';
         elsif rising_edge(clk) then
 
             if start_processing = '1' then
                 is_writing_weights <= '1';
+                cl_reset <= '1';
 
             -- WEIGHT HANDLING
             elsif is_writing_weights = '1' then
+                cl_reset <= '1';
+                m_axis_tlast <= '0';
+                m_axis_tvalid <= '0';
+                cl_final_set <= '0';
+                
                 if s_axis_tvalid = '1' then
                     if nof_weights_written = KERNEL_DIM*KERNEL_DIM+3 then
                         is_writing_weights <= '0';
@@ -213,21 +226,24 @@ begin
             elsif is_executing_cl = '1' then
 
                 -- PROCESSING FINAL INPUT SET
-                
                 if nof_input_sets_processed = to_integer(unsigned(nof_input_sets))-1 then
+                    cl_final_set <= '1';
                     if cl_pixel_valid = '1' then
                         out_sbuffer <= to_slv(cl_pixel_out);
                         m_axis_tvalid <= '1';
                         if nof_processed_outputs = to_integer(unsigned(nof_outputs)) -1 then
+                            cl_reset <= '1';
                             is_executing_cl <= '0';
                             m_axis_tlast <= '1';
                             nof_processed_outputs := 0;
                             nof_input_sets_processed := 0;
                         else
+                            cl_reset <= '1';
                             nof_processed_outputs := nof_processed_outputs + 1;
                             m_axis_tlast <= '0';
                         end if;
                     else
+                        cl_reset <= '1';
                         m_axis_tlast <= '0';
                         m_axis_tvalid <= '0';
                     end if;
@@ -235,6 +251,8 @@ begin
                 -- PROCESSING ALL OTHER SETS
 
                 else
+                    cl_reset <= '1';
+                    cl_final_set <= '0';
                     m_axis_tvalid <= '0';
                     m_axis_tlast <= '0';
                     if nof_data_written = set_size-1 then
@@ -246,6 +264,7 @@ begin
                     end if;
                 end if;
             else
+                cl_reset <= '1';
                 nof_processed_outputs := 0;
                 nof_data_written := 0;
                 nof_weights_written := 0;
@@ -268,11 +287,13 @@ begin
     m_axis_tdata <= out_sbuffer;
     
     -- PORT MAPS --
+    conv_layer_reset <= reset and cl_reset;
     
     conv_layer_port_map : convolution_layer port map(
         clk         => clk,
-        reset       => reset,
+        reset       => conv_layer_reset,
         conv_en     => cl_conv_en,
+        final_set   => cl_final_set,
         layer_nr    => cl_layer_nr,
         weight_we   => cl_weight_we,
         weight_data => cl_weight_data,

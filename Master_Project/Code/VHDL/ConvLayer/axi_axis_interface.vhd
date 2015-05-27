@@ -328,8 +328,8 @@ begin
     cnn_interface : conv_layer_interface 
         generic map (
             C_S_AXI_DATA_WIDTH => C_S_AXI_DATA_WIDTH,
-            IMG_DIM => 32,
-            KERNEL_DIM => 5,
+            IMG_DIM => 10,
+            KERNEL_DIM => 3,
             POOL_DIM => 2,
             INT_WIDTH => 16,
             FRAC_WIDTH => 16

@@ -39,6 +39,7 @@ architecture Behavioral of convolution is
         port (
             clk : in  std_logic;
             conv_en : in  std_logic;
+            layer_nr : in std_logic;
             output_valid : out  std_logic
         );
         end component;
@@ -96,6 +97,7 @@ begin
     controller : conv_controller port map (
         clk => clk,
         conv_en => conv_en,
+        layer_nr => layer_nr,
         output_valid => output_valid
     );
 
