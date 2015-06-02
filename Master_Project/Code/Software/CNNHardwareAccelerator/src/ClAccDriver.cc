@@ -22,38 +22,48 @@ int FloatToFixed(float n) {
 }
 
 float FixedToFloat(float n) {
-	float new_num;
-	char *num = (char*)&n;
-	char *reverse_num = (char*)&new_num;
-	reverse_num[0] = num[3];
-	reverse_num[1] = num[2];
-	reverse_num[2] = num[1];
-	reverse_num[3] = num[0];
+//	float new_num;
+//	char *num = (char*)&n;
+//	char *reverse_num = (char*)&new_num;
+//	reverse_num[0] = num[3];
+//	reverse_num[1] = num[2];
+//	reverse_num[2] = num[1];
+//	reverse_num[3] = num[0];
 	return n;
 }
 
-void WriteDataToTxBuffer(ConvLayerValues clv) {
-
-	std::vector<int> weights_temp(clv.weights.size());
-	std::transform(clv.weights.begin(), clv.weights.end(), weights_temp.begin(), FloatToFixed);
+void WriteDataToTxBuffer(const std::vector<ConvLayerValues> &clv_vec) {
 
 	int *Buffer = (int*)TX_BUFFER_BASE;
-	Buffer[0] = FloatToFixed(clv.scale_factor);
-	Buffer[1] = FloatToFixed(clv.avg_pool_bias);
-	Buffer[2] = FloatToFixed(clv.avg_pool_coefficient);
-	Buffer[3] = FloatToFixed(clv.bias);
+	const int img_size = clv_vec[0].img_dim*clv_vec[0].img_dim;
+	const int weights_size = clv_vec[0].kernel_dim*clv_vec[0].kernel_dim;
+	int leap = (img_size+weights_size+4);
+	for (unsigned int i = 0; i < clv_vec.size(); i++) {
+		ConvLayerValues clv = clv_vec[i];
+		std::vector<int> weights_temp(weights_size);
+		std::transform(clv.weights, clv.weights+weights_size, weights_temp.begin(), FloatToFixed);
 
-	std::reverse_copy(weights_temp.begin(), weights_temp.end(), &Buffer[4]);
-	std::transform(clv.image.begin(), clv.image.end(), &Buffer[4+clv.weights.size()], FloatToFixed);
+		Buffer[0+i*leap] = FloatToFixed(clv.scale_factor);
+		Buffer[1+i*leap] = FloatToFixed(clv.avg_pool_bias);
+		Buffer[2+i*leap] = FloatToFixed(clv.avg_pool_coefficient);
+		Buffer[3+i*leap] = FloatToFixed(clv.bias);
+
+		std::reverse_copy(weights_temp.begin(), weights_temp.end(), &Buffer[4+i*leap]);
+		std::transform(clv.image, clv.image+img_size, &Buffer[4+i*leap+weights_size], FloatToFixed);
+
+	}
 }
 
-int CalculateClUsingHWAccelerator(const ConvLayerValues cl_vals, vec_it feature_map)
+int CalculateClUsingHWAccelerator(const std::vector<ConvLayerValues> &clv_vec, vec_it feature_map)
 {
 	int Status;
 	XAxiDma_Config *Config;
-	const int img_dim = cl_vals.img_dim;
-	const int kernel_dim = cl_vals.kernel_dim;
+	const int img_dim = clv_vec[0].img_dim;
+	const int kernel_dim = clv_vec[0].kernel_dim;
 	u32 nof_outputs = ((img_dim-kernel_dim+1)/2)*((img_dim-kernel_dim+1)/2);
+	int layer = clv_vec.size() > 1 ? 2 : 1;
+
+
 
 	Config = XAxiDma_LookupConfig(DMA_DEV_ID);
 	if (!Config) {
@@ -87,7 +97,7 @@ int CalculateClUsingHWAccelerator(const ConvLayerValues cl_vals, vec_it feature_
 	}
 
 	/* Send a packet */
-	Status = SendPacket(&AxiDma, cl_vals);
+	Status = SendPacket(&AxiDma, clv_vec);
 	if (Status != XST_SUCCESS) {
 		return XST_FAILURE;
 	}
@@ -96,7 +106,7 @@ int CalculateClUsingHWAccelerator(const ConvLayerValues cl_vals, vec_it feature_
 	if (Status != XST_SUCCESS) {
 		return XST_FAILURE;
 	}
-	ConfigureAndRunAccelerator(nof_outputs);
+	ConfigureAndRunAccelerator(nof_outputs, layer, clv_vec.size());
 
 	Status = WaitForRxToFinish(&AxiDma);
 	if (Status != XST_SUCCESS) {
@@ -319,18 +329,20 @@ int TxSetup(XAxiDma * AxiDmaInstPtr)
 * @note     None.
 *
 ******************************************************************************/
-int SendPacket(XAxiDma * AxiDmaInstPtr, ConvLayerValues clv)
+int SendPacket(XAxiDma * AxiDmaInstPtr, const std::vector<ConvLayerValues> &clv_vec)
 {
 	XAxiDma_BdRing *TxRingPtr;
 	int *TxPacket;
 	XAxiDma_Bd *BdPtr;
 	int Status;
 	int Index;
-	const int MAX_PKT_LEN = (clv.image.size()+clv.weights.size()+2)*sizeof(int);
+	const int img_size = clv_vec[0].img_dim*clv_vec[0].img_dim;
+	const int weights_size = clv_vec[0].kernel_dim*clv_vec[0].kernel_dim;
+	const int MAX_PKT_LEN = clv_vec.size()*(img_size+weights_size+4)*sizeof(int);
 
 	TxRingPtr = XAxiDma_GetTxRing(AxiDmaInstPtr);
 
-	WriteDataToTxBuffer(clv);
+	WriteDataToTxBuffer(clv_vec);
 	/* Create pattern in the packet to transmit */
 	TxPacket = (int *) Packet;
 
@@ -433,11 +445,11 @@ void printInfo() {
 
 }
 
-void ConfigureAndRunAccelerator(int nof_outputs) {
+void ConfigureAndRunAccelerator(int nof_outputs, int layer, int nof_sets) {
 
 	//printInfo();
-	Xil_Out32(XPAR_CL_ACCELERATOR_0_BASEADDR+4, 1); //Write weights
-	Xil_Out32(XPAR_CL_ACCELERATOR_0_BASEADDR+8, 1); //Write weights
+	Xil_Out32(XPAR_CL_ACCELERATOR_0_BASEADDR+4, layer); //Layer
+	Xil_Out32(XPAR_CL_ACCELERATOR_0_BASEADDR+8, nof_sets); //Nof sets
 	Xil_Out32(XPAR_CL_ACCELERATOR_0_BASEADDR, 0); //Write weights
 	while(Xil_In32(XPAR_CL_ACCELERATOR_0_BASEADDR+16) == 1); // Wait until done writing.
 

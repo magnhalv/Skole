@@ -181,7 +181,7 @@ begin
         if layer_nr = '0' then
             output_shift_reg_nr <= IMG_DIM-KERNEL_DIM-1;
         else
-           output_shift_reg_nr <= (IMG_DIM-KERNEL_DIM-1)-KERNEL_DIM-1;
+           output_shift_reg_nr <= ((IMG_DIM-KERNEL_DIM+1)/2)-KERNEL_DIM-1;
         end if; 
     end process;
     

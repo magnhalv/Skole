@@ -33,7 +33,14 @@ architecture Behavioral of sfixed_fifo is
     
 begin
 
-    data_out <= Memory(index);              
+    out_value : process(looped, Memory)
+    begin
+        if looped then
+            data_out <= Memory(index);
+        else
+            data_out <= (others => '0');
+        end if;
+    end process;
 	
 	fifo_proc : process (clk, reset)
 	begin

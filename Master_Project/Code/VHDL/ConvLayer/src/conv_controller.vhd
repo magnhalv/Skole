@@ -34,7 +34,7 @@ begin
         if layer_nr = '0' then
             curr_img_dim <= IMAGE_DIM;
         else
-            curr_img_dim <= IMAGE_DIM-KERNEL_DIM+1;
+            curr_img_dim <= (IMAGE_DIM-KERNEL_DIM+1)/2;
         end if;
     end process;
 

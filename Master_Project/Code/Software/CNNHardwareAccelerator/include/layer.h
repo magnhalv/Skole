@@ -57,6 +57,14 @@ public:
     	for (auto w : W_) printf("%f\r\n", w);
     }
 
+    void print_nof_weights() {
+    	printf("Nof weights: %d\r\n", W_.size());
+    }
+
+    void print_nof_bias() {
+		printf("Nof bias: %d\r\n", b_.size());
+    }
+
     void set_parallelize(bool parallelize) {
         parallelize_ = parallelize;
     }

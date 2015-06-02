@@ -76,21 +76,24 @@ void load_weights(void) {
     };
 #undef O
 #undef X
-    convolutional_layer<CNN, tan_h> C3(14, 14, 5, 6, 16, connection_table(connection, 6, 16));
-    average_pooling_layer<CNN, tan_h> S4(10, 10, 16, 2);
+    convolutional_layer2_hw<CNN, tan_h> C3(14, 14, 5, 6, 16, connection_table(connection, 6, 16));
+    //convolutional_layer<CNN, tan_h> C3(14, 14, 5, 6, 16, connection_table(connection, 6, 16));
+    //average_pooling_layer<CNN, tan_h> S4(10, 10, 16, 2);
     convolutional_layer<CNN, tan_h> C5(5, 5, 5, 16, 120);
     fully_connected_layer<CNN, tan_h> F6(120, 10);
     nn.add(&C1);
     nn.add(&C3);
-    nn.add(&S4);
+    //nn.add(&S4);
     nn.add(&C5);
     nn.add(&F6);
 
     std::stringstream stream;
     ReadFloatsFromSDFile(stream, std::string("weights.bin"));
 
-    stream >> C1 >> C3 >> S4 >> C5 >> F6;
 
+    stream >> C1 >> C3 >> C5 >> F6;
+
+   // C3.print_weights();
 
 
 

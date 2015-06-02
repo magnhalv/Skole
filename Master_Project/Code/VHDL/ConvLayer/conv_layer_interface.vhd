@@ -17,7 +17,7 @@ entity conv_layer_interface is
         FRAC_WIDTH          : Natural := 16
     );
     Port (
-    
+
         clk             : in std_logic;
         reset           : in std_logic; -- NOTE: Is active low.
         -- Interface for controlling module
@@ -26,14 +26,14 @@ entity conv_layer_interface is
         s_axi_wdata     : in std_logic_vector(C_S_AXI_DATA_WIDTH-1 downto 0);
         s_axi_waddr     : in std_logic_vector(2 downto 0);
         s_axi_we        : in std_logic;
-        
+
         -- Interface for streaming data in
         s_axis_tvalid   : in std_logic;
         s_axis_tready   : out std_logic;
         s_axis_tdata    : in std_logic_vector(C_S_AXI_DATA_WIDTH-1 downto 0);
         s_axis_tkeep    : in std_logic_vector((C_S_AXI_DATA_WIDTH/8)-1 downto 0);
         s_axis_tlast    : in std_logic;
-        
+
         -- Interface for streaming data out
         m_axis_tvalid   : out std_logic;
         m_axis_tready   : in std_logic;
@@ -41,13 +41,13 @@ entity conv_layer_interface is
         m_axis_tkeep    : out std_logic_vector((C_S_AXI_DATA_WIDTH/8)-1 downto 0);
         m_axis_tlast    : out std_logic
     );
-    
-    
-     
+
+
+
 end conv_layer_interface;
 
 architecture Behavioral of conv_layer_interface is
-    
+
     component convolution_layer is
         generic (
             IMG_DIM 		: Natural := IMG_DIM;
@@ -56,8 +56,8 @@ architecture Behavioral of conv_layer_interface is
             INT_WIDTH 		: Natural := INT_WIDTH;
             FRAC_WIDTH 		: Natural := FRAC_WIDTH
         );
-        
-        port ( 
+
+        port (
             clk 		: in std_logic;
             reset		: in std_logic;
             conv_en		: in std_logic;
@@ -73,30 +73,30 @@ architecture Behavioral of conv_layer_interface is
     end component;
 
     -- Constants
-    constant Layer0_Nof_Outputs : std_logic_vector := std_logic_vector(to_unsigned(8*8, 32));
-    constant Layer1_Nof_Outputs : std_logic_vector := std_logic_vector(to_unsigned(6*6, 32));
-    constant Layer1_Set_Size    : std_logic_vector := std_logic_vector(to_unsigned(8*8, 32));
-                                                                       
+    constant Layer0_Nof_Outputs : std_logic_vector := std_logic_vector(to_unsigned(14*14, 32));
+    constant Layer1_Nof_Outputs : std_logic_vector := std_logic_vector(to_unsigned(5*5, 32));
+    constant Layer1_Set_Size    : std_logic_vector := std_logic_vector(to_unsigned(14*14, 32));
+
 	-- Control signals
 	signal op_code          : std_logic_vector(1 downto 0);
 	signal start_processing : std_logic;
 	signal nof_outputs      : std_logic_vector(C_S_AXI_DATA_WIDTH-1 downto 0);
     signal nof_input_sets   : std_logic_vector(C_S_AXI_DATA_WIDTH-1 downto 0);
-	
+
 	-- State signals
 	signal is_writing_weights : std_logic;
 	signal is_executing_cl : std_logic;
-	
+
 	-- Output streaming buffer
 	signal out_sbuffer : std_logic_vector(INT_WIDTH+FRAC_WIDTH-1 downto 0);
-	
+
 	-- Result buffer
 	type sfixed_array_length_4 is array (3 downto 0) of sfixed(INT_WIDTH-1 downto -FRAC_WIDTH);
 	signal results : sfixed_array_length_4;
-	
-   
-	
-	
+
+
+
+
 	-- Conv layer (cl) signals --
     signal cl_reset         : std_logic;
     signal conv_layer_reset : std_logic;
@@ -109,14 +109,14 @@ architecture Behavioral of conv_layer_interface is
     signal cl_pixel_valid   : std_logic;
     signal cl_pixel_out     : float32;
     signal cl_dummy_bias    : sfixed(INT_WIDTH-1 downto -FRAC_WIDTH);
-    
 
-begin   
 
-    
+begin
+
+
     op_code <= s_axi_wdata(1 downto 0);
-    
-    
+
+
     WriteControlRegisters : process(clk, reset)
     begin
         if reset = '0' then
@@ -153,7 +153,7 @@ begin
             end if;
         end if;
     end process;
-    
+
     Read : process(nof_outputs, s_axis_tdata, s_axi_raddr, results, cl_dummy_bias, is_writing_weights, is_executing_cl)
     begin
         case s_axi_raddr is
@@ -168,9 +168,9 @@ begin
             when others => s_axi_rdata <= (others => '1');
         end case;
     end process;
-    
+
     s_axis_tready <= is_writing_weights or is_executing_cl;
-    
+
     cl_weight_we <= is_writing_weights and s_axis_tvalid;
     cl_weight_data <= to_sfixed(s_axis_tdata, cl_weight_data);
 
@@ -188,12 +188,12 @@ begin
             nof_weights_written := 0;
             nof_input_sets_processed := 0;
             set_size := to_integer(unsigned(Layer1_Set_Size));
-            
+
             is_executing_cl <= '0';
             is_writing_weights <= '0';
 
             cl_final_set <= '0';
-            
+
             m_axis_tlast <= '0';
             m_axis_tvalid <= '0';
 
@@ -210,7 +210,7 @@ begin
                 m_axis_tlast <= '0';
                 m_axis_tvalid <= '0';
                 cl_final_set <= '0';
-                
+
                 if s_axis_tvalid = '1' then
                     if nof_weights_written = KERNEL_DIM*KERNEL_DIM+3 then
                         is_writing_weights <= '0';
@@ -222,7 +222,7 @@ begin
                 end if;
 
             -- PROCESSING HANDLING
-                
+
             elsif is_executing_cl = '1' then
 
                 -- PROCESSING FINAL INPUT SET
@@ -232,7 +232,7 @@ begin
                         out_sbuffer <= to_slv(cl_pixel_out);
                         m_axis_tvalid <= '1';
                         if nof_processed_outputs = to_integer(unsigned(nof_outputs)) -1 then
-                            cl_reset <= '1';
+                            cl_reset <= '0';
                             is_executing_cl <= '0';
                             m_axis_tlast <= '1';
                             nof_processed_outputs := 0;
@@ -258,6 +258,7 @@ begin
                     if nof_data_written = set_size-1 then
                         is_writing_weights <= '1';
                         is_executing_cl <= '0';
+                        nof_data_written := 0;
                         nof_input_sets_processed := nof_input_sets_processed + 1;
                     else
                         nof_data_written := nof_data_written + 1;
@@ -270,7 +271,7 @@ begin
                 nof_weights_written := 0;
                 nof_input_sets_processed := 0;
                 set_size := to_integer(unsigned(Layer1_Set_Size));
-                
+
                 is_executing_cl <= '0';
                 is_writing_weights <= '0';
 
@@ -279,16 +280,16 @@ begin
             end if;
         end if;
     end process;
-        
+
     cl_conv_en <= is_executing_cl;
     cl_pixel_in <= to_sfixed(s_axis_tdata, cl_pixel_in);
-    
+
     m_axis_tkeep <= (others => '1');
     m_axis_tdata <= out_sbuffer;
-    
+
     -- PORT MAPS --
     conv_layer_reset <= reset and cl_reset;
-    
+
     conv_layer_port_map : convolution_layer port map(
         clk         => clk,
         reset       => conv_layer_reset,
@@ -304,4 +305,3 @@ begin
     );
 
 end Behavioral;
-

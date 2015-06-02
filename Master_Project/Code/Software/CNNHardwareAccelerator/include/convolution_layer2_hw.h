@@ -37,42 +37,78 @@ namespace tiny_cnn {
 
 
 template<typename N, typename Activation>
-class convolutional_layer_hw : public layer<N, Activation> {
+class convolutional_layer2_hw : public partial_connected_layer<N, Activation> {
 public:
 
-    convolutional_layer_hw(int in_width, int in_height, int window_size, int in_channels, int out_channels)
-    : layer<N, Activation>(in_width * in_height * in_channels, ((in_width - window_size + 1)/2) * ((in_width - window_size + 1)/2) * out_channels,
+    convolutional_layer2_hw(int in_width, int in_height, int window_size, int in_channels, int out_channels)
+    : partial_connected_layer<N, Activation>(in_width * in_height * in_channels, ((in_width - window_size + 1)/2) * ((in_width - window_size + 1)/2) * out_channels,
     window_size * window_size * in_channels * out_channels, out_channels)
     {
     	avg_pool_coffs.resize(out_channels);
     	avg_pool_bias.resize(out_channels);
     }
 
-    convolutional_layer_hw(int in_width, int in_height, int window_size, int in_channels, int out_channels, const connection_table& connection_table)
-        : layer<N, Activation>(in_width * in_height * in_channels, ((in_width - window_size + 1)/2) * ((in_width - window_size + 1)/2) * out_channels,
-		window_size * window_size * in_channels * out_channels, out_channels)
+    convolutional_layer2_hw(int in_width, int in_height, int window_size, int in_channels, int out_channels, const connection_table& connection_table)
+    : partial_connected_layer<N, Activation>(in_width * in_height * in_channels, ((in_width - window_size + 1)/2) * ((in_width - window_size + 1)/2) * out_channels,
+        window_size * window_size * in_channels * out_channels, out_channels)
 
     {
+    	avg_pool_coffs.resize(out_channels);
+		avg_pool_bias.resize(out_channels);
+    	conn_table = connection_table;
         this->remap();
+    }
+
+    void print_weights() {
+
+    	xil_printf("Kernel: \n\r");
+    	for (int nof_times = 0; nof_times < 6; nof_times++) {
+    		for (int i = 0; i < 5; i++) {
+				for (int j = 0; j < 5; j++) {
+					printf("%f - ", this->W_[1350+i*5+j+25*nof_times]);
+				}
+				printf("\n\r");
+			}
+    		printf("\n\r");
+    	}
+    	printf("bias: %f\n\r", this->b_[15]);
+    	printf("avg_pool_coff: %f\n\r", this->avg_pool_coffs[15]);
+    	printf("avg_bias: %f\n\r", this->avg_pool_bias[15]);
     }
 
     virtual const vec_t& forward_propagation(const vec_t& in, int index) {
 
-    	for (int i = 0; i < 6; i++) {
-			vec_t weights;
-			weights.insert(weights.end(), this->W_.begin()+i*25, this->W_.begin()+25*(i+1));
-			ConvLayerValues clv = {
-					in.begin(),
-					weights.begin(),
-					32,
-					5,
-					this->b_[i],
-					avg_pool_coffs[i],
-					avg_pool_bias[i],
-					0.25
-			};
-			std::vector<ConvLayerValues> clv_vec = {clv};
-			CalculateClUsingHWAccelerator(clv_vec, this->output_[index].begin()+i*14*14);
+
+    	int w_index[6][16] = {
+    		{0,  0,   0,   0,   300,  375, 450, 0,   0,   750, 850, 950,  1050,    0, 1250, 1350},
+    		{25, 75,  0,   0,   0,    400, 475, 550, 0,   0,   875, 975,  1075, 1150, 0,    1375},
+    		{50, 100, 150, 0,   0,    0,   500, 575, 650, 0,   0,   1000, 0,    1175, 1275, 1400},
+    		{0,  125, 175, 225, 0,    0,   525, 600, 675, 775, 0,   0,    1100, 0,    1300, 1425},
+    		{0,  0,   200, 250, 325,  0,   0,   625, 700, 800, 900, 0,    1125, 1200, 0,    1450},
+    		{0,  0,   0,   275, 350,  425, 0,   0,   725, 825, 925, 1025, 0,    1225, 1325, 1475}
+    	};
+    	const int nof_output_maps = 16;
+    	const int nof_input_maps = 6;
+    	const int img_dim = 14*14;
+    	for (int i = 0; i < nof_output_maps; i++) {
+    		std::vector<ConvLayerValues> clv_vec;
+    		for (int j = 0; j < nof_input_maps; j++) {
+    			if (conn_table.is_connected(i,j)) {
+					ConvLayerValues clv = {
+							in.begin()+img_dim*j,
+							this->W_.begin()+w_index[j][i],
+							14,
+							5,
+							this->b_[i],
+							avg_pool_coffs[i],
+							avg_pool_bias[i],
+							0.25
+					};
+					clv_vec.push_back(clv);
+    			}
+    		}
+    		CalculateClUsingHWAccelerator(clv_vec, this->output_[index].begin()+i*5*5);
+
 		}
 
 //		for (int i = 0; i < this->out_size_; i++) {
@@ -97,60 +133,34 @@ public:
 		return this->next_ ? this->next_->forward_propagation(this->output_[index], index) : this->output_[index]; // 15.6%
 	}
 
-    int param_size() const {
-	}
-
-	int connection_size() const {
-
-	}
-
-	int fan_in_size() const {
-
-	}
-
-	void connect_weight(int input_index, int output_index, int weight_index) {
-
-	}
-
-	void connect_bias(int bias_index, int output_index) {
-	}
-
-	virtual const vec_t& back_propagation(const vec_t& current_delta, int index) {
-		vec_t lol;
-		return lol;
-	}
-
-	const vec_t& back_propagation_2nd(const vec_t& current_delta2) {
-		vec_t lol;
-		return lol;
-	}
-
-	// remove unused weight to improve cache hits
-	void remap() {
-	}
-
 	virtual void load(std::istream& is) {
+		int count = 0;
 		for (auto& w : this->W_){
 			float f;
 			is.read((char*)&f, sizeof(f));
 			w = f;
+			count++;
 		}
 		for (auto& b : this->b_) {
 			float f;
 			is.read((char*)&f, sizeof(f));
 			b = f;
+			count++;
 		}
 		for (auto& c : avg_pool_coffs) {
 			float f;
 			is.read((char*)&f, sizeof(f));
 			c = f;
+			count++;
 		}
 
 		for (auto& avg_b : avg_pool_bias) {
 			float f;
 			is.read((char*)&f, sizeof(f));
 			avg_b = f;
+			count++;
 		}
+		xil_printf("Count is: %d\n\r", count);
 	}
 
 
@@ -159,11 +169,12 @@ public:
 private:
 	vec_t avg_pool_coffs;
 	vec_t avg_pool_bias;
+	connection_table conn_table;
 };
 
 
 template <typename Char, typename CharTraits, typename N, typename Activation>
-std::basic_istream<Char, CharTraits>& operator >> (std::basic_istream<Char, CharTraits>& os, convolutional_layer_hw<N, Activation>& v) {
+std::basic_istream<Char, CharTraits>& operator >> (std::basic_istream<Char, CharTraits>& os, convolutional_layer2_hw<N, Activation>& v) {
 	v.load(os);
     return os;
 }

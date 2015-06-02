@@ -30,10 +30,11 @@ extern void xil_printf(const char *format, ...);
 
 using vec_t = std::vector<float>;
 using vec_it = std::vector<float>::iterator;
+using vec_c_it = std::vector<float>::const_iterator;
 
 struct ConvLayerValues {
-	const vec_t &image;
-	const vec_t &weights;
+	vec_c_it image;
+	vec_c_it weights;
 	const int img_dim;
 	const int kernel_dim;
 	const float bias;
@@ -42,12 +43,12 @@ struct ConvLayerValues {
 	const float scale_factor;
 };
 
-void ConfigureAndRunAccelerator(int nof_outputs);
-void WriteDataToTxBuffer(ConvLayerValues clv);
+void ConfigureAndRunAccelerator(int nof_outputs, int layer, int nof_sets);
+void WriteDataToTxBuffer(const std::vector<ConvLayerValues> &clv_vec);
 int RxSetup(XAxiDma * AxiDmaInstPtr, const int recv_length);
 int TxSetup(XAxiDma * AxiDmaInstPtr);
-int SendPacket(XAxiDma * AxiDmaInstPtr, ConvLayerValues clv);
+int SendPacket(XAxiDma * AxiDmaInstPtr, const std::vector<ConvLayerValues> &clv_vec);
 int GetDataFromRxBuffer(vec_it iterator, int data_size);
 int WaitForTxToFinish(XAxiDma * AxiDmaInstPtr);
 int WaitForRxToFinish(XAxiDma * AxiDmaInstPtr);
-int CalculateClUsingHWAccelerator(const ConvLayerValues cl_vals, vec_it feature_map);
+int CalculateClUsingHWAccelerator(const std::vector<ConvLayerValues> &clv_vec, vec_it feature_map);

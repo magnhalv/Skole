@@ -9,6 +9,7 @@ use ieee_proposed.fixed_pkg.all;
 entity average_pooler is
 	generic (
 	    IMG_DIM : Natural := 8;
+        KERNEL_DIM : Natural := 3;
 		POOL_DIM : Natural := 2;
 		INT_WIDTH : Natural := 8;
 		FRAC_WIDTH : Natural := 8
@@ -17,6 +18,7 @@ entity average_pooler is
 		clk : in std_logic;
         reset : in std_logic;
         conv_en : in std_logic;
+        layer_nr : in std_logic;
         weight_in : in sfixed(INT_WIDTH-1 downto -FRAC_WIDTH);
         weight_we : in std_logic;
 		input_valid : in std_logic;
@@ -43,10 +45,10 @@ architecture Behavioral of average_pooler is
 		);
 	end component;
 
-    constant POOL_ARRAY_DIM : Natural := IMG_DIM/POOL_DIM;
+    constant POOL_ARRAY_DIM_MAX : Natural := IMG_DIM/POOL_DIM;
 	type states is (find_max, end_of_row,wait_for_new_row, finished);
 
-	type sfixed_array is array(POOL_ARRAY_DIM-2 downto 0) of sfixed(INT_WIDTH-1 downto -FRAC_WIDTH);
+	type sfixed_array is array(POOL_ARRAY_DIM_MAX-2 downto 0) of sfixed(INT_WIDTH-1 downto -FRAC_WIDTH);
 	
 	signal buffer_values : sfixed_array;
 	signal reset_buffers : std_logic;
@@ -54,17 +56,28 @@ architecture Behavioral of average_pooler is
     signal pool_sum	     : sfixed(INT_WIDTH-1 downto -FRAC_WIDTH);
     signal weight        : sfixed(INT_WIDTH-1 downto -FRAC_WIDTH);
     signal output_valid_buf : std_logic;
-	signal pool_x : Natural range 0 to POOL_ARRAY_DIM-1 := 0;
+	signal pool_x : Natural range 0 to POOL_ARRAY_DIM_MAX-1 := 0;
     signal buf_reset : std_logic;
 
     signal averaged_sum : sfixed(INT_WIDTH-1 downto -FRAC_WIDTH);
     signal averaged_sum_valid : std_logic;
+
+    signal POOL_ARRAY_DIM : Natural;
     
 begin
 
     buf_reset <= reset and reset_buffers;
+
+    set_array_dim : process(layer_nr)
+    begin
+        if layer_nr = '0' then
+            POOL_ARRAY_DIM <= POOL_ARRAY_DIM_MAX;
+        else
+            POOL_ARRAY_DIM <= ((IMG_DIM/2)-KERNEL_DIM+1)/POOL_DIM;
+        end if;
+    end process;
     
-	generate_buffers : for i in 0 to POOL_ARRAY_DIM-2 generate
+	generate_buffers : for i in 0 to POOL_ARRAY_DIM_MAX-2 generate
 	begin
 		first_buffer : if i = 0 generate
 		begin

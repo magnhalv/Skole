@@ -58,6 +58,7 @@ architecture Behavioral of convolution_layer is
 	component average_pooler
         generic (
             IMG_DIM : Natural := IMG_DIM-KERNEL_DIM+1;
+            KERNEL_DIM : Natural := KERNEL_DIM;
             POOL_DIM : Natural := POOL_DIM;
             INT_WIDTH : Natural := INT_WIDTH;
             FRAC_WIDTH : Natural := FRAC_WIDTH
@@ -66,6 +67,7 @@ architecture Behavioral of convolution_layer is
             clk : in std_logic;
             reset : in std_logic;
             conv_en : in std_logic;
+            layer_nr : in std_logic;
             weight_in : in sfixed(INT_WIDTH-1 downto -FRAC_WIDTH);
             weight_we : in std_logic;
             input_valid : in std_logic;
@@ -81,7 +83,7 @@ architecture Behavioral of convolution_layer is
 		generic (
 			INT_WIDTH 	: Natural := INT_WIDTH;
 			FRAC_WIDTH 	: Natural := FRAC_WIDTH;
-            FIFO_DEPTH : Natural := ((IMG_DIM-KERNEL_DIM+1)-KERNEL_DIM+1)*((IMG_DIM-KERNEL_DIM+1)-KERNEL_DIM+1)
+            FIFO_DEPTH : Natural := (((IMG_DIM-KERNEL_DIM+1)/2)-KERNEL_DIM+1)*(((IMG_DIM-KERNEL_DIM+1)/2)-KERNEL_DIM+1)
 		);
 		Port ( 
             clk		 : in  std_logic;
@@ -201,6 +203,7 @@ begin
 		clk 			=> clk,
         reset           => reset,
         conv_en			=> conv_en,
+        layer_nr        => layer_nr,
         weight_in       => bias,
         weight_we       => weight_we,
         input_valid		=> pixelValid_TanhToAvgPool,
@@ -239,10 +242,10 @@ begin
     FixedToFloat : process (clk)
     begin
         if rising_edge(clk) then
---            pixel_out <= to_float(pixelOut_Tanh2ToF2F, float_size);
---            pixel_valid <= pixelValid_Tanh2ToF2F and final_set;
-            pixel_out <= to_float(pixel_biasToTanh, float_size);
-            pixel_valid <= valid_biasToTanh and final_set;
+            pixel_out <= to_float(pixelOut_Tanh2ToF2F, float_size);
+            pixel_valid <= pixelValid_Tanh2ToF2F and final_set;
+--            pixel_out <= to_float(pixel_MuxToBias, float_size);
+--            pixel_valid <= valid_MuxToBias and final_set;
         end if;
     end process;
 
