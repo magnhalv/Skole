@@ -158,8 +158,9 @@ public:
     result test(const std::vector<vec_t>& in, const std::vector<label_t>& t) {
         result test_result;
         // in.size()
-        for (size_t i = 0; i < in.size(); i++) {
-        	if (i%10 == 0) xil_printf("Processing image: %d\n\r", i);
+        for (size_t i = 0; i < 50; i++) {
+        	if (i%10==0)
+        		xil_printf("Processing image nr: %d\n\r", i);
             vec_t out;
             predict(in[i], &out);
 
