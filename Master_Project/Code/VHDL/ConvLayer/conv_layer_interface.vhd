@@ -67,7 +67,7 @@ architecture Behavioral of conv_layer_interface is
             weight_data	: in sfixed(INT_WIDTH-1 downto -FRAC_WIDTH);
             pixel_in	: in sfixed(INT_WIDTH-1 downto -FRAC_WIDTH);
             pixel_valid	: out std_logic;
-            pixel_out 	: out float32;
+            pixel_out 	: out std_logic_vector(INT_WIDTH+FRAC_WIDTH-1 downto 0);
             dummy_bias	: out sfixed(INT_WIDTH-1 downto -FRAC_WIDTH)
         );
     end component;
@@ -107,7 +107,7 @@ architecture Behavioral of conv_layer_interface is
     signal cl_weight_data   : sfixed(INT_WIDTH-1 downto -FRAC_WIDTH);
     signal cl_pixel_in      : sfixed(INT_WIDTH-1 downto -FRAC_WIDTH);
     signal cl_pixel_valid   : std_logic;
-    signal cl_pixel_out     : float32;
+    signal cl_pixel_out     : std_logic_vector(INT_WIDTH+FRAC_WIDTH-1 downto 0);
     signal cl_dummy_bias    : sfixed(INT_WIDTH-1 downto -FRAC_WIDTH);
 
 
@@ -229,7 +229,7 @@ begin
                 if nof_input_sets_processed = to_integer(unsigned(nof_input_sets))-1 then
                     cl_final_set <= '1';
                     if cl_pixel_valid = '1' then
-                        out_sbuffer <= to_slv(cl_pixel_out);
+                        out_sbuffer <= cl_pixel_out;
                         m_axis_tvalid <= '1';
                         if nof_processed_outputs = to_integer(unsigned(nof_outputs)) -1 then
                             cl_reset <= '0';

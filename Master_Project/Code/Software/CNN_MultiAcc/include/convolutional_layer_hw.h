@@ -57,6 +57,10 @@ public:
     }
 
     virtual const vec_t& forward_propagation(const vec_t& in, int index) {
+    	float scale = 0.25;
+    	int n = FloatToFixed(scale);
+    	float scale_factor;
+		memcpy((void*)&scale_factor, (void*)&n, sizeof(float));
     	ClAccDriver acc_driver;
     	feature_map_parameters fmp;
     	for (int i = 0; i < 6; i++) {
@@ -68,7 +72,7 @@ public:
 					this->b_[i],
 					avg_pool_coffs[i],
 					avg_pool_bias[i],
-					0.25,
+					scale_factor,
 					this->output_[index].begin()+i*14*14
 			};
 			std::vector<ConvLayerValues> clv_vec = {clv};
@@ -111,26 +115,39 @@ public:
 	}
 
 	virtual void load(std::istream& is) {
-		for (auto& w : this->W_){
-			float f;
-			is.read((char*)&f, sizeof(f));
-			w = f;
+
+		for (int i = 0; i < this->W_.size(); i=i+25) {
+			vec_t temp_W;
+			for (int j = 0; j < 25; j++) {
+
+				float f;
+				float w;
+				is.read((char*)&f, sizeof(f));
+				int n = FloatToFixed(f);
+				memcpy((void*)&w, (void*)&n, sizeof(float));
+				temp_W.push_back(w);
+			}
+			std::reverse_copy(temp_W.begin(), temp_W.end(), this->W_.begin()+i);
 		}
+
 		for (auto& b : this->b_) {
 			float f;
 			is.read((char*)&f, sizeof(f));
-			b = f;
+			int n = FloatToFixed(f);
+			memcpy((void*)&b, (void*)&n, sizeof(float));
 		}
 		for (auto& c : avg_pool_coffs) {
 			float f;
 			is.read((char*)&f, sizeof(f));
-			c = f;
+			int n = FloatToFixed(f);
+			memcpy((void*)&c, (void*)&n, sizeof(float));
 		}
 
 		for (auto& avg_b : avg_pool_bias) {
 			float f;
 			is.read((char*)&f, sizeof(f));
-			avg_b = f;
+			int n = FloatToFixed(f);
+			memcpy((void*)&avg_b, (void*)&n, sizeof(float));
 		}
 	}
 

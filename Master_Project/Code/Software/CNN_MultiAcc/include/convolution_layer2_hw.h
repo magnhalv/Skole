@@ -78,7 +78,10 @@ public:
 
     virtual const vec_t& forward_propagation(const vec_t& in, int index) {
 
-
+    	float scale = 0.25;
+		int n = FloatToFixed(scale);
+		float scale_factor;
+		memcpy((void*)&scale_factor, (void*)&n, sizeof(float));
     	int w_index[6][16] = {
     		{0,  0,   0,   0,   300,  375, 450, 0,   0,   750, 850, 950,  1050,    0, 1250, 1350},
     		{25, 75,  0,   0,   0,    400, 475, 550, 0,   0,   875, 975,  1075, 1150, 0,    1375},
@@ -106,7 +109,7 @@ public:
 							this->b_[i],
 							avg_pool_coffs[i],
 							avg_pool_bias[i],
-							0.25,
+							scale_factor,
 							this->output_[index].begin()+i*5*5
 					};
 					clv_vec.push_back(clv);
@@ -116,56 +119,43 @@ public:
 		}
     	acc_driver.CalculateLayer(fmp);
 
-//		for (int i = 0; i < this->out_size_; i++) {
-//			const wi_connections& connections = this->out2wi_[i];
-//			float_t a = 0.0;
-//
-//			for (auto connection : connections)// 13.1%
-//				a += this->W_[connection.first] * in[connection.second]; // 3.2%
-//
-//			a *= this->scale_factor_;
-//			a += this->b_[this->out2bias_[i]];
-//			float out_val = this->a_.f(a);
-//
-//			float e = all_fm[i];
-//			if(!CompareFloats(e, out_val)) {
-//				printf("Expected: %f. Actual: %f.\n\r", out_val, e);
-//			}
-//			this->output_[index][i] = out_val; // 9.6%
-//		}
-
-
 		return this->next_ ? this->next_->forward_propagation(this->output_[index], index) : this->output_[index]; // 15.6%
 	}
 
 	virtual void load(std::istream& is) {
-		int count = 0;
-		for (auto& w : this->W_){
-			float f;
-			is.read((char*)&f, sizeof(f));
-			w = f;
-			count++;
+		for (int i = 0; i < this->W_.size(); i=i+25) {
+			vec_t temp_W;
+			for (int j = 0; j < 25; j++) {
+
+				float f;
+				float w;
+				is.read((char*)&f, sizeof(f));
+				int n = FloatToFixed(f);
+				memcpy((void*)&w, (void*)&n, sizeof(float));
+				temp_W.push_back(w);
+			}
+			std::reverse_copy(temp_W.begin(), temp_W.end(), this->W_.begin()+i);
 		}
+
 		for (auto& b : this->b_) {
 			float f;
 			is.read((char*)&f, sizeof(f));
-			b = f;
-			count++;
+			int n = FloatToFixed(f);
+			memcpy((void*)&b, (void*)&n, sizeof(float));
 		}
 		for (auto& c : avg_pool_coffs) {
 			float f;
 			is.read((char*)&f, sizeof(f));
-			c = f;
-			count++;
+			int n = FloatToFixed(f);
+			memcpy((void*)&c, (void*)&n, sizeof(float));
 		}
 
 		for (auto& avg_b : avg_pool_bias) {
 			float f;
 			is.read((char*)&f, sizeof(f));
-			avg_b = f;
-			count++;
+			int n = FloatToFixed(f);
+			memcpy((void*)&avg_b, (void*)&n, sizeof(float));
 		}
-		xil_printf("Count is: %d\n\r", count);
 	}
 
 

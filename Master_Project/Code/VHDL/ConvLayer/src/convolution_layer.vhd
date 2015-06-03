@@ -26,7 +26,7 @@ entity convolution_layer is
 		weight_data	: in sfixed(INT_WIDTH-1 downto -FRAC_WIDTH);
 		pixel_in	: in sfixed(INT_WIDTH-1 downto -FRAC_WIDTH);
 		pixel_valid	: out std_logic;
-		pixel_out 	: out float32;
+		pixel_out 	: out std_logic_vector(INT_WIDTH+FRAC_WIDTH-1 downto 0);
 		dummy_bias	: out sfixed(INT_WIDTH-1 downto -FRAC_WIDTH)
 	);
 end convolution_layer;
@@ -139,6 +139,10 @@ architecture Behavioral of convolution_layer is
     signal pixelValid_Tanh2ToF2F : std_logic;
     signal pixelOut_Tanh2ToF2F : sfixed(INT_WIDTH-1 downto -FRAC_WIDTH);
 
+    signal pixelValid_F2FToOut : std_logic;
+    signal pixelOutFloat_F2FToOut : float32;
+    signal pixelOutFixed_F2FToOut : sfixed(INT_WIDTH-1 downto -FRAC_WIDTH);
+
     signal float_size : float32;
 begin
 
@@ -242,13 +246,25 @@ begin
     FixedToFloat : process (clk)
     begin
         if rising_edge(clk) then
-            pixel_out <= to_float(pixelOut_Tanh2ToF2F, float_size);
-            pixel_valid <= pixelValid_Tanh2ToF2F and final_set;
+            pixelOutFloat_F2FToOut <= to_float(pixelOut_Tanh2ToF2F, float_size);
+            pixelOutFixed_F2FToOut <= pixelOut_Tanh2ToF2F;
+            pixelValid_F2FToOut <= pixelValid_Tanh2ToF2F and final_set;
+            
 --            pixel_out <= to_float(pixel_MuxToBias, float_size);
 --            pixel_valid <= valid_MuxToBias and final_set;
         end if;
     end process;
 
+    OutputProcess : process(clk)
+    begin
+        pixel_valid <= pixelValid_F2FToOut;
+        if layer_nr = '1' then
+            pixel_out <= to_slv(pixelOutFloat_F2FToOut);
+        else
+            pixel_out <= to_slv(pixelOutFixed_F2FToOut);
+        end if;
+    end process;
+    
     bias2_register : process (clk)
     begin
         if rising_edge(clk) then

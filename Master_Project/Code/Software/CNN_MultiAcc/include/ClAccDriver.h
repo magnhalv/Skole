@@ -51,20 +51,24 @@ struct ConvLayerValues {
 };
 
 struct buffer_addr {
-	int mem_base_addr;
-	const int tx_bd_space_base = mem_base_addr;
-	const int tx_bd_space_high = mem_base_addr +0x00000FFF;
-	const int rx_bd_space_base = mem_base_addr + 0x00001000;
-	const int rx_bd_space_high = mem_base_addr + 0x00001FFF;
-	const int tx_buffer_base = mem_base_addr + 0x00100000;
-	const int rx_buffer_base = mem_base_addr + 0x00300000;
-	const int rx_buffer_high = mem_base_addr + 0x004FFFFF;
+	const int mem_base_addr;
+	const int tx_bd_space_base () { return mem_base_addr; }
+	const int tx_bd_space_high () { return mem_base_addr +0x00000FFF; }
+	const int rx_bd_space_base () { return mem_base_addr + 0x00001000; }
+	const int rx_bd_space_high () { return mem_base_addr + 0x00001FFF; }
+	const int tx_buffer_base () { return mem_base_addr + 0x00100000; }
+	const int rx_buffer_base () { return mem_base_addr + 0x00300000; }
+	const int rx_buffer_high () { return mem_base_addr + 0x004FFFFF; }
 
 };
 
 using vec_clv = std::vector<ConvLayerValues>;
 using feature_map_parameters = std::vector<vec_clv>;
 
+
+int FloatToFixed(float n);
+
+float FixedToFloat(float n);
 
 
 class ClAccDriver {
@@ -77,13 +81,13 @@ private:
 	std::vector<int> acc_addr = {XPAR_CL_ACCELERATOR_0_BASEADDR, XPAR_CL_ACCELERATOR_1_BASEADDR};
 	std::vector<buffer_addr> dma_buffer_addr;
 
-	int TransferDatatoAccAndSetupRx(const std::vector<ConvLayerValues> &clv_vec);
-	void ConfigureAndRunAccelerator(int nof_outputs, int layer, int nof_sets);
-	void WriteDataToTxBuffer(const std::vector<ConvLayerValues> &clv_vec);
-	int RxSetup(XAxiDma * AxiDmaInstPtr, const int recv_length);
-	int TxSetup(XAxiDma * AxiDmaInstPtr);
-	int SendPacket(XAxiDma * AxiDmaInstPtr, const std::vector<ConvLayerValues> &clv_vec);
-	int GetDataFromRxBuffer(vec_it iterator, int data_size);
+	XAxiDma TransferDatatoAccAndSetupRx(const std::vector<ConvLayerValues> &clv_vec, int id);
+	void ConfigureAndRunAccelerator(int nof_outputs, int layer, int nof_sets, int id);
+	void WriteDataToTxBuffer(const std::vector<ConvLayerValues> &clv_vec, int id);
+	int RxSetup(XAxiDma * AxiDmaInstPtr, const int recv_length, int id, vec_it buffer);
+	int TxSetup(XAxiDma * AxiDmaInstPtr, int id);
+	int SendPacket(XAxiDma * AxiDmaInstPtr, const std::vector<ConvLayerValues> &clv_vec, int id);
+	int GetDataFromRxBuffer(vec_it iterator, int data_size, int id);
 	int WaitForTxToFinish(XAxiDma * AxiDmaInstPtr);
 	int WaitForRxToFinish(XAxiDma * AxiDmaInstPtr);
 
