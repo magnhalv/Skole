@@ -56,10 +56,10 @@ int main() {
 }
 
 void load_weights(void) {
-    
+    ClAccDriver dma_driver;
     typedef network<mse, gradient_descent_levenberg_marquardt> CNN;
     CNN nn;
-    convolutional_layer_hw<CNN, tan_h> C1(32, 32, 5, 1, 6);
+    convolutional_layer_hw<CNN, tan_h> C1(32, 32, 5, 1, 6, dma_driver);
     //average_pooling_layer<CNN, tan_h> S2(28, 28, 6, 2);
 #define O true
 #define X false
@@ -73,7 +73,7 @@ void load_weights(void) {
     };
 #undef O
 #undef X
-    convolutional_layer2_hw<CNN, tan_h> C3(14, 14, 5, 6, 16, connection_table(connection, 6, 16));
+    convolutional_layer2_hw<CNN, tan_h> C3(14, 14, 5, 6, 16, connection_table(connection, 6, 16), dma_driver);
     //convolutional_layer<CNN, tan_h> C3(14, 14, 5, 6, 16, connection_table(connection, 6, 16));
     //average_pooling_layer<CNN, tan_h> S4(10, 10, 16, 2);
     convolutional_layer<CNN, tan_h> C5(5, 5, 5, 16, 120);

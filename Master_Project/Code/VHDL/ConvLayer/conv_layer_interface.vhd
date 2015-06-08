@@ -41,9 +41,6 @@ entity conv_layer_interface is
         m_axis_tkeep    : out std_logic_vector((C_S_AXI_DATA_WIDTH/8)-1 downto 0);
         m_axis_tlast    : out std_logic
     );
-
-
-
 end conv_layer_interface;
 
 architecture Behavioral of conv_layer_interface is

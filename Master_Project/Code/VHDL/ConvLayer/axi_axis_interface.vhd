@@ -326,33 +326,34 @@ begin
 
 	-- Add user logic here
     cnn_interface : conv_layer_interface 
-        generic map (
-            C_S_AXI_DATA_WIDTH => C_S_AXI_DATA_WIDTH,
-            IMG_DIM => 32,
-            KERNEL_DIM => 5,
-            POOL_DIM => 2,
-            INT_WIDTH => 16,
-            FRAC_WIDTH => 16
-        )
-        port map (
-            clk             => S_AXI_ACLK,
-            reset           => S_AXI_ARESETN,
-            s_axi_raddr     => axi_araddr(ADDR_LSB + OPT_MEM_ADDR_BITS downto ADDR_LSB),
-            s_axi_waddr     => axi_awaddr(ADDR_LSB + OPT_MEM_ADDR_BITS downto ADDR_LSB),
-            s_axi_wdata     => S_AXI_WDATA,
-            s_axi_we        => slv_reg_wren,
-            s_axi_rdata     => my_read_data,
-            s_axis_tvalid   => S_AXIS_TVALID,
-            s_axis_tready   => S_AXIS_TREADY,
-            s_axis_tdata    => S_AXIS_TDATA,
-            s_axis_tkeep    => S_AXIS_TKEEP,
-            s_axis_tlast    => S_AXIS_TLAST,
-            m_axis_tvalid   => m_axis_tvalid,
-            m_axis_tready   => m_axis_tready,
-            m_axis_tdata    => m_axis_tdata,
-            m_axis_tkeep    => m_axis_tkeep,
-            m_axis_tlast    => m_axis_tlast
-        );
-	-- User logic ends
+            generic map (
+                C_S_AXI_DATA_WIDTH => C_S_AXI_DATA_WIDTH,
+                IMG_DIM => 32,
+                KERNEL_DIM => 5,
+                POOL_DIM => 2,
+                INT_WIDTH => 16,
+                FRAC_WIDTH => 16
+            )
+            port map (
+                clk             => S_AXI_ACLK,
+                reset           => S_AXI_ARESETN,
+                s_axi_raddr     => axi_araddr(ADDR_LSB + OPT_MEM_ADDR_BITS downto ADDR_LSB),
+                s_axi_waddr     => axi_awaddr(ADDR_LSB + OPT_MEM_ADDR_BITS downto ADDR_LSB),
+                s_axi_wdata     => S_AXI_WDATA,
+                s_axi_we        => slv_reg_wren,
+                s_axi_rdata     => my_read_data,
+                s_axis_tvalid   => S_AXIS_TVALID,
+                s_axis_tready   => S_AXIS_TREADY,
+                s_axis_tdata    => S_AXIS_TDATA,
+                s_axis_tkeep    => S_AXIS_TKEEP,
+                s_axis_tlast    => S_AXIS_TLAST,
+                m_axis_tvalid   => m_axis_tvalid,
+                m_axis_tready   => m_axis_tready,
+                m_axis_tdata    => m_axis_tdata,
+                m_axis_tkeep    => m_axis_tkeep,
+                m_axis_tlast    => m_axis_tlast
+            );
+        -- User logic ends
+     
 
 end arch_imp;

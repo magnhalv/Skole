@@ -40,17 +40,19 @@ template<typename N, typename Activation>
 class convolutional_layer_hw : public layer<N, Activation> {
 public:
 
-    convolutional_layer_hw(int in_width, int in_height, int window_size, int in_channels, int out_channels)
+    convolutional_layer_hw(int in_width, int in_height, int window_size, int in_channels, int out_channels, ClAccDriver &acc)
     : layer<N, Activation>(in_width * in_height * in_channels, ((in_width - window_size + 1)/2) * ((in_width - window_size + 1)/2) * out_channels,
-    window_size * window_size * in_channels * out_channels, out_channels)
+    window_size * window_size * in_channels * out_channels, out_channels),
+    acc_driver(acc)
     {
     	avg_pool_coffs.resize(out_channels);
     	avg_pool_bias.resize(out_channels);
     }
 
-    convolutional_layer_hw(int in_width, int in_height, int window_size, int in_channels, int out_channels, const connection_table& connection_table)
+    convolutional_layer_hw(int in_width, int in_height, int window_size, int in_channels, int out_channels, const connection_table& connection_table, ClAccDriver &acc)
         : layer<N, Activation>(in_width * in_height * in_channels, ((in_width - window_size + 1)/2) * ((in_width - window_size + 1)/2) * out_channels,
-		window_size * window_size * in_channels * out_channels, out_channels)
+		window_size * window_size * in_channels * out_channels, out_channels),
+		acc_driver(acc)
 
     {
         this->remap();
@@ -61,18 +63,14 @@ public:
     	int n = FloatToFixed(scale);
     	float scale_factor;
 		memcpy((void*)&scale_factor, (void*)&n, sizeof(float));
-    	ClAccDriver acc_driver;
     	feature_map_parameters fmp;
     	for (int i = 0; i < 6; i++) {
 			ConvLayerValues clv = {
 					in.begin(),
 					this->W_.begin()+i*25,
+					{scale_factor, avg_pool_bias[i], avg_pool_coffs[i], this->b_[i]},
 					32,
 					5,
-					this->b_[i],
-					avg_pool_coffs[i],
-					avg_pool_bias[i],
-					scale_factor,
 					this->output_[index].begin()+i*14*14
 			};
 			std::vector<ConvLayerValues> clv_vec = {clv};
@@ -157,6 +155,7 @@ public:
 private:
 	vec_t avg_pool_coffs;
 	vec_t avg_pool_bias;
+	ClAccDriver &acc_driver;
 };
 
 

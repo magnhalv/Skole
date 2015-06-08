@@ -31,6 +31,7 @@
 #include "network.h"
 #include "average_pooling_layer.h"
 #include "convolutional_layer.h"
+#include "convolution_Layer_no_process.h"
 #include "fully_connected_layer.h"
 #include "fully_connected_dropout_layer.h"
 

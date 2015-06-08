@@ -77,7 +77,7 @@ void load_weights(void) {
 #undef X
     convolutional_layer<CNN, tan_h> C3(14, 14, 5, 6, 16, connection_table(connection, 6, 16));
     average_pooling_layer<CNN, tan_h> S4(10, 10, 16, 2);
-    convolutional_layer<CNN, tan_h> C5(5, 5, 5, 16, 120);
+    convolutional_layer_no_process<CNN, tan_h> C5(5, 5, 5, 16, 120);
     fully_connected_layer<CNN, tan_h> F6(120, 10);
 
     assert(C1.param_size() == 156 && C1.connection_size() == 122304);

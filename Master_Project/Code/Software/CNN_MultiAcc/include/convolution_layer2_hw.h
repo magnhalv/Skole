@@ -40,17 +40,19 @@ template<typename N, typename Activation>
 class convolutional_layer2_hw : public partial_connected_layer<N, Activation> {
 public:
 
-    convolutional_layer2_hw(int in_width, int in_height, int window_size, int in_channels, int out_channels)
+    convolutional_layer2_hw(int in_width, int in_height, int window_size, int in_channels, int out_channels, ClAccDriver &acc)
     : partial_connected_layer<N, Activation>(in_width * in_height * in_channels, ((in_width - window_size + 1)/2) * ((in_width - window_size + 1)/2) * out_channels,
-    window_size * window_size * in_channels * out_channels, out_channels)
+    window_size * window_size * in_channels * out_channels, out_channels),
+    acc_driver(acc)
     {
     	avg_pool_coffs.resize(out_channels);
     	avg_pool_bias.resize(out_channels);
     }
 
-    convolutional_layer2_hw(int in_width, int in_height, int window_size, int in_channels, int out_channels, const connection_table& connection_table)
+    convolutional_layer2_hw(int in_width, int in_height, int window_size, int in_channels, int out_channels, const connection_table& connection_table, ClAccDriver &acc)
     : partial_connected_layer<N, Activation>(in_width * in_height * in_channels, ((in_width - window_size + 1)/2) * ((in_width - window_size + 1)/2) * out_channels,
-        window_size * window_size * in_channels * out_channels, out_channels)
+        window_size * window_size * in_channels * out_channels, out_channels),
+        acc_driver(acc)
 
     {
     	avg_pool_coffs.resize(out_channels);
@@ -90,7 +92,6 @@ public:
     		{0,  0,   200, 250, 325,  0,   0,   625, 700, 800, 900, 0,    1125, 1200, 0,    1450},
     		{0,  0,   0,   275, 350,  425, 0,   0,   725, 825, 925, 1025, 0,    1225, 1325, 1475}
     	};
-    	ClAccDriver acc_driver;
     	const int nof_output_maps = 16;
     	const int nof_input_maps = 6;
     	const int img_dim = 14*14;
@@ -104,12 +105,9 @@ public:
 					ConvLayerValues clv = {
 							in.begin()+img_dim*j,
 							this->W_.begin()+w_index[j][i],
+							{scale_factor, avg_pool_bias[i], avg_pool_coffs[i], this->b_[i]},
 							14,
 							5,
-							this->b_[i],
-							avg_pool_coffs[i],
-							avg_pool_bias[i],
-							scale_factor,
 							this->output_[index].begin()+i*5*5
 					};
 					clv_vec.push_back(clv);
@@ -165,6 +163,7 @@ private:
 	vec_t avg_pool_coffs;
 	vec_t avg_pool_bias;
 	connection_table conn_table;
+	ClAccDriver &acc_driver;
 };
 
 

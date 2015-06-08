@@ -32,13 +32,12 @@ ClAccDriver::ClAccDriver() {
 	buffer_addr dma1_addr{MEM_BASE_1_ADDR};
 	dma_buffer_addr.push_back(dma0_addr);
 	dma_buffer_addr.push_back(dma1_addr);
-	InitializeDMA();
+	//InitializeDMA();
 
 
 }
 
 void ClAccDriver::InitializeDMA() {
-	dmas.resize(2);
 	for (unsigned int id = 0; id < dma_ids.size(); id++) {
 		int Status;
 		XAxiDma_Config *Config;
@@ -49,6 +48,7 @@ void ClAccDriver::InitializeDMA() {
 
 
 		}
+
 		/* Initialize DMA engine */
 		Status = XAxiDma_CfgInitialize(&AxiDma, Config);
 		if (Status != XST_SUCCESS) {
@@ -60,13 +60,7 @@ void ClAccDriver::InitializeDMA() {
 		if (Status != XST_SUCCESS) {
 
 		}
-
-		Status = RxSetup(&AxiDma, id);
-		if (Status != XST_SUCCESS) {
-
-		}
-
-		dmas[id] = (AxiDma);
+		dmas.push_back(AxiDma);
 	}
 
 }
@@ -76,7 +70,6 @@ void ClAccDriver::CalculateLayer(feature_map_parameters &fmp) {
 		int id1 = 0;
 		int id2 = 1;
 
-		//InitializeDMA();
 		const int img_dim = fmp[i][0].img_dim;
 		const int kernel_dim = fmp[i][0].kernel_dim;
 		u32 nof_outputs = ((img_dim-kernel_dim+1)/2)*((img_dim-kernel_dim+1)/2);
@@ -106,18 +99,37 @@ void ClAccDriver::CalculateLayer(feature_map_parameters &fmp) {
 
 XAxiDma ClAccDriver::TransferDatatoAccAndSetupRx(const std::vector<ConvLayerValues> &clv_vec, int id)
 {
-	int Status = 0;
+	int Status;
 	const int img_dim = clv_vec[0].img_dim;
 	const int kernel_dim = clv_vec[0].kernel_dim;
 	u32 nof_outputs = ((img_dim-kernel_dim+1)/2)*((img_dim-kernel_dim+1)/2);
 
 
-
+	XAxiDma_Config *Config;
 	XAxiDma AxiDma;
-	AxiDma = dmas[id];
+	Config = XAxiDma_LookupConfig(dma_ids[id]);
+	if (!Config) {
+		xil_printf("No config found for %d\r\n", DMA_DEV_ID);
 
 
-	Status = SetupRxTransfer(&AxiDma, nof_outputs, id, clv_vec[0].feature_map);
+	}
+
+	/* Initialize DMA engine */
+	Status = XAxiDma_CfgInitialize(&AxiDma, Config);
+	if (Status != XST_SUCCESS) {
+		xil_printf("Initialization failed %d\r\n", Status);
+
+	}
+
+	Status = TxSetup(&AxiDma, id);
+	if (Status != XST_SUCCESS) {
+
+	}
+
+	Status = RxSetup(&AxiDma, nof_outputs, id, clv_vec[0].feature_map);
+	if (Status != XST_SUCCESS) {
+
+	}
 
 	/* Send a packet */
 	Status = SendPacket(&AxiDma, clv_vec, id);
@@ -127,16 +139,72 @@ XAxiDma ClAccDriver::TransferDatatoAccAndSetupRx(const std::vector<ConvLayerValu
 	return AxiDma;
 }
 
-int ClAccDriver::SetupRxTransfer (XAxiDma * AxiDmaInstPtr, const int recv_length, int id, vec_it buffer) {
+/*****************************************************************************/
+/**
+*
+* This function sets up RX channel of the DMA engine to be ready for packet
+* reception
+*
+* @param	AxiDmaInstPtr is the pointer to the instance of the DMA engine.
+*
+* @return	XST_SUCCESS if the setup is successful, XST_FAILURE otherwise.
+*
+* @note		None.
+*
+******************************************************************************/
+int ClAccDriver::RxSetup(XAxiDma * AxiDmaInstPtr, const int recv_length, int id, vec_it buffer)
+{
+	XAxiDma_BdRing *RxRingPtr;
+	int Delay = 0;
+	int Coalesce = 1;
+	int Status;
+	XAxiDma_Bd BdTemplate;
 	XAxiDma_Bd *BdPtr;
 	XAxiDma_Bd *BdCurPtr;
+	u32 BdCount;
+	u32 FreeBdCount;
 	u32 RxBufferPtr;
+	int Index;
 	const int MAX_RECV_LEN = recv_length*4;
-	XAxiDma_BdRing *RxRingPtr;
-	int Status;
 
 	RxRingPtr = XAxiDma_GetRxRing(AxiDmaInstPtr);
 
+	/* Disable all RX interrupts before RxBD space setup */
+
+	XAxiDma_BdRingIntDisable(RxRingPtr, XAXIDMA_IRQ_ALL_MASK);
+
+	/* Set delay and coalescing */
+	XAxiDma_BdRingSetCoalesce(RxRingPtr, Coalesce, Delay);
+
+	/* Setup Rx BD space */
+	BdCount = XAxiDma_BdRingCntCalc(XAXIDMA_BD_MINIMUM_ALIGNMENT,
+				dma_buffer_addr[id].rx_bd_space_high()- dma_buffer_addr[id].rx_bd_space_base() + 1);
+
+	Status = XAxiDma_BdRingCreate(RxRingPtr, dma_buffer_addr[id].rx_bd_space_base(),
+			dma_buffer_addr[id].rx_bd_space_base(),
+				XAXIDMA_BD_MINIMUM_ALIGNMENT, BdCount);
+
+	if (Status != XST_SUCCESS) {
+		xil_printf("RX create BD ring failed %d\r\n", Status);
+
+		return XST_FAILURE;
+	}
+
+	/*
+	 * Setup an all-zero BD as the template for the Rx channel.
+	 */
+	XAxiDma_BdClear(&BdTemplate);
+
+	Status = XAxiDma_BdRingClone(RxRingPtr, &BdTemplate);
+	if (Status != XST_SUCCESS) {
+		xil_printf("RX clone BD failed %d\r\n", Status);
+
+		return XST_FAILURE;
+	}
+
+	/* Attach buffers to RxBD ring so we are ready to receive packets */
+
+//	XAxiDma_BdRing RxRingPtr = XAxiDma_GetRxRing(AxiDmaInstPtr);
 	Status = XAxiDma_BdRingAlloc(RxRingPtr, 1, &BdPtr);
 	if (Status != XST_SUCCESS) {
 		xil_printf("RX alloc BD failed %d\r\n", Status);
@@ -177,67 +245,6 @@ int ClAccDriver::SetupRxTransfer (XAxiDma * AxiDmaInstPtr, const int recv_length
 						BdPtr);
 	if (Status != XST_SUCCESS) {
 		xil_printf("RX submit hw failed %d\r\n", Status);
-
-		return XST_FAILURE;
-	}
-}
-
-/*****************************************************************************/
-/**
-*
-* This function sets up RX channel of the DMA engine to be ready for packet
-* reception
-*
-* @param	AxiDmaInstPtr is the pointer to the instance of the DMA engine.
-*
-* @return	XST_SUCCESS if the setup is successful, XST_FAILURE otherwise.
-*
-* @note		None.
-*
-******************************************************************************/
-int ClAccDriver::RxSetup(XAxiDma * AxiDmaInstPtr, int id)
-{
-	XAxiDma_BdRing *RxRingPtr;
-	int Delay = 0;
-	int Coalesce = 1;
-	int Status;
-	XAxiDma_Bd *BdPtr;
-	XAxiDma_Bd *BdCurPtr;
-	u32 BdCount;
-	u32 FreeBdCount;
-	u32 RxBufferPtr;
-	int Index;
-	XAxiDma_Bd BdTemplate;
-
-	RxRingPtr = XAxiDma_GetRxRing(AxiDmaInstPtr);
-
-	/* Disable all RX interrupts before RxBD space setup */
-
-	XAxiDma_BdRingIntDisable(RxRingPtr, XAXIDMA_IRQ_ALL_MASK);
-
-	/* Set delay and coalescing */
-	XAxiDma_BdRingSetCoalesce(RxRingPtr, Coalesce, Delay);
-
-	/* Setup Rx BD space */
-	BdCount = XAxiDma_BdRingCntCalc(XAXIDMA_BD_MINIMUM_ALIGNMENT,
-				dma_buffer_addr[id].rx_bd_space_high()- dma_buffer_addr[id].rx_bd_space_base() + 1);
-
-	Status = XAxiDma_BdRingCreate(RxRingPtr, dma_buffer_addr[id].rx_bd_space_base(),
-			dma_buffer_addr[id].rx_bd_space_base(),
-				XAXIDMA_BD_MINIMUM_ALIGNMENT, BdCount);
-
-	if (Status != XST_SUCCESS) {
-		xil_printf("RX create BD ring failed %d\r\n", Status);
-
-		return XST_FAILURE;
-	}
-
-
-	XAxiDma_BdClear(&BdTemplate);
-
-	Status = XAxiDma_BdRingClone(RxRingPtr, &BdTemplate);
-	if (Status != XST_SUCCESS) {
-		xil_printf("RX clone BD failed %d\r\n", Status);
 
 		return XST_FAILURE;
 	}
@@ -381,7 +388,6 @@ int ClAccDriver::SendPacket(XAxiDma * AxiDmaInstPtr, const std::vector<ConvLayer
 		xil_printf("to hw failed %d\r\n", Status);
 		return XST_FAILURE;
 	}
-
 	return XST_SUCCESS;
 }
 
@@ -429,33 +435,22 @@ int ClAccDriver::WaitForTxToFinish(XAxiDma * AxiDmaInstPtr, int tota_nof_bds) {
 
 	TxRingPtr = XAxiDma_GetTxRing(AxiDmaInstPtr);
 
-
-	/* Wait until the one BD TX transaction is done */
-//	while ((ProcessedBdCount = XAxiDma_BdRingFromHw(TxRingPtr,
-//							   XAXIDMA_ALL_BDS,
-//							   &BdPtr)) == 0) {
-//	}
-//	Status = XAxiDma_BdRingFree(TxRingPtr, ProcessedBdCount, BdPtr);
-//	if (Status != XST_SUCCESS) {
-//		xil_printf("Failed to free %d tx BDs %d\r\n",
-//			ProcessedBdCount, Status);
-//		return XST_FAILURE;
-//	}
 	int nof_bds = 0;
 	/* Wait until the one BD TX transaction is done */
-	while (nof_bds < tota_nof_bds) {
-		ProcessedBdCount = XAxiDma_BdRingFromHw(TxRingPtr, XAXIDMA_ALL_BDS, &BdPtr);
-		nof_bds += ProcessedBdCount;
-
-		Status = XAxiDma_BdRingFree(TxRingPtr, ProcessedBdCount, BdPtr);
-		if (Status != XST_SUCCESS) {
-			xil_printf("Failed to free %d tx BDs %d\r\n",
-				ProcessedBdCount, Status);
-			return XST_FAILURE;
-		}
+	while ((ProcessedBdCount = XAxiDma_BdRingFromHw(TxRingPtr,
+							   XAXIDMA_ALL_BDS,
+							   &BdPtr)) == 0) {
 	}
 
 	/* Free all processed TX BDs for future transmission */
+	Status = XAxiDma_BdRingFree(TxRingPtr, ProcessedBdCount, BdPtr);
+	if (Status != XST_SUCCESS) {
+		xil_printf("Failed to free %d tx BDs %d\r\n",
+			ProcessedBdCount, Status);
+		return XST_FAILURE;
+	}
+
+
 
 }
 
@@ -485,7 +480,7 @@ int ClAccDriver::WaitForRxToFinish(XAxiDma * AxiDmaInstPtr)
 		    ProcessedBdCount, Status);
 		return XST_FAILURE;
 	}
-	//XAxiDma_Reset(AxiDmaInstPtr);
+
 
 
 	return XST_SUCCESS;

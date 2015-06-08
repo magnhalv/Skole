@@ -41,17 +41,19 @@ using vec_c_it = std::vector<float>::const_iterator;
 struct ConvLayerValues {
 	vec_c_it image;
 	vec_c_it weights;
+	vec_t biases;
 	const int img_dim;
 	const int kernel_dim;
-	const float bias;
-	const float avg_pool_coefficient;
-	const float avg_pool_bias;
-	const float scale_factor;
 	vec_it feature_map;
 };
 
+
+
+using vec_clv = std::vector<ConvLayerValues>;
+using feature_map_parameters = std::vector<vec_clv>;
+
 struct buffer_addr {
-	const int mem_base_addr;
+	int mem_base_addr;
 	const int tx_bd_space_base () { return mem_base_addr; }
 	const int tx_bd_space_high () { return mem_base_addr +0x00000FFF; }
 	const int rx_bd_space_base () { return mem_base_addr + 0x00001000; }
@@ -61,9 +63,6 @@ struct buffer_addr {
 	const int rx_buffer_high () { return mem_base_addr + 0x004FFFFF; }
 
 };
-
-using vec_clv = std::vector<ConvLayerValues>;
-using feature_map_parameters = std::vector<vec_clv>;
 
 
 int FloatToFixed(float n);
@@ -76,20 +75,26 @@ public:
 	ClAccDriver();
 	void CalculateLayer(feature_map_parameters &fmp);
 
+
 private:
+
+	std::vector<XAxiDma> dmas;
 	std::vector<int> dma_ids = {XPAR_AXIDMA_0_DEVICE_ID, XPAR_AXIDMA_1_DEVICE_ID};
 	std::vector<int> acc_addr = {XPAR_CL_ACCELERATOR_0_BASEADDR, XPAR_CL_ACCELERATOR_1_BASEADDR};
 	std::vector<buffer_addr> dma_buffer_addr;
 
+	void InitializeDMA();
 	XAxiDma TransferDatatoAccAndSetupRx(const std::vector<ConvLayerValues> &clv_vec, int id);
 	void ConfigureAndRunAccelerator(int nof_outputs, int layer, int nof_sets, int id);
-	void WriteDataToTxBuffer(const std::vector<ConvLayerValues> &clv_vec, int id);
-	int RxSetup(XAxiDma * AxiDmaInstPtr, const int recv_length, int id, vec_it buffer);
+	int RxSetup(XAxiDma * AxiDmaInstPtr, int id);
 	int TxSetup(XAxiDma * AxiDmaInstPtr, int id);
 	int SendPacket(XAxiDma * AxiDmaInstPtr, const std::vector<ConvLayerValues> &clv_vec, int id);
 	int GetDataFromRxBuffer(vec_it iterator, int data_size, int id);
-	int WaitForTxToFinish(XAxiDma * AxiDmaInstPtr);
+	int WaitForTxToFinish(XAxiDma * AxiDmaInstPtr, int nof_bds);
 	int WaitForRxToFinish(XAxiDma * AxiDmaInstPtr);
+	int SetupRxTransfer(XAxiDma * AxiDmaInstPtr, const int recv_length, int id, vec_it buffer);
+
+
 
 };
 
