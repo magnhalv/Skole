@@ -297,13 +297,23 @@ A vast amount of the computation required by a CNN can be parallelized. Thus, in
 
 \section{Why Hardware Accelerate?}
 
-TODO
-
-\begin{itemize}
-    \item CPUs are bad at exploiting parallelism.
-    \item FPGA/ASIC can be faster, and generally uses less power. 
-    \item Low power usage have become increasingly important, due to data centers and mobile computers. 
-    \item FPGA/ASIC vs GPU. Generally, slower but more power efficient (application specific though). 
+Exploring hardware accleration for neural networks can justified by the three following reasons:
+ 
+\begin{enumerate}
+    \item \textbf{CPUs are ill-equipped to exploit parallelism}.
+    As mentioned in Section \ref{sec_pot_parallelism} 
+    \item \textbf{]Power efficiency have become increasingly important, due to data centers and mobile computers.}
+    
     \item Dark Silicon effect motivates heterogenious cores, i.e. hardware accelerators.
-\end{itemize}
+\end{enumerate}
+
+
+CNNs and ANNs are vastly parallel system, where each layer can be considered an \textit{embarrassingly parallel} workload \cite{PARALLEL_STUFF}. That is, the workload is easy to parallelize since there are no data dependencies between the layers internal feature map and the neurons within the feature maps. Unfortunately CPUs are primarily designed to effectively handle serial programs, and do not have the hardware capabilities to exploit the vast parallelism in neural networks. The main reason for this is that CPUs have to handle a varierty of applications, which have motivated a design towards effective serial performance. 
+
+\textit{Graphics Processing Units} (GPUs) are highly parallel processors which can be used for workloads with extensive parallelism, and have proven to vastly outperform CPUs when processing neural networks (see Chapter \ref{chap_related_work}). 
+
+
+
+
+FPGA/ASIC vs GPU. Generally, slower but more power efficient (application specific though).
 
