@@ -23,11 +23,13 @@ In order to determine the execution speed and power efficiency of our system we 
 	\item Accelerating layer C1, S2, C3 and S4. In addition, the input images was preprocessed from 32-bit floating point to Q16:16 fixed point. 
 \end{itemize}
 
-In order to determine the energy efficiency of the different systems we used the metric \textit{images/Watt}, i.e. number of images processed per Watt. 
+In order to determine the energy efficiency of the different systems we used the metric \textit{images/Watt}, i.e. number of images processed per Watt. Note that these images are $ 32 \times 32 $, and thus processing one image corresponds to 331104 multiply-and-accumulate operations. We also included a metric for measuring execution speed, using images/second. Despite power efficiency being the main focus of this assignment, execution speed can be interesting for several applications and is closely related to power usage. 
 
-In order to compare the different implementations we used two metrics: images/second and images/Watt. While the primary task of this thesis is to explore power efficiency, we deem execution speed to be such a core metric within computation and 
+The measurements were done by timing the processing of 10 000 images from the MNIST dataset, while measuring the power consumation. 
 
-Total board power was determined by measuring over pin 1 and 2 on J21 on the Zedboard during execution. With the FPGA programmed and the accelerator activated the board measured to 4.68 W, while only using the ARM processor measured to 4.32 W. We were unable to measure the power consumption of the laptop directly, and therefore used the power estimation provided by ASUS, being 120 W.  
+Total board power was determined by measuring over pin 1 and 2 on J21 on the Zedboard during execution. With the FPGA programmed and the accelerator activated the board measured to 4.68 W, while the ARM processor alone measured to 4.32 W. We were unable to measure the power consumption of the laptop directly, and therefore used the power estimation provided by ASUS, being 120 W \cite{ASUS}.  
+
+The results can be seen in Figure \ref{fig_results_all_layers}.
 
 \begin{figure}[h!]
 	\centering
@@ -35,4 +37,6 @@ Total board power was determined by measuring over pin 1 and 2 on J21 on the Zed
 	\caption{The execution speed and power efficiency measured in number of images processed.}
 	\label{fig_results_all_layers}
 \end{figure}
+
+We also decided to perform the same measurements when processing only the layers we have hardware accelerated, i.e. C1, S2, C3 and S4. This allowed us to compare the accelerator more directly against the pure software implementations, since layer C5 and F6 shows to be the major bottleneck when processed on the ARM processor. 
 
