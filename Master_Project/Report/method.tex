@@ -35,7 +35,7 @@ There are three primary reasons for choosing this network. First, it is a relati
  As mentioned, we used the \textit{the MNIST dataset}, available at \cite{MNIST}. It consists of 50 000 samples of handwritten digits ranging from 0-9, where 40 000 of the samples are used for
 training and 10 000 samples are used to determine the accuracy of the network. 
 
-\section{What to accelerate}
+\section{What to accelerate} \label{sec_what_to_accelerate}
 
 In order to decide which part of the network that should be accelerated one has to determine the most computational expensive part of the network. In the literature (see Chapter \ref{chap_related_work} there is a common consensus that the convolution layer is the most demanding layer, and \cite{Lechun latest} and \cite{chinese_paper} states explicity that it amounts to about 90\% of the total processing. We have confirmed this number in our own experiments, through a simple mathematical analysis of the network and by profiling a software implementation of the network. 
 
