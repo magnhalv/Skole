@@ -59,13 +59,16 @@ public:
     }
 
     virtual const vec_t& forward_propagation(const vec_t& in, int index) {
-    	float scale = 0.25;
-    	int n = FloatToFixed(scale);
-    	float scale_factor;
+
+		float scale = 0.25;
+		int n = FloatToFixed(scale);
+		float scale_factor;
 		memcpy((void*)&scale_factor, (void*)&n, sizeof(float));
+
+
     	feature_map_parameters fmp;
     	for (int i = 0; i < 6; i++) {
-			ConvLayerValues clv = {
+    		ConvLayerValues clv = {
 					in.begin(),
 					this->W_.begin()+i*25,
 					{scale_factor, avg_pool_bias[i], avg_pool_coffs[i], this->b_[i]},

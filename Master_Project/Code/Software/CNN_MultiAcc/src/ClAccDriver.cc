@@ -1,6 +1,7 @@
 #include "../include/ClAccDriver.h"
 #include <c++/4.8.3/bitset>
 #include <c++/4.8.3/iostream>
+#include <stdio.h>
 
 
 
@@ -72,46 +73,37 @@ void ClAccDriver::InitializeDMA() {
 }
 
 void ClAccDriver::CalculateLayer(feature_map_parameters &fmp) {
-	for (unsigned int i = 0; i < fmp.size(); i=i+2) {
 
-		int id1 = 0;
-		//int id2 = 1;
 
-		InitializeDMA();
-		const int img_dim = fmp[i][0].img_dim;
-		const int kernel_dim = fmp[i][0].kernel_dim;
-		u32 nof_outputs = ((img_dim-kernel_dim+1)/2)*((img_dim-kernel_dim+1)/2);
-		int layer = fmp[i].size() > 1 ? 2 : 1;
+	const int img_dim = fmp[0][0].img_dim;
+	const int kernel_dim = fmp[0][0].kernel_dim;
+	u32 nof_outputs = ((img_dim-kernel_dim+1)/2)*((img_dim-kernel_dim+1)/2);
+	int layer = fmp[0].size() > 1 ? 2 : 1;
 
-		XAxiDma AxiDma0 = TransferDatatoAccAndSetupRx(fmp[i], fmp[i+1], id1);
-		//XAxiDma AxiDma1 = TransferDatatoAccAndSetupRx(fmp[i+1], id2);
+	int id1 = 0;
 
-		WaitForTxToFinish(&AxiDma0, fmp[i].size()*3+fmp[i+1].size()*3+2);
-		//WaitForTxToFinish(&AxiDma1, fmp[i].size()*3);
+	InitializeDMA();
+	int nof_tx_bds;
 
+	XAxiDma AxiDma0 = TransferDatatoAccAndSetupRx(fmp, id1, &nof_tx_bds);
+	WaitForTxToFinish(&AxiDma0, 4);
+
+	for (unsigned int i = 0; i < fmp.size(); i++) {
+//		int data_in = Xil_In32(acc_addr[id1]);
+//		xil_printf("Data in: %d\n\r", data_in);
 		ConfigureAndRunAccelerator(nof_outputs, layer, fmp[i].size(), id1);
 		while(Xil_In32(acc_addr[id1]+16) == 1);
 
-		ConfigureAndRunAccelerator(nof_outputs, layer, fmp[i+1].size(), id1);
-		while(Xil_In32(acc_addr[id1]+16) == 1);
-
-		//ConfigureAndRunAccelerator(nof_outputs, layer, fmp[i+1].size(), id2);
-		//while(Xil_In32(acc_addr[id2]+16) == 1);
-
-		WaitForRxToFinish(&AxiDma0);
-		//WaitForRxToFinish(&AxiDma1);
-
-
-		GetDataFromRxBuffer(fmp[i][0].feature_map, nof_outputs, id1);
-		GetDataFromRxBuffer(fmp[i+1][0].feature_map, nof_outputs, id1);
-
 	}
+	WaitForRxToFinish(&AxiDma0, fmp.size());
+	GetDataFromRxBuffer(fmp[0][0].feature_map, nof_outputs*fmp.size(), id1);
+
 }
 
-XAxiDma ClAccDriver::TransferDatatoAccAndSetupRx(const std::vector<ConvLayerValues> &clv_vec0,
-		const std::vector<ConvLayerValues> &clv_vec1, int id)
+XAxiDma ClAccDriver::TransferDatatoAccAndSetupRx(feature_map_parameters &fmp, int id, int *nof_tx_bds)
 {
 	int Status = 0;
+	const vec_clv clv_vec0 = fmp[0];
 	const int img_dim = clv_vec0[0].img_dim;
 	const int kernel_dim = clv_vec0[0].kernel_dim;
 	u32 nof_outputs = ((img_dim-kernel_dim+1)/2)*((img_dim-kernel_dim+1)/2);
@@ -122,17 +114,17 @@ XAxiDma ClAccDriver::TransferDatatoAccAndSetupRx(const std::vector<ConvLayerValu
 	AxiDma = dmas[id];
 
 
-	Status = SetupRxTransfer(&AxiDma, nof_outputs, id, clv_vec0[0].feature_map);
+	Status = SetupRxTransfer(&AxiDma, nof_outputs, id, clv_vec0[0].feature_map, fmp.size());
 
 	/* Send a packet */
-	Status = SendPacket(&AxiDma, clv_vec0, clv_vec1, id);
+	Status = SendPacket(&AxiDma, fmp, id, nof_tx_bds);
 	if (Status != XST_SUCCESS) {
 
 	}
 	return AxiDma;
 }
 
-int ClAccDriver::SetupRxTransfer (XAxiDma * AxiDmaInstPtr, const int recv_length, int id, vec_it buffer) {
+int ClAccDriver::SetupRxTransfer (XAxiDma * AxiDmaInstPtr, const int recv_length, int id, vec_it buffer, int nof_transfers) {
 	XAxiDma_Bd *BdPtr;
 	XAxiDma_Bd *BdCurPtr;
 	u32 RxBufferPtr;
@@ -142,7 +134,7 @@ int ClAccDriver::SetupRxTransfer (XAxiDma * AxiDmaInstPtr, const int recv_length
 
 	RxRingPtr = XAxiDma_GetRxRing(AxiDmaInstPtr);
 
-	int nof_bds = 2;
+	int nof_bds = nof_transfers;
 	Status = XAxiDma_BdRingAlloc(RxRingPtr, nof_bds, &BdPtr);
 	if (Status != XST_SUCCESS) {
 		xil_printf("RX alloc BD failed %d\r\n", Status);
@@ -176,12 +168,12 @@ int ClAccDriver::SetupRxTransfer (XAxiDma * AxiDmaInstPtr, const int recv_length
 		/* Receive BDs do not need to set anything for the control
 		 * The hardware will set the SOF/EOF bits per stream status
 		 */
-
+		XAxiDma_BdSetId(&BdCurPtr[0], RxBufferPtr+MAX_RECV_LEN*i);
 	}
 	XAxiDma_BdSetCtrl(&BdCurPtr[0], XAXIDMA_BD_CTRL_TXSOF_MASK);
-	XAxiDma_BdSetCtrl(&BdCurPtr[1], XAXIDMA_BD_CTRL_TXEOF_MASK);
-	XAxiDma_BdSetId(&BdCurPtr[0], RxBufferPtr);
-	XAxiDma_BdSetId(&BdCurPtr[1], RxBufferPtr);
+	XAxiDma_BdSetCtrl(&BdCurPtr[nof_transfers-1], XAXIDMA_BD_CTRL_TXEOF_MASK);
+
+
 
 
 
@@ -345,114 +337,73 @@ int ClAccDriver::TxSetup(XAxiDma * AxiDmaInstPtr, int id)
 * @note     None.
 *
 ******************************************************************************/
-int ClAccDriver::SendPacket(XAxiDma * AxiDmaInstPtr, const std::vector<ConvLayerValues> &clv_vec0,
-		const std::vector<ConvLayerValues> &clv_vec1 , int id)
+int ClAccDriver::SendPacket(XAxiDma * AxiDmaInstPtr, feature_map_parameters &fmp, int id, int *nof_tx_bds)
 {
 	XAxiDma_BdRing *TxRingPtr;
 	XAxiDma_Bd *BdPtr;
 	int Status;
+	const std::vector<float> padding(16, 0);
 
 	TxRingPtr = XAxiDma_GetTxRing(AxiDmaInstPtr);
 
-	const std::vector<ConvLayerValues> &clv_vec = clv_vec0;
-	const std::vector<ConvLayerValues> &clv_vec2 = clv_vec1;
-
-	const std::vector<float> padding(16, 0);
-
-	int nof_bds1 = (clv_vec.size())*3+1;
-	int nof_bds2 = (clv_vec2.size())*3+1;
-	int tot_nof_bds = nof_bds1+nof_bds2;
-
-
-
+	int tot_nof_bds = 0;
+	for (auto &input_maps : fmp) {
+		tot_nof_bds += (input_maps.size()*3+1);
+	}
+	if (XAxiDma_BdRingGetFreeCnt(TxRingPtr) < tot_nof_bds) xil_printf("Not enough bds");
 	Status = XAxiDma_BdRingAlloc(TxRingPtr, tot_nof_bds, &BdPtr);
 	if (Status != XST_SUCCESS) xil_printf("Could not allocate Bds\n\r");
-	for (unsigned int clv_nr = 0; clv_nr < clv_vec.size(); clv_nr++) {
+	int bd_offset = 0;
+	for (auto &clv_vec : fmp) {
+		for (auto &clv : clv_vec) {
+			Xil_DCacheFlushRange((u32)&(*clv.biases.begin()), 4*4+4);
+			Xil_DCacheFlushRange((u32)&(*clv.image), clv.img_dim*clv.img_dim+4);
+			Xil_DCacheFlushRange((u32)&(*clv.weights), clv.kernel_dim*clv.kernel_dim+4);
 
-		const ConvLayerValues &clv = clv_vec[clv_nr];
+			/* Set up the BD using the information of the packet to transmit */
+
+			Status = XAxiDma_BdSetBufAddr(&BdPtr[bd_offset], (u32)&(*clv.biases.begin()));
+			if (Status != XST_SUCCESS) xil_printf("Fail set addr");
+			Status = XAxiDma_BdSetBufAddr(&BdPtr[bd_offset+1], (u32) &(*clv.weights));
+			if (Status != XST_SUCCESS) xil_printf("Fail set addr");
+			Status = XAxiDma_BdSetBufAddr(&BdPtr[bd_offset+2], (u32) &(*clv.image));
+			if (Status != XST_SUCCESS) xil_printf("Fail set addr");
 
 
-		Xil_DCacheFlushRange((u32)&clv.biases[0], 4*4+32);
-		Xil_DCacheFlushRange((u32)&(*clv.image), clv.img_dim*clv.img_dim+32);
-		Xil_DCacheFlushRange((u32)&(*clv.weights), clv.kernel_dim*clv.kernel_dim+32);
+			Status = XAxiDma_BdSetLength(&BdPtr[bd_offset], sizeof(float)*4, TxRingPtr->MaxTransferLen);
+			if (Status != XST_SUCCESS) xil_printf("Fail set length");
+			Status = XAxiDma_BdSetLength(&BdPtr[bd_offset+1], sizeof(float)*clv.kernel_dim*clv.kernel_dim, TxRingPtr->MaxTransferLen);
+			if (Status != XST_SUCCESS) xil_printf("Fail set length");
+			Status = XAxiDma_BdSetLength(&BdPtr[bd_offset+2], sizeof(float)*clv.img_dim*clv.img_dim, TxRingPtr->MaxTransferLen);
+			if (Status != XST_SUCCESS) xil_printf("Fail set length");
 
-		/* Set up the BD using the information of the packet to transmit */
 
-		Status = XAxiDma_BdSetBufAddr(&BdPtr[clv_nr*3], (u32)&clv.biases[0]);
+
+			XAxiDma_BdSetId(&BdPtr[bd_offset+0], (u32) &clv.biases[0]);
+			XAxiDma_BdSetId(&BdPtr[bd_offset+1], (u32) &(*clv.weights));
+			XAxiDma_BdSetId(&BdPtr[bd_offset+2], (u32) &(*clv.image));
+
+			bd_offset = bd_offset + 3;
+		}
+		Status = XAxiDma_BdSetBufAddr(&BdPtr[bd_offset], (u32) &(*padding.begin()));
 		if (Status != XST_SUCCESS) xil_printf("Fail set addr");
-		Status = XAxiDma_BdSetBufAddr(&BdPtr[clv_nr*3+1], (u32) &(*clv.weights));
-		if (Status != XST_SUCCESS) xil_printf("Fail set addr");
-		Status = XAxiDma_BdSetBufAddr(&BdPtr[clv_nr*3+2], (u32) &(*clv.image));
-		if (Status != XST_SUCCESS) xil_printf("Fail set addr");
-
-
-		Status = XAxiDma_BdSetLength(&BdPtr[clv_nr*3], sizeof(float)*4, TxRingPtr->MaxTransferLen);
+		Status = XAxiDma_BdSetLength(&BdPtr[bd_offset], sizeof(float)*padding.size(), TxRingPtr->MaxTransferLen);
 		if (Status != XST_SUCCESS) xil_printf("Fail set length");
-		Status = XAxiDma_BdSetLength(&BdPtr[clv_nr*3+1], sizeof(float)*clv.kernel_dim*clv.kernel_dim, TxRingPtr->MaxTransferLen);
-		if (Status != XST_SUCCESS) xil_printf("Fail set length");
-		Status = XAxiDma_BdSetLength(&BdPtr[clv_nr*3+2], sizeof(float)*clv.img_dim*clv.img_dim, TxRingPtr->MaxTransferLen);
-		if (Status != XST_SUCCESS) xil_printf("Fail set length");
-
-
-
-		XAxiDma_BdSetId(&BdPtr[clv_nr*3+0], (u32) &clv.biases[0]);
-		XAxiDma_BdSetId(&BdPtr[clv_nr*3+1], (u32) &(*clv.weights));
-		XAxiDma_BdSetId(&BdPtr[clv_nr*3+2], (u32) &(*clv.image));
-
+		XAxiDma_BdSetId(&BdPtr[bd_offset], (u32) &(*(padding.begin())));
+		bd_offset = bd_offset + 1;
 	}
-
-	Status = XAxiDma_BdSetBufAddr(&BdPtr[nof_bds1-1], (u32) &(*padding.begin()));
-	if (Status != XST_SUCCESS) xil_printf("Fail set addr");
-	Status = XAxiDma_BdSetLength(&BdPtr[nof_bds1-1], sizeof(float)*padding.size(), TxRingPtr->MaxTransferLen);
-	if (Status != XST_SUCCESS) xil_printf("Fail set length");
-	XAxiDma_BdSetId(&BdPtr[nof_bds1-1], (u32) &(*padding.begin()));
-
-	for (unsigned int clv_nr = 0; clv_nr < clv_vec2.size(); clv_nr++) {
-
-		const ConvLayerValues &clv = clv_vec2[clv_nr];
-
-
-		Xil_DCacheFlushRange((u32)&clv.biases[0], 4*4+32);
-		Xil_DCacheFlushRange((u32)&(*clv.image), clv.img_dim*clv.img_dim+32);
-		Xil_DCacheFlushRange((u32)&(*clv.weights), clv.kernel_dim*clv.kernel_dim+32);
-
-		/* Set up the BD using the information of the packet to transmit */
-
-		Status = XAxiDma_BdSetBufAddr(&BdPtr[clv_nr*3+nof_bds1], (u32)&clv.biases[0]);
-		if (Status != XST_SUCCESS) xil_printf("Fail set addr");
-		Status = XAxiDma_BdSetBufAddr(&BdPtr[clv_nr*3+1+nof_bds1], (u32) &(*clv.weights));
-		if (Status != XST_SUCCESS) xil_printf("Fail set addr");
-		Status = XAxiDma_BdSetBufAddr(&BdPtr[clv_nr*3+2+nof_bds1], (u32) &(*clv.image));
-		if (Status != XST_SUCCESS) xil_printf("Fail set addr");
-
-		Status = XAxiDma_BdSetLength(&BdPtr[clv_nr*3+nof_bds1], sizeof(float)*4, TxRingPtr->MaxTransferLen);
-		if (Status != XST_SUCCESS) xil_printf("Fail set length");
-		Status = XAxiDma_BdSetLength(&BdPtr[clv_nr*3+1+nof_bds1], sizeof(float)*clv.kernel_dim*clv.kernel_dim, TxRingPtr->MaxTransferLen);
-		if (Status != XST_SUCCESS) xil_printf("Fail set length");
-		Status = XAxiDma_BdSetLength(&BdPtr[clv_nr*3+2+nof_bds1], sizeof(float)*clv.img_dim*clv.img_dim, TxRingPtr->MaxTransferLen);
-		if (Status != XST_SUCCESS) xil_printf("Fail set length");
-
-		XAxiDma_BdSetId(&BdPtr[clv_nr*4+0+nof_bds1], (u32) &clv.biases[0]);
-		XAxiDma_BdSetId(&BdPtr[clv_nr*4+1+nof_bds1], (u32) &(*clv.weights));
-		XAxiDma_BdSetId(&BdPtr[clv_nr*4+2+nof_bds1], (u32) &(*clv.image));
-	}
-
-	Status = XAxiDma_BdSetBufAddr(&BdPtr[tot_nof_bds-1], (u32) &(*padding.begin()));
-	if (Status != XST_SUCCESS) xil_printf("Fail set addr");
-	Status = XAxiDma_BdSetLength(&BdPtr[tot_nof_bds-1], sizeof(float)*padding.size(), TxRingPtr->MaxTransferLen);
-	if (Status != XST_SUCCESS) xil_printf("Fail set length");
-	XAxiDma_BdSetId(&BdPtr[tot_nof_bds-1], (u32) &(*padding.begin()));
-
 
 
 	XAxiDma_BdSetCtrl(&BdPtr[0], XAXIDMA_BD_CTRL_TXSOF_MASK);
-	XAxiDma_BdSetCtrl(&BdPtr[(tot_nof_bds)-1], XAXIDMA_BD_CTRL_TXEOF_MASK);
+	XAxiDma_BdSetCtrl(&BdPtr[tot_nof_bds-1], XAXIDMA_BD_CTRL_TXEOF_MASK);
 
 	Status = XAxiDma_BdRingToHw(TxRingPtr, tot_nof_bds, BdPtr);
 	if (Status != XST_SUCCESS) {
 		xil_printf("to hw failed %d\r\n", tot_nof_bds);
 		return XST_FAILURE;
 	}
+
+	*nof_tx_bds = bd_offset;
 
 	return XST_SUCCESS;
 }
@@ -502,36 +453,36 @@ int ClAccDriver::WaitForTxToFinish(XAxiDma * AxiDmaInstPtr, int tota_nof_bds) {
 	TxRingPtr = XAxiDma_GetTxRing(AxiDmaInstPtr);
 
 
-	/* Wait until the one BD TX transaction is done */
-	while ((ProcessedBdCount = XAxiDma_BdRingFromHw(TxRingPtr,
-							   XAXIDMA_ALL_BDS,
-							   &BdPtr)) == 0) {
-	}
-	Status = XAxiDma_BdRingFree(TxRingPtr, ProcessedBdCount, BdPtr);
-	if (Status != XST_SUCCESS) {
-		xil_printf("Failed to free %d tx BDs %d\r\n",
-			ProcessedBdCount, Status);
-		return XST_FAILURE;
-	}
-//	int nof_bds = 0;
 //	/* Wait until the one BD TX transaction is done */
-//	while (nof_bds < tota_nof_bds) {
-//		ProcessedBdCount = XAxiDma_BdRingFromHw(TxRingPtr, XAXIDMA_ALL_BDS, &BdPtr);
-//		nof_bds += ProcessedBdCount;
-//
-//		Status = XAxiDma_BdRingFree(TxRingPtr, ProcessedBdCount, BdPtr);
-//		if (Status != XST_SUCCESS) {
-//			xil_printf("Failed to free %d tx BDs %d\r\n",
-//				ProcessedBdCount, Status);
-//			return XST_FAILURE;
-//		}
+//	while ((ProcessedBdCount = XAxiDma_BdRingFromHw(TxRingPtr,
+//							   XAXIDMA_ALL_BDS,
+//							   &BdPtr)) == 0) {
 //	}
+//	Status = XAxiDma_BdRingFree(TxRingPtr, ProcessedBdCount, BdPtr);
+//	if (Status != XST_SUCCESS) {
+//		xil_printf("Failed to free %d tx BDs %d\r\n",
+//			ProcessedBdCount, Status);
+//		return XST_FAILURE;
+//	}
+	int nof_bds = 0;
+	/* Wait until the one BD TX transaction is done */
+	while (nof_bds < tota_nof_bds) {
+		ProcessedBdCount = XAxiDma_BdRingFromHw(TxRingPtr, XAXIDMA_ALL_BDS, &BdPtr);
+		nof_bds += ProcessedBdCount;
+
+		Status = XAxiDma_BdRingFree(TxRingPtr, ProcessedBdCount, BdPtr);
+		if (Status != XST_SUCCESS) {
+			xil_printf("Failed to free %d tx BDs %d\r\n",
+				ProcessedBdCount, Status);
+			return XST_FAILURE;
+		}
+	}
 
 	/* Free all processed TX BDs for future transmission */
 
 }
 
-int ClAccDriver::WaitForRxToFinish(XAxiDma * AxiDmaInstPtr)
+int ClAccDriver::WaitForRxToFinish(XAxiDma * AxiDmaInstPtr, int tot_nof_bds)
 {
 
 	XAxiDma_BdRing *RxRingPtr;
@@ -544,19 +495,34 @@ int ClAccDriver::WaitForRxToFinish(XAxiDma * AxiDmaInstPtr)
 	RxRingPtr = XAxiDma_GetRxRing(AxiDmaInstPtr);
 
 
-	/* Wait until the data has been received by the Rx channel */
-	while ((ProcessedBdCount = XAxiDma_BdRingFromHw(RxRingPtr,
-						       XAXIDMA_ALL_BDS,
-						       &BdPtr)) == 0) {
+//	/* Wait until the data has been received by the Rx channel */
+//	while ((ProcessedBdCount = XAxiDma_BdRingFromHw(RxRingPtr,
+//						       XAXIDMA_ALL_BDS,
+//						       &BdPtr)) == 0) {
+//	}
+//	/* Free all processed RX BDs for future transmission */
+//	Status = XAxiDma_BdRingFree(RxRingPtr, ProcessedBdCount, BdPtr);
+//	if (Status != XST_SUCCESS) {
+//		xil_printf("Failed to free %d rx BDs %d\r\n",
+//			ProcessedBdCount, Status);
+//		return XST_FAILURE;
+//	}
+
+
+	int nof_bds = 0;
+	while (nof_bds < tot_nof_bds) {
+		ProcessedBdCount = XAxiDma_BdRingFromHw(RxRingPtr, XAXIDMA_ALL_BDS, &BdPtr);
+		nof_bds += ProcessedBdCount;
+
+		Status = XAxiDma_BdRingFree(RxRingPtr, ProcessedBdCount, BdPtr);
+		if (Status != XST_SUCCESS) {
+			xil_printf("Failed to free %d tx BDs %d\r\n",
+				ProcessedBdCount, Status);
+			return XST_FAILURE;
+		}
 	}
 
-	/* Free all processed RX BDs for future transmission */
-	Status = XAxiDma_BdRingFree(RxRingPtr, ProcessedBdCount, BdPtr);
-	if (Status != XST_SUCCESS) {
-		xil_printf("Failed to free %d rx BDs %d\r\n",
-		    ProcessedBdCount, Status);
-		return XST_FAILURE;
-	}
+
 	XAxiDma_Reset(AxiDmaInstPtr);
 
 
