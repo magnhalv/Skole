@@ -79,7 +79,6 @@ public:
     }
 
     virtual const vec_t& forward_propagation(const vec_t& in, int index) {
-
     	float scale = 0.25;
 		int n = FloatToFixed(scale);
 		float scale_factor;

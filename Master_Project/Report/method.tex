@@ -1,6 +1,6 @@
-\chapter{Architecture} \label{architecture}
+\chapter{Architecture} \label{chap_method}
 
-In this chapter we will present our suggested architecture for a hardware accelerated forward propagation of a Convolutional Neural Network used for recognizing handwritten digits. The architecuture will be presented in a top-down approach, starting with the topology and dataset of the network, followed by an overview of the software used, and finally, the hardware architecture of the accelerator. The source files for the VHDL and software code used in this project can for the time being be found at \cite{MyGithub}
+In this chapter we will present our suggested architecture for a hardware accelerated forward propagation of a Convolutional Neural Network used for recognizing handwritten digits. The architecuture will be presented in a top-down approach, starting with the topology and dataset of the network, followed by an overview of the software used, and finally, the hardware architecture of the accelerator. The source files for the VHDL and software code used in this project can for the time being be found at \cite{Halvorsen2015}
 
 \begin{figure}[h!]
   \centering
@@ -32,12 +32,12 @@ We chose to implement a network with a smiliar topology as the LetNet-5 for digi
 
 There are three primary reasons for choosing this network. First, it is a relatively small network, which simplifies the implementation by reducing the chances of bugs and memory problems. Secondly, the kernel size of all the convolution layers are the same. This allowed for a less complex implementation, since we did not have to design our accelerator to support different kernel sizes, making it easier for the accelerator support all the convolution layers. Thirdly, this network have been shown to work very well with the MNIST dataset, i.e. our own experiments gave an accuracy of 99.1\%. Since the aim of this project is exploring hardware acceleration, we did not wish to spend time finding a working topology for a given dataset. Using a topology that has been shown to give high accuracy allowed us to focus more on acceleration rather than topology theory.   
 
- As mentioned, we used the \textit{the MNIST dataset}, available at \cite{MNIST}. It consists of 50 000 samples of handwritten digits ranging from 0-9, where 40 000 of the samples are used for
+ As mentioned, we used the \textit{the MNIST dataset}, available at \cite{LeCun1998a}. It consists of 50 000 samples of handwritten digits ranging from 0-9, where 40 000 of the samples are used for
 training and 10 000 samples are used to determine the accuracy of the network. 
 
 \section{What to accelerate} \label{sec_what_to_accelerate}
 
-In order to decide which part of the network that should be accelerated one has to determine the most computational expensive part of the network. In the literature (see Chapter \ref{chap_related_work} there is a common consensus that the convolution layer is the most demanding layer, and \cite{Lechun latest} and \cite{chinese_paper} states explicity that it amounts to about 90\% of the total processing. We have confirmed this number in our own experiments, through a simple mathematical analysis of the network and by profiling a software implementation of the network. 
+In order to decide which part of the network that should be accelerated one has to determine the most computational expensive part of the network. In the literature (see Chapter \ref{chap_related_work} there is a common consensus that the convolution layer is the most demanding layer, and \cite{Farabet2010} and \cite{Zhang2015} states explicitly that it amounts to about 90\% of the total processing. We have confirmed this number in our own experiments, through a simple mathematical analysis of the network and by profiling a software implementation of the network. 
 
 \begin{table}
 	\centering
@@ -71,7 +71,7 @@ This section gives an overview of software architecture used to compute the netw
 
 \subsection{Network Software}
 
-We have made extensive use of Taiga Nomi's C++ framework for neural networks, available at \cite{SoftwareGithub}, in our project. The framework was used in order to train the parameters of our network, for measuring the efficency of a pure software implementation, and as a basis for the implementation that uses the hardware accelerator. The framework treats each layer in the network as a seperate software module, which makes it easy to swap diffrent implementations of a layer. This simplified the process of integrating the hardware accelerator into the network, since we could simply exchange the original modules with our own.
+We have made extensive use of Taiga Nomi's C++ framework for neural networks, available at \cite{Nomi2015}, in our project. The framework was used in order to train the parameters of our network, for measuring the efficency of a pure software implementation, and as a basis for the implementation that uses the hardware accelerator. The framework treats each layer in the network as a seperate software module, which makes it easy to swap diffrent implementations of a layer. This simplified the process of integrating the hardware accelerator into the network, since we could simply exchange the original modules with our own.
 
 Figure \ref{fig_software_architecture} A shows a simplified version of the architecture of the pure software implementation of our network. Each layer contains a set of pretrained weights which are loaded before the network starts processing the images. When an image is inputted to the first layer, it performs the calculations described in Chapter \ref{chap_background} in software, and propegates the result to the next layer. 
 
@@ -148,7 +148,7 @@ The accelerators consists of five major components (Figure \ref{fig_imagezor_arc
 
 The \textit{layer\_nr} signal is used to specify whether it is C1/S2 or C3/S4 that is being computed. The input image in the first layer is bigger than the images in the second ($ 32 \times 32 $ vs $ 14 \times 14 $), which the convoluter and the average pooler need to  (see Section \ref{sec_convoluter} and \ref{sec_average_pooler}). In addition in the second layer the intermediate convolution buffer needs to be activated so it accumulate and store all the convolutions needed to compute a single feature map. The mux is used to control which data to propagate to the average pooler, directly from the convoluter (C1/S2) or from the buffer (C3/S4). 
 
-In order to reduce resources spent and execution time, the accelerator uses Q16.16 fixed-point arithmetic, which is shown to give virtually the same network accuracy as floating-point arithmetic\cite{Napocensis2009} \cite{Holt1993} \cite{Chen2014}. Something that has been confirmed by our own experiments. In order to implement fixed point arithmetic and fixed to float conversion we used the ieee proposed libaries by David Bishop, available at \cite{XXXXXXXXXXX}.   
+In order to reduce resources spent and execution time, the accelerator uses Q16.16 fixed-point arithmetic, which is shown to give virtually the same network accuracy as floating-point arithmetic\cite{Napocensis2009} \cite{Holt1993} \cite{Chen2014}. Something that has been confirmed by our own experiments. In order to implement fixed point arithmetic and fixed to float conversion we used the ieee proposed libaries by David Bishop, available at \cite{Bishop2015}.   
 
 In the following sections below we will provide a more detailed description of the convoluter, the hyperbolic tangent unit and the average pooler. 
 
@@ -187,7 +187,7 @@ The loading of the weights takes $ k \times k $ clock cycles, and the processin
 
 \subsection{The Hyperbolic Tangent} 
 
-This module is based upon \cite{XXXXXXXXXX} using \textit{piecewise linear approximation}. It takes input a single value \textit{x} and outputs a linear approximation of the hyperbolic function. Using a lookup table (Table \ref{tab_tanh}) and the constants from Table \ref{tab_tanh_constants} the module decides which linear approximation to use. 
+This module is based upon \cite{Lin2008} using \textit{piecewise linear approximation}. It takes input a single value \textit{x} and outputs a linear approximation of the hyperbolic function. Using a lookup table (Table \ref{tab_tanh}) and the constants from Table \ref{tab_tanh_constants} the module decides which linear approximation to use. 
 In order to meet the timing constraints on the FPGA the module has a pipeline length of three. 
 
 \begin{table}

@@ -84,11 +84,11 @@ private:
 	std::vector<buffer_addr> dma_buffer_addr;
 
 	void InitializeDMA();
-	XAxiDma TransferDatatoAccAndSetupRx(const std::vector<ConvLayerValues> &clv_vec, int id);
+	XAxiDma TransferDatatoAccAndSetupRx(const std::vector<ConvLayerValues> &clv_vec0, const std::vector<ConvLayerValues> &clv_vec1, int id);
 	void ConfigureAndRunAccelerator(int nof_outputs, int layer, int nof_sets, int id);
 	int RxSetup(XAxiDma * AxiDmaInstPtr, int id);
 	int TxSetup(XAxiDma * AxiDmaInstPtr, int id);
-	int SendPacket(XAxiDma * AxiDmaInstPtr, const std::vector<ConvLayerValues> &clv_vec, int id);
+	int SendPacket(XAxiDma * AxiDmaInstPtr, const std::vector<ConvLayerValues> &clv_vec0, const std::vector<ConvLayerValues> &clv_vec1, int id);
 	int GetDataFromRxBuffer(vec_it iterator, int data_size, int id);
 	int WaitForTxToFinish(XAxiDma * AxiDmaInstPtr, int nof_bds);
 	int WaitForRxToFinish(XAxiDma * AxiDmaInstPtr);

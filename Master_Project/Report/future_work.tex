@@ -13,7 +13,7 @@ Developing a convolutional neural network hardware accelerator is a complex and 
 	
 	\item \textbf{Explore ways to reduce the resource usage.}
 	
-	The primary focus of this project has been to get the prototype up and running, and little thought have gone to examine ways to minimize resource consumption. Currently we only have enough resouces to fit two accelerators on the board. Thus if we wish to extend the design and/or run several accelerators in parallel, we either need to change to a bigger board or minimize the resource usage of our design. Any future work would do well to explore this area. 
+	The primary focus of this project has been to get the prototype up and running, and little thought have gone to examine ways to minimize resource consumption. Currently we only have enough resources to fit two accelerators on the board. Thus if we wish to extend the design and/or run several accelerators in parallel, we either need to change to a bigger board or minimize the resource usage of our design. Any future work would do well to explore this area. 
 	
 
 	
@@ -23,7 +23,7 @@ Developing a convolutional neural network hardware accelerator is a complex and 
 	
 	\item \textbf{Stay in hardware, instead of going back to software for next layer}
 	
-	The main reason \cite{Virtex_paper} and \cite{Microsoft_paper} achieved high performance was by reducing off-chip traffic. In the current state of our system, software has to be involved for every feature map to be computed, and data is being transfered back and forth between software and hardware several times. This is inefficient. Thus extending the system with logic that can redistrubute the output maps as new input maps without involving software could provide a substantial performance boost. But it will increase resource usage and development time, and will probably require a bigger board. Both the mentioned papers used FPGAs at the size of a Virtex 7.  
+	The main reason \cite{Zhang2015} and \cite{Ovtcharov2015} achieved high performance was by reducing off-chip traffic. In the current state of our system, software has to be involved for every feature map to be computed, and data is being transfered back and forth between software and hardware several times. This is inefficient. Thus extending the system with logic that can redistrubute the output maps as new input maps without involving software could provide a substantial performance boost. But it will increase resource usage and development time, and will probably require a bigger board. Both the mentioned papers used FPGAs at the size of a Virtex 7.  
 	
 	\item \textbf{Stream data through accelerator, instead of filling the buffer first.}
 	
@@ -31,7 +31,7 @@ Developing a convolutional neural network hardware accelerator is a complex and 
 	
 	\item \textbf{Hardware accelerate float to fixed.}
 	
-	Currently our system preprocesses the image and weights into fixed point before processinging them. If this system were to be integrated into system using floating points it would be beneficial to do this transformation in hardware. Currently we are able to do fixed point to floating point in hardware using only one clock cycle, and thus we believe it should be possible to do the same for float to fixed. 
+	Currently our system pre-processes the image and weights into fixed point before processing them. If this system were to be integrated into system using floating points it would be beneficial to do this transformation in hardware. Currently we are able to do fixed point to floating point in hardware using only one clock cycle, and thus we believe it should be possible to do the same for float to fixed. 
 	
 	\item \textbf{Training on hardware.}
 	
