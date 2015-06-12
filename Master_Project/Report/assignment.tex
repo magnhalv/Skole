@@ -4,17 +4,10 @@
 \textbf{Assignment title:} Energy efficient machine learning algorithms in hardware \\ \hfil \\ \hfil
 \textbf{Supervisors:} Donn Alexander Morrison and Yaman Umuroglu \\ \hfil \\ \hfil
 \textbf{Assignment text:} \\ \hfil
-The aim of this project is to explore the implementation of machine learning algorithms in hardware (e.g., FPGA) with the intention of improving energy efficiency over traditional implementation in software. The algorithm should be modularly developed so that it can be potentially used as an accelerator tile within a multi-core heterogeneous computing platform such as SHMAC. \\ \hfil \\ \hfil
-For a given algorithm, e.g., a deep neural network, the student will:
 
-\begin{enumerate}
-	
-	\item Explore the feasibility and expected efficiency gain over a general-purpose CPU (e.g., is there a need?)
-	
-	\item A literature survey on related techniques, hardware implementations, etc.
-	
-	\item Allocation of components between hardware and software (e.g., according to a HW/SW co-design methodology)
-	
-	\item If time permits, adapting the module for use as a SHMAC accelerator tile
-	
-\end{enumerate}
+
+This project will explore the design and implementation of convolutional neural networks (CNNs) in hardware with the intention of improving energy efficiency over traditional implementation in software on a general-purpose CPU. The overall goal is to build a standalone system that (time permitting) could be trained interactively by a user (e.g., to recognise handwriting or faces from a webcam video stream) and then demonstrate learned patterns through recognition of unseen samples.
+
+The energy efficiency of the hardware implementation should be evaluated against software equivalent running on a general-purpose CPU and this evaluation should constitute a major aspect of the report.
+
+The suggested platform is the Zynq FPGA board, but the student can also investigate and weigh the advantages and disadvantages other platforms such as SHMAC.
