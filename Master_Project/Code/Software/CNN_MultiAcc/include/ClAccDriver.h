@@ -20,7 +20,7 @@ extern void xil_printf(const char *format, ...);
 #define DMA_DEV_ID		XPAR_AXIDMA_1_DEVICE_ID
 
 #define MEM_BASE_0_ADDR		0x10000000
-#define MEM_BASE_1_ADDR		0x10000000 + 0x00500000
+#define MEM_BASE_1_ADDR		0x10000000 + 0x05000000
 //#define ACC_ADDR 			XPAR_CL_ACCELERATOR_1_BASEADDR
 //
 //#define TX_BD_SPACE_BASE	(MEM_BASE_ADDR)
