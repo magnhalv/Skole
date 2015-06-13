@@ -96,6 +96,7 @@ public:
     	const int img_dim = 14*14;
 
     	feature_map_parameters fmp;
+
     	for (int i = 0; i < nof_output_maps; i++) {
     		std::vector<ConvLayerValues> clv_vec;
     		for (int j = 0; j < nof_input_maps; j++) {
