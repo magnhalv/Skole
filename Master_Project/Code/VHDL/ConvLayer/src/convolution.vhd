@@ -17,7 +17,7 @@ entity convolution is
 		clk : in std_logic;
 		reset : in std_logic;
 		conv_en : in std_logic;
-		layer_nr : in std_logic;
+		layer_nr : in Natural;
 		weight_we : in std_logic;
 		weight_data : in sfixed(INT_WIDTH-1 downto -FRAC_WIDTH);
 		pixel_in : in sfixed(INT_WIDTH-1 downto -FRAC_WIDTH);
@@ -39,7 +39,7 @@ architecture Behavioral of convolution is
         port (
             clk : in  std_logic;
             conv_en : in  std_logic;
-            layer_nr : in std_logic;
+            layer_nr : in Natural;
             output_valid : out  std_logic
         );
         end component;
@@ -178,10 +178,12 @@ begin
     
     shift_reg_config : process(layer_nr)
     begin
-        if layer_nr = '0' then
+        if layer_nr = 0 then
             output_shift_reg_nr <= IMG_DIM-KERNEL_DIM-1;
+        elsif layer_nr = 1 then
+            output_shift_reg_nr <= ((IMG_DIM-KERNEL_DIM+1)/2)-KERNEL_DIM-1;
         else
-           output_shift_reg_nr <= ((IMG_DIM-KERNEL_DIM+1)/2)-KERNEL_DIM-1;
+            output_shift_reg_nr <= 0;
         end if; 
     end process;
     

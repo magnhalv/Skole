@@ -18,6 +18,7 @@ entity sfixed_fifo is
 		clk		 : in  std_logic;
 		reset	 : in  std_logic;
 		write_en : in  std_logic;
+        layer_nr : in  natural;
 		data_in	 : in  sfixed(INT_WIDTH-1 downto -FRAC_WIDTH);
 		data_out : out sfixed(INT_WIDTH-1 downto -FRAC_WIDTH)
 	);
@@ -29,11 +30,21 @@ architecture Behavioral of sfixed_fifo is
     signal Memory : FIFO_Memory;
     signal index : natural range 0 to FIFO_DEPTH - 1;
     signal looped : boolean;
-
+    signal LAYER_DEPTH : natural;
+    
     
 begin
 
-    out_value : process(looped, Memory)
+    set_layer_depth : process(layer_nr)
+    begin
+        if layer_nr = 1 then
+            LAYER_DEPTH <= FIFO_DEPTH;
+        else
+            LAYER_DEPTH <= 25;
+        end if;
+    end process;
+    
+    out_value : process(looped, Memory, index)
     begin
         if looped then
             data_out <= Memory(index);
@@ -55,7 +66,7 @@ begin
                     Memory(index) <= data_in;
                 end if;
                 
-                if index = FIFO_DEPTH-1 then
+                if index = LAYER_DEPTH-1 then
                     index <= 0;
                     looped <= true;
                 else

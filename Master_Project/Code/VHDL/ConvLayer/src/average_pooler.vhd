@@ -18,7 +18,7 @@ entity average_pooler is
 		clk : in std_logic;
         reset : in std_logic;
         conv_en : in std_logic;
-        layer_nr : in std_logic;
+        layer_nr : in Natural;
         weight_in : in sfixed(INT_WIDTH-1 downto -FRAC_WIDTH);
         weight_we : in std_logic;
 		input_valid : in std_logic;
@@ -70,7 +70,7 @@ begin
 
     set_array_dim : process(layer_nr)
     begin
-        if layer_nr = '0' then
+        if layer_nr = 0 then
             POOL_ARRAY_DIM <= POOL_ARRAY_DIM_MAX;
         else
             POOL_ARRAY_DIM <= ((IMG_DIM/2)-KERNEL_DIM+1)/POOL_DIM;

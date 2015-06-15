@@ -37,83 +37,69 @@ namespace tiny_cnn {
 
 
 template<typename N, typename Activation>
-class convolutional_layer_hw : public layer<N, Activation> {
+class convolutional_layer3_hw : public partial_connected_layer<N, Activation> {
 public:
 
-    convolutional_layer_hw(int in_width, int in_height, int window_size, int in_channels, int out_channels, ClAccDriver &acc)
-    : layer<N, Activation>(in_width * in_height * in_channels, ((in_width - window_size + 1)/2) * ((in_width - window_size + 1)/2) * out_channels,
+    convolutional_layer3_hw(int in_width, int in_height, int window_size, int in_channels, int out_channels, ClAccDriver &acc)
+    : partial_connected_layer<N, Activation>(in_width * in_height * in_channels, ((in_width - window_size + 1)/2) * ((in_width - window_size + 1)/2) * out_channels,
     window_size * window_size * in_channels * out_channels, out_channels),
     acc_driver(acc)
     {
-    	avg_pool_coffs.resize(out_channels);
-    	avg_pool_bias.resize(out_channels);
+
     }
 
-    convolutional_layer_hw(int in_width, int in_height, int window_size, int in_channels, int out_channels, const connection_table& connection_table, ClAccDriver &acc)
-        : layer<N, Activation>(in_width * in_height * in_channels, ((in_width - window_size + 1)/2) * ((in_width - window_size + 1)/2) * out_channels,
-		window_size * window_size * in_channels * out_channels, out_channels),
-		acc_driver(acc)
+    convolutional_layer3_hw(int in_width, int in_height, int window_size, int in_channels, int out_channels, const connection_table& connection_table, ClAccDriver &acc)
+    : partial_connected_layer<N, Activation>(in_width * in_height * in_channels, ((in_width - window_size + 1)/2) * ((in_width - window_size + 1)/2) * out_channels,
+        window_size * window_size * in_channels * out_channels, out_channels),
+        acc_driver(acc)
 
     {
+
+    	conn_table = connection_table;
         this->remap();
+    }
+
+    void print_weights() {
+
+    	xil_printf("Nof weights: %d\n\r", this->W_.size());
+    	xil_printf("Nof bias: %d\n\r", this->b_.size());
     }
 
     virtual const vec_t& forward_propagation(const vec_t& in, int index) {
     	float scale = 0.25;
-    	int n = FloatToFixed(scale);
-    	float scale_factor;
+		int n = FloatToFixed(scale);
+		float scale_factor;
 		memcpy((void*)&scale_factor, (void*)&n, sizeof(float));
+
+		const int nof_output_maps = 120;
+		const int nof_input_maps = 16;
+    	const int img_size = 5*5;
+
     	feature_map_parameters fmp;
-    	for (int i = 0; i < 6; i++) {
-			ConvLayerValues clv = {
-					in.begin(),
-					this->W_.begin()+i*25,
-					{scale_factor, avg_pool_bias[i], avg_pool_coffs[i], this->b_[i]},
-					32,
-					5,
-					this->output_[index].begin()+i*14*14
-			};
-			std::vector<ConvLayerValues> clv_vec = {clv};
+
+		for (int i = 0; i < nof_output_maps; i++) {
+			std::vector<ConvLayerValues> clv_vec;
+			for (int j = 0; j < nof_input_maps; j++) {
+				int output_index = j*img_size+i*img_size*nof_input_maps;
+				ConvLayerValues clv = {
+						in.begin()+output_index,
+						this->W_.begin()+output_index,
+						{scale_factor, 0, 0, this->b_[i]},
+						5,
+						5,
+						this->output_[index].begin()+i
+				};
+				clv_vec.push_back(clv);
+
+			}
 			fmp.push_back(clv_vec);
 		}
-    	acc_driver.CalculateLayer(fmp, 1);
+		acc_driver.CalculateLayer(fmp, 4);
+
 		return this->next_ ? this->next_->forward_propagation(this->output_[index], index) : this->output_[index]; // 15.6%
 	}
 
-    int param_size() const {
-	}
-
-	int connection_size() const {
-
-	}
-
-	int fan_in_size() const {
-
-	}
-
-	void connect_weight(int input_index, int output_index, int weight_index) {
-
-	}
-
-	void connect_bias(int bias_index, int output_index) {
-	}
-
-	virtual const vec_t& back_propagation(const vec_t& current_delta, int index) {
-		vec_t lol;
-		return lol;
-	}
-
-	const vec_t& back_propagation_2nd(const vec_t& current_delta2) {
-		vec_t lol;
-		return lol;
-	}
-
-	// remove unused weight to improve cache hits
-	void remap() {
-	}
-
 	virtual void load(std::istream& is) {
-
 		for (int i = 0; i < this->W_.size(); i=i+25) {
 			vec_t temp_W;
 			for (int j = 0; j < 25; j++) {
@@ -134,33 +120,19 @@ public:
 			int n = FloatToFixed(f);
 			memcpy((void*)&b, (void*)&n, sizeof(float));
 		}
-		for (auto& c : avg_pool_coffs) {
-			float f;
-			is.read((char*)&f, sizeof(f));
-			int n = FloatToFixed(f);
-			memcpy((void*)&c, (void*)&n, sizeof(float));
-		}
-
-		for (auto& avg_b : avg_pool_bias) {
-			float f;
-			is.read((char*)&f, sizeof(f));
-			int n = FloatToFixed(f);
-			memcpy((void*)&avg_b, (void*)&n, sizeof(float));
-		}
 	}
 
 
 
 
 private:
-	vec_t avg_pool_coffs;
-	vec_t avg_pool_bias;
+	connection_table conn_table;
 	ClAccDriver &acc_driver;
 };
 
 
 template <typename Char, typename CharTraits, typename N, typename Activation>
-std::basic_istream<Char, CharTraits>& operator >> (std::basic_istream<Char, CharTraits>& os, convolutional_layer_hw<N, Activation>& v) {
+std::basic_istream<Char, CharTraits>& operator >> (std::basic_istream<Char, CharTraits>& os, convolutional_layer3_hw<N, Activation>& v) {
 	v.load(os);
     return os;
 }

@@ -1,15 +1,15 @@
 \chapter{Background} \label{chap_background}
 
-In order to be able to accelerate a system it is important to understand the mathematical model behind it. For this reason we have included Section \ref{sec_ann} and \ref{sec_cnn}  from our previous work \cite{Halvorsen2014}, which purposed a theoretical accelerator architecture. The sections will introduce the fundamental mathematics and concepts behind the \textit{Convolutional Neural Network} (CNN) model. They give a basic introduction to both general neural networks and \textit{CNNs}. 
+In order to be able to accelerate a system, it is important to understand the mathematical model behind it. For this reason, we have included Section \ref{sec_ann} and \ref{sec_cnn}  from our previous work \cite{Halvorsen2014}, which purposed a theoretical accelerator architecture. The sections will introduce the fundamental mathematics and concepts behind the \textit{Convolutional Neural Network} (CNN) model. They give a basic introduction to both general neural networks and \textit{CNNs}. 
 
 \section{Artificial Neural Networks}\label{sec_ann}
 
-An \textit{Artificial Neural Network} (ANN) \cite{Minsky1969}\cite{Bishop2006} is a computational model that is used for machine learning and pattern recognition. The name and basic concept is inspired by how the animal brain uses a network of neurons to recognize and classify objects. Depending on the input different neurons \textit{activate} (or \textit{fire}), making the brain able to decide what kind of pattern it is detecting. 
+An \textit{Artificial Neural Network} (ANN) \cite{Minsky1969}\cite{Bishop2006} is a computational model that is used for machine learning and pattern recognition. The name and basic concept is inspired by how the animal brain uses a network of neurons to recognize and classify objects. Depending on the input, different neurons \textit{activate} (or \textit{fire}), making the brain able to decide what kind of pattern it is detecting. 
 
-An ANN can intuitively be viewed as a probabilistic classifier. Depending on the input data it will calculate the probability that the data belongs to a certain \textit{class} (e.g. an object in an image or an investment decision). The network can be trained to recognize different classes by being provided a set of labeled training data, e.g. a set of faces and a set of non-faces. It can then learn to decide whether an image contains a face or not. This is called supervised learning. The network can also be trained unsupervised, by providing it with a set of unlabeled images. The latter technique is used to find hidden structures in the data, by learning the network to recreate the input. But for this project only supervised learning is relevant.  
+An ANN can intuitively be viewed as a probabilistic classifier. Depending on the input data, it will calculate the probability that the data belongs to a certain \textit{class} (e.g. an object in an image or an investment decision). The network can be trained to recognize different classes by being provided a set of labeled training data, e.g. a set of faces and a set of non-faces. It can then learn to decide whether an image contains a face or not. This is called supervised learning. The network can also be trained unsupervised, by providing it with a set of unlabeled images. The latter technique is used to find hidden structures in the data, by learning the network to recreate the input. But for this project only supervised learning is relevant.  
 
 \subsection{Definition} \hfill \break
-An ANN  consists of a number of layers containing a set of so-called \textit{neurons} (see Figure \ref{fig_neuron}), also known as \textit{units}. A neuron takes in a set of values as input (e.g. image pixels), where each value is associated with a respective weight. The input and the weights are multiplied and summed, and the result is used to calculate a non-linear \textit{activation function}. Formally a neurons input and output is defined as:
+An ANN  consists of a number of layers containing a set of so-called \textit{neurons} (see Figure \ref{fig_neuron}), also known as \textit{units}. A neuron takes in a set of values as input (e.g. image pixels), where each value is associated with a respective weight. The input and the weights are multiplied and summed, and the result is used to calculate a non-linear \textit{activation function}. Formally a neuron's input and output is defined as:
 
 
 \begin{equation}\label{eq_neuron_in}
@@ -49,7 +49,7 @@ The network takes in two parameters:
 \begin{equation}
 	(\mathbf{W, b}) = (\mathbf{W}^{(1)}, b^{(1)}, \mathbf{W}^{(2)}, b^{(2)}, \dots , \mathbf{W}^{(n_l)}, b^{(n_l)})	
 \end{equation}
- Where \textbf{W} is a 3-dimensional matrix containing the weight matrix for each layer. $ \mathbf{W}^{(l)} $ contains the weight matrix for the weights going from layer \textit{l} to \textit{l+1}. E.g., in the case of Figure \ref{fig_ann}, $ \mathbf{W}^{(1)} \in \Re ^{3 \times 4}$ and $ \mathbf{W}^{(2)} \in \Re ^{4 \times 2}$.
+ Where \textbf{W} is a 3-dimensional matrix containing the weight matrix for each layer. $ \mathbf{W}^{(l)} $ contains the weight matrix for the weights going from layer \textit{l} to \textit{l+1}. E.g. in the case of Figure \ref{fig_ann}, $ \mathbf{W}^{(1)} \in \Re ^{3 \times 4}$ and $ \mathbf{W}^{(2)} \in \Re ^{4 \times 2}$.
 
 \begin{figure}[h!]
   \centering
@@ -60,7 +60,7 @@ The network takes in two parameters:
 
 
 \subsection{Training} \label{sec_ann_training}
-During the training of the network it is the parameters $ (\mathbf{W, b}) $ that are altered in order to adapt the network to the training data. This is done by providing the network with a set of training samples, where we provide an input and an expected output. By using a cost function we can then figure out how we should tune our weights and biases in order to reduce the error rate. In other words, our goal is to minimize a cost function over a set of training samples. This can be done by using \textit{gradient descent} and the \textit{backpropagation algorithm} \cite{Rumelhart1986}\cite{Leonard1990}\cite{LeCun1998}. 
+During the training of the network, it is the parameters $ (\mathbf{W, b}) $ that are altered in order to adapt the network to the training data. This is done by providing the network with a set of training samples, where an input and an expected output is provided. By using a cost function we can then figure out how we should tune our weights and biases in order to reduce the error rate. In other words, our goal is to minimize a cost function over a set of training samples. This can be done by using \textit{gradient descent} and the \textit{backpropagation algorithm} \cite{Rumelhart1986}\cite{Leonard1990}\cite{LeCun1998}. 
 
 Let the cost function for a single training example $(x,y)$ be defined as:
 
@@ -141,7 +141,7 @@ While the ANN model have proven useful in several applications, it falls short w
 
 \begin{enumerate}
 
-	\item \textbf{Topology}. A fully connected ANN does not take into consideration the topology of the input. An image has a strong 2D spatial locality correlation, which makes it possible to combine low-order features (edges, end-points etc.) in the same area into higher-order features.  
+	\item \textbf{Topology}. A fully connected ANN does not take into consideration the topology of the input. An image has a strong 2D spatial locality correlation, which makes it possible to combine low-order features (edges, end-points etc.) in the same area into higher-order features (noses, ears etc.).  
 	
 	\item \textbf{Scalability}. Even small images contains a large amount of pixels/inputs, e.g. a $ 32 \times 32 $ image contains 1024 pixels/inputs. A fully connected network with 100 hidden units would then end up with $ 1024 \times 100 $ weights that needs to be calculated in the first layer. Thus making it harder to scale for larger images and rather inefficient .
 	
@@ -290,5 +290,5 @@ A vast amount of the computation required by a CNN can be parallelized. Thus, in
 	
     \item It is also possible to parallelize the computation of the feature maps that take more than one matrix as input. This is the case in the subsequent layers after the first. Which \cite{Chakradhar2010} referred to as \textit{intra-parallelism}.
 	
-    \item The activation of each neuron in the fully connected. One option is to parallelize them by creating a binary tree multiplier, where you have \textit{n} units compute the product of the input and its respective weight, then you use $ \frac{n}{2} $ units to add two of the results each, and so on until you have a single value. This will reduce the time it takes from \textit{n} time to $ log_2 n $ time if they can all be done in parallel.   
+    \item The activation of each neuron in the fully connected layer. One option is to parallelize them by creating a binary tree multiplier, where you have \textit{n} units compute the product of the input and its respective weight, then you use $ \frac{n}{2} $ units to add two of the results each, and so on until you have a single value. This will reduce the time it takes from \textit{n} time to $ log_2 n $ time if they can all be done in parallel.   
 \end{enumerate}

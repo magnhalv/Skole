@@ -76,7 +76,7 @@ void load_weights(void) {
     convolutional_layer2_hw<CNN, tan_h> C3(14, 14, 5, 6, 16, connection_table(connection, 6, 16), dma_driver);
     //convolutional_layer<CNN, tan_h> C3(14, 14, 5, 6, 16, connection_table(connection, 6, 16));
     //average_pooling_layer<CNN, tan_h> S4(10, 10, 16, 2);
-    convolutional_layer<CNN, tan_h> C5(5, 5, 5, 16, 120);
+    convolutional_layer3_hw<CNN, tan_h> C5(5, 5, 5, 16, 120, dma_driver);
     fully_connected_layer<CNN, tan_h> F6(120, 10);
     nn.add(&C1);
     nn.add(&C3);
@@ -90,7 +90,7 @@ void load_weights(void) {
 
     stream >> C1 >> C3 >> C5 >> F6;
 
-   // C3.print_weights();
+    //C5.print_weights();
 
 
 

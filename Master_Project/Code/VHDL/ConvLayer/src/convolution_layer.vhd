@@ -21,7 +21,7 @@ entity convolution_layer is
 		reset		: in std_logic;
 		conv_en		: in std_logic;
         final_set   : in std_logic;
-		layer_nr	: in std_logic;
+		layer_nr	: in Natural;
 		weight_we	: in std_logic;
 		weight_data	: in sfixed(INT_WIDTH-1 downto -FRAC_WIDTH);
 		pixel_in	: in sfixed(INT_WIDTH-1 downto -FRAC_WIDTH);
@@ -44,7 +44,7 @@ architecture Behavioral of convolution_layer is
 			clk				: in std_logic;
 			reset			: in std_logic;
 			conv_en 		: in std_logic;
-			layer_nr        : in std_logic;
+			layer_nr        : in natural;
 			weight_we		: in std_logic;
 			weight_data 	: in sfixed(INT_WIDTH-1 downto -FRAC_WIDTH);
 			pixel_in 		: in sfixed(INT_WIDTH-1 downto -FRAC_WIDTH);
@@ -67,7 +67,7 @@ architecture Behavioral of convolution_layer is
             clk : in std_logic;
             reset : in std_logic;
             conv_en : in std_logic;
-            layer_nr : in std_logic;
+            layer_nr : in natural;
             weight_in : in sfixed(INT_WIDTH-1 downto -FRAC_WIDTH);
             weight_we : in std_logic;
             input_valid : in std_logic;
@@ -89,6 +89,7 @@ architecture Behavioral of convolution_layer is
             clk		 : in  std_logic;
             reset	 : in  std_logic;
             write_en : in  std_logic;
+            layer_nr    : in  Natural;
             data_in	 : in  sfixed(INT_WIDTH-1 downto -FRAC_WIDTH);
             data_out : out sfixed(INT_WIDTH-1 downto -FRAC_WIDTH)			
 		);
@@ -120,6 +121,9 @@ architecture Behavioral of convolution_layer is
     
     signal pixel_MuxToBias : sfixed(INT_WIDTH-1 downto -FRAC_WIDTH);
     signal valid_MuxToBias : std_logic;
+
+    signal pixel_MuxToF2F : sfixed(INT_WIDTH-1 downto -FRAC_WIDTH);
+    signal pixelValid_MuxToF2F : std_logic;
     
     signal valid_biasToTanh : std_logic;
     signal pixel_biasToTanh : sfixed(INT_WIDTH-1 downto -FRAC_WIDTH);
@@ -136,14 +140,15 @@ architecture Behavioral of convolution_layer is
     signal pixelValid_Bias2ToTanh2 : std_logic;
     signal pixelOut_Bias2ToTanh2 : sfixed(INT_WIDTH-1 downto -FRAC_WIDTH);
 
-    signal pixelValid_Tanh2ToF2F : std_logic;
-    signal pixelOut_Tanh2ToF2F : sfixed(INT_WIDTH-1 downto -FRAC_WIDTH);
+    signal pixelValid_Tanh2ToOut : std_logic;
+    signal pixelOut_Tanh2ToOut : sfixed(INT_WIDTH-1 downto -FRAC_WIDTH);
 
     signal pixelValid_F2FToOut : std_logic;
-    signal pixelOutFloat_F2FToOut : float32;
-    signal pixelOutFixed_F2FToOut : sfixed(INT_WIDTH-1 downto -FRAC_WIDTH);
+    signal pixelOut_F2FToOut : float32;
 
     signal float_size : float32;
+
+    signal is_layer_1 : std_logic;
 begin
 
 	conv : convolution port map (
@@ -161,30 +166,43 @@ begin
 	
 	);
 
-    buffer_we <= layer_nr and outputValid_convToMux;
+    is_layer_1_process : process (layer_nr)
+    begin
+        if layer_nr = 1 or layer_nr = 2 then
+            is_layer_1 <= '1';
+        else
+            is_layer_1 <= '0';
+        end if;
+    end process;
+    
+    buffer_we <= is_layer_1 and outputValid_convToMux;
     
     intermediate_buffer : sfixed_fifo port map (
         clk => clk,
         reset => reset,
         write_en => buffer_we,
+        layer_nr => layer_nr,
         data_in => pixelOut_convToMux,
         data_out => pixel_bufToMux
     );
 
-    mux : process(layer_nr, pixelOut_convToMux, outputValid_convToMux, pixel_bufToMux, final_set)
+    mux : process(clk)
     begin
-        if layer_nr = '0' then
-            pixel_MuxToBias <= pixelOut_convToMux;
-            valid_MuxToBias <= outputValid_convToMux;
-        else
-            if final_set = '1' then
-                pixel_MuxToBias <= resize(pixelOut_convToMux + pixel_bufToMux, INT_WIDTH-1, -FRAC_WIDTH);
+        if rising_edge(clk) then
+            if layer_nr = 0 then
+                pixel_MuxToBias <= pixelOut_convToMux;
                 valid_MuxToBias <= outputValid_convToMux;
-            else
-                pixel_MuxToBias <= (others => '0');
-                valid_MuxToBias <= '0';
+            elsif layer_nr = 1 or layer_nr = 2 then
+                if final_set = '1' then
+                    pixel_MuxToBias <= resize(pixelOut_convToMux + pixel_bufToMux, INT_WIDTH-1, -FRAC_WIDTH);
+                    valid_MuxToBias <= outputValid_convToMux;
+                else
+                    pixel_MuxToBias <= (others => '0');
+                    valid_MuxToBias <= '0';
+                end if;
             end if;
         end if;
+
     end process;
 	
 	add_bias : process(clk)
@@ -239,29 +257,31 @@ begin
 	    clk => clk,
 	    input_valid => pixelValid_Bias2ToTanh2,
         x => pixelOut_Bias2ToTanh2(INT_WIDTH-1 downto -FRAC_WIDTH),
-        output_valid => pixelValid_Tanh2ToF2F,
-        y => pixelOut_Tanh2ToF2F
+        output_valid => pixelValid_Tanh2ToOut,
+        y => pixelOut_Tanh2ToOut
 	);
 
     FixedToFloat : process (clk)
     begin
         if rising_edge(clk) then
-            pixelOutFloat_F2FToOut <= to_float(pixelOut_Tanh2ToF2F, float_size);
-            pixelOutFixed_F2FToOut <= pixelOut_Tanh2ToF2F;
-            pixelValid_F2FToOut <= pixelValid_Tanh2ToF2F and final_set;
-            
---            pixel_out <= to_float(pixel_MuxToBias, float_size);
---            pixel_valid <= valid_MuxToBias and final_set;
+            pixelOut_F2FToOut <= to_float(pixelOut_TanhToAvgPool);
+            pixelValid_F2FToOut <= pixelValid_TanhToAvgPool;
         end if;
     end process;
 
     OutputProcess : process(clk)
     begin
-        pixel_valid <= pixelValid_F2FToOut;
-        if layer_nr = '1' then
-            pixel_out <= to_slv(pixelOutFloat_F2FToOut);
-        else
-            pixel_out <= to_slv(pixelOutFixed_F2FToOut);
+        if rising_edge(clk) then
+            if layer_nr = 0 then
+                pixel_out <= to_slv(pixelOut_Tanh2ToOut);
+                pixel_valid <= pixelValid_Tanh2ToOut;
+            elsif layer_nr = 1 then
+                pixel_out <= to_slv(pixelOut_Tanh2ToOut); 
+                pixel_valid <= pixelValid_Tanh2ToOut and (final_set);
+            else
+                pixel_out <= to_slv(pixelOut_F2FToOut);
+                pixel_valid <= pixelValid_F2FToOut;
+            end if;
         end if;
     end process;
     

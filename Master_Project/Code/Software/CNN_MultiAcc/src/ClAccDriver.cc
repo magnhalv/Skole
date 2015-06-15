@@ -71,62 +71,77 @@ void ClAccDriver::InitializeDMA() {
 
 }
 
-void ClAccDriver::CalculateLayer(feature_map_parameters &fmp) {
-	for (unsigned int i = 0; i < fmp.size(); i=i+4) {
+void ClAccDriver::CalculateLayer(feature_map_parameters &fmp, int layer) {
+	for (unsigned int i = 0; i < fmp.size(); i=i+2) {
 
 		int id1 = 0;
-		int id2 = 1;
-		int use_acc2 = (i+3) < fmp.size();
+		//int id2 = 1;
+		int use_acc2 = false;//(i+3) < fmp.size();
+
+		int nof_outputs = 1;
+		if (layer == 1) nof_outputs = 14*14;
+		if (layer == 2) nof_outputs = 5*5;
 
 		XAxiDma AxiDma0, AxiDma1;
 
 		InitializeDMA();
-		const int img_dim = fmp[i][0].img_dim;
-		const int kernel_dim = fmp[i][0].kernel_dim;
-		u32 nof_outputs = ((img_dim-kernel_dim+1)/2)*((img_dim-kernel_dim+1)/2);
-		int layer = fmp[i].size() > 1 ? 2 : 1;
 
-		AxiDma0 = TransferDatatoAccAndSetupRx(fmp[i], fmp[i+1], id1);
-		if(use_acc2) AxiDma1 = TransferDatatoAccAndSetupRx(fmp[i+2], fmp[i+3], id2);
+
+
+		AxiDma0 = TransferDatatoAccAndSetupRx(fmp[i], fmp[i+1], id1, layer);
+		//if(use_acc2) AxiDma1 = TransferDatatoAccAndSetupRx(fmp[i+2], fmp[i+3], id2, layer);
+
+		//xil_printf("Data transfer is set up. Layer: %d. Iteration: %d.\n\r", layer, i);
 
 		WaitForTxToFinish(&AxiDma0, 0);
 		if(use_acc2) WaitForTxToFinish(&AxiDma1, 0);
 
+		//xil_printf("Tx complete. Layer: %d. Iteration: %d.\n\r", layer, i);
+
 		ConfigureAndRunAccelerator(nof_outputs, layer, fmp[i].size(), id1);
-		if(use_acc2) ConfigureAndRunAccelerator(nof_outputs, layer, fmp[i+2].size(), id2);
+		//if(use_acc2) ConfigureAndRunAccelerator(nof_outputs, layer, fmp[i+2].size(), id2);
+
+		//xil_printf("Started accelerators. Layer: %d. Iteration: %d.\n\r", layer, i);
 
 		while(Xil_In32(acc_addr[id1]+16) == 1);
-		if(use_acc2) while(Xil_In32(acc_addr[id2]+16) == 1);
+		//if(use_acc2) while(Xil_In32(acc_addr[id2]+16) == 1);
+
+		//xil_printf("First done. Layer: %d. Iteration: %d.\n\r", layer, i);
 
 		ConfigureAndRunAccelerator(nof_outputs, layer, fmp[i+1].size(), id1);
-		if(use_acc2) ConfigureAndRunAccelerator(nof_outputs, layer, fmp[i+3].size(), id2);
+		//if(use_acc2) ConfigureAndRunAccelerator(nof_outputs, layer, fmp[i+3].size(), id2);
+
+		//xil_printf("Started accelerators. Layer: %d. Iteration: %d.\n\r", layer, i);
 
 		while(Xil_In32(acc_addr[id1]+16) == 1);
-		if(use_acc2) while(Xil_In32(acc_addr[id2]+16) == 1);
+		//if(use_acc2) while(Xil_In32(acc_addr[id2]+16) == 1);
+
+		//xil_printf("Second done. Layer: %d. Iteration: %d.\n\r", layer, i);
 
 		//ConfigureAndRunAccelerator(nof_outputs, layer, fmp[i+1].size(), id2);
 		//while(Xil_In32(acc_addr[id2]+16) == 1);
 
 		WaitForRxToFinish(&AxiDma0);
-		if(use_acc2)WaitForRxToFinish(&AxiDma1);
+		//if(use_acc2)WaitForRxToFinish(&AxiDma1);
 
+		//xil_printf("Received data from accelerators. Layer: %d. Iteration: %d.\n\r", layer, i);
 
 		GetDataFromRxBuffer(fmp[i][0].feature_map, nof_outputs, id1);
 		GetDataFromRxBuffer(fmp[i+1][0].feature_map, nof_outputs, id1);
-		if(use_acc2)GetDataFromRxBuffer(fmp[i+2][0].feature_map, nof_outputs, id2);
-		if(use_acc2)GetDataFromRxBuffer(fmp[i+3][0].feature_map, nof_outputs, id2);
+	//	if(use_acc2)GetDataFromRxBuffer(fmp[i+2][0].feature_map, nof_outputs, id2);
+	//	if(use_acc2)GetDataFromRxBuffer(fmp[i+3][0].feature_map, nof_outputs, id2);
 
 	}
 }
 
 XAxiDma ClAccDriver::TransferDatatoAccAndSetupRx(const std::vector<ConvLayerValues> &clv_vec0,
-		const std::vector<ConvLayerValues> &clv_vec1, int id)
+		const std::vector<ConvLayerValues> &clv_vec1, int id, int layer)
 {
 	int Status = 0;
-	const int img_dim = clv_vec0[0].img_dim;
-	const int kernel_dim = clv_vec0[0].kernel_dim;
-	u32 nof_outputs = ((img_dim-kernel_dim+1)/2)*((img_dim-kernel_dim+1)/2);
 
+	int nof_outputs = 1;
+	if (layer == 1) nof_outputs = 14*14;
+	if (layer == 2) nof_outputs = 5*5;
 
 
 	XAxiDma AxiDma;
@@ -136,7 +151,7 @@ XAxiDma ClAccDriver::TransferDatatoAccAndSetupRx(const std::vector<ConvLayerValu
 	Status = SetupRxTransfer(&AxiDma, nof_outputs, id, clv_vec0[0].feature_map);
 
 	/* Send a packet */
-	Status = SendPacket(&AxiDma, clv_vec0, clv_vec1, id);
+	Status = SendPacket(&AxiDma, clv_vec0, clv_vec1, id, layer);
 	if (Status != XST_SUCCESS) {
 
 	}
@@ -168,7 +183,7 @@ int ClAccDriver::SetupRxTransfer (XAxiDma * AxiDmaInstPtr, const int recv_length
 		Status = XAxiDma_BdSetBufAddr(&BdCurPtr[i], RxBufferPtr+MAX_RECV_LEN*i);
 
 		if (Status != XST_SUCCESS) {
-			xil_printf("Set buffer addr %x on BD %x failed %d. DMA id: %d\r\n",
+			xil_printf("Rx: Set buffer addr %x on BD %x failed %d. DMA id: %d\r\n",
 				(unsigned int)RxBufferPtr,
 				(unsigned int)BdCurPtr[i], Status, id);
 
@@ -357,7 +372,7 @@ int ClAccDriver::TxSetup(XAxiDma * AxiDmaInstPtr, int id)
 *
 ******************************************************************************/
 int ClAccDriver::SendPacket(XAxiDma * AxiDmaInstPtr, const std::vector<ConvLayerValues> &clv_vec0,
-		const std::vector<ConvLayerValues> &clv_vec1 , int id)
+		const std::vector<ConvLayerValues> &clv_vec1 , int id, int layer)
 {
 	XAxiDma_BdRing *TxRingPtr;
 	XAxiDma_Bd *BdPtr;
@@ -368,7 +383,9 @@ int ClAccDriver::SendPacket(XAxiDma * AxiDmaInstPtr, const std::vector<ConvLayer
 	const std::vector<ConvLayerValues> &clv_vec = clv_vec0;
 	const std::vector<ConvLayerValues> &clv_vec2 = clv_vec1;
 
-	const std::vector<float> padding(16, 0);
+	std::vector<float> padding;
+	if (layer == 1 || layer == 2) padding.resize(17);
+	else padding.resize(9);
 
 	int nof_bds1 = (clv_vec.size())*3+1;
 	int nof_bds2 = (clv_vec2.size())*3+1;

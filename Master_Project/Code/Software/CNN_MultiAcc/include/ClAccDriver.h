@@ -55,9 +55,9 @@ using feature_map_parameters = std::vector<vec_clv>;
 struct buffer_addr {
 	int mem_base_addr;
 	const int tx_bd_space_base () { return mem_base_addr; }
-	const int tx_bd_space_high () { return mem_base_addr +0x00000FFF; }
-	const int rx_bd_space_base () { return mem_base_addr + 0x00001000; }
-	const int rx_bd_space_high () { return mem_base_addr + 0x00001FFF; }
+	const int tx_bd_space_high () { return mem_base_addr + 0x0000FFFF; }
+	const int rx_bd_space_base () { return mem_base_addr + 0x00010000; }
+	const int rx_bd_space_high () { return mem_base_addr + 0x0001FFFF; }
 	const int tx_buffer_base () { return mem_base_addr + 0x00100000; }
 	const int rx_buffer_base () { return mem_base_addr + 0x00300000; }
 	const int rx_buffer_high () { return mem_base_addr + 0x004FFFFF; }
@@ -73,7 +73,7 @@ float FixedToFloat(float n);
 class ClAccDriver {
 public:
 	ClAccDriver();
-	void CalculateLayer(feature_map_parameters &fmp);
+	void CalculateLayer(feature_map_parameters &fmp, int layer);
 
 
 private:
@@ -84,11 +84,11 @@ private:
 	std::vector<buffer_addr> dma_buffer_addr;
 
 	void InitializeDMA();
-	XAxiDma TransferDatatoAccAndSetupRx(const std::vector<ConvLayerValues> &clv_vec0, const std::vector<ConvLayerValues> &clv_vec1, int id);
+	XAxiDma TransferDatatoAccAndSetupRx(const std::vector<ConvLayerValues> &clv_vec0, const std::vector<ConvLayerValues> &clv_vec1, int id, int layer);
 	void ConfigureAndRunAccelerator(int nof_outputs, int layer, int nof_sets, int id);
 	int RxSetup(XAxiDma * AxiDmaInstPtr, int id);
 	int TxSetup(XAxiDma * AxiDmaInstPtr, int id);
-	int SendPacket(XAxiDma * AxiDmaInstPtr, const std::vector<ConvLayerValues> &clv_vec0, const std::vector<ConvLayerValues> &clv_vec1, int id);
+	int SendPacket(XAxiDma * AxiDmaInstPtr, const std::vector<ConvLayerValues> &clv_vec0, const std::vector<ConvLayerValues> &clv_vec1, int id, int layer);
 	int GetDataFromRxBuffer(vec_it iterator, int data_size, int id);
 	int WaitForTxToFinish(XAxiDma * AxiDmaInstPtr, int nof_bds);
 	int WaitForRxToFinish(XAxiDma * AxiDmaInstPtr);

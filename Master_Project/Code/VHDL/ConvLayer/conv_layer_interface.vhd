@@ -58,8 +58,8 @@ architecture Behavioral of conv_layer_interface is
             clk 		: in std_logic;
             reset		: in std_logic;
             conv_en		: in std_logic;
-            final_set : in std_logic;
-            layer_nr	: in std_logic;
+            final_set   : in std_logic;
+            layer_nr	: in Natural;
             weight_we	: in std_logic;
             weight_data	: in sfixed(INT_WIDTH-1 downto -FRAC_WIDTH);
             pixel_in	: in sfixed(INT_WIDTH-1 downto -FRAC_WIDTH);
@@ -73,7 +73,10 @@ architecture Behavioral of conv_layer_interface is
     constant Layer0_Nof_Outputs : std_logic_vector := std_logic_vector(to_unsigned(14*14, 32));
     constant Layer1_Nof_Outputs : std_logic_vector := std_logic_vector(to_unsigned(5*5, 32));
     constant Layer1_Set_Size    : std_logic_vector := std_logic_vector(to_unsigned(14*14, 32));
+    constant Layer2_Set_Size    : std_logic_vector := std_logic_vector(to_unsigned(5*5, 32));
+    constant Layer2_Nof_Outputs : std_logic_vector := std_logic_vector(to_unsigned(1, 32));
 
+    signal Set_Size : std_logic_vector(31 downto 0);
 	-- Control signals
 	signal op_code          : std_logic_vector(1 downto 0);
 	signal start_processing : std_logic;
@@ -98,7 +101,7 @@ architecture Behavioral of conv_layer_interface is
     signal cl_reset         : std_logic;
     signal conv_layer_reset : std_logic;
 	signal cl_conv_en		: std_logic;
-    signal cl_layer_nr      : std_logic;
+    signal cl_layer_nr      : Natural;
     signal cl_final_set     : std_logic;
     signal cl_weight_we     : std_logic;
     signal cl_weight_data   : sfixed(INT_WIDTH-1 downto -FRAC_WIDTH);
@@ -117,7 +120,7 @@ begin
     WriteControlRegisters : process(clk, reset)
     begin
         if reset = '0' then
-            cl_layer_nr <= '0';
+            cl_layer_nr <= 0;
             nof_outputs <= (others => '0');
             start_processing <= '0';
             nof_input_sets <= (others => '0');
@@ -134,10 +137,16 @@ begin
                     start_processing <= '0';
                     if s_axi_wdata(0) = '1' then
                         nof_outputs <= Layer0_Nof_Outputs;
-                        cl_layer_nr <= '0';
+                        cl_layer_nr <= 0;
+                        Set_Size <= (others => '0');
                     elsif s_axi_wdata(1) = '1' then
                         nof_outputs <= Layer1_Nof_Outputs;
-                        cl_layer_nr <= '1';
+                        cl_layer_nr <= 1;
+                        Set_Size <= Layer1_Set_Size;
+                    elsif s_axi_wdata(2) = '1' then
+                        nof_outputs <= Layer2_Nof_Outputs;
+                        cl_layer_nr <= 2;
+                        Set_Size <= Layer2_Set_Size;
                     end if;
                 elsif s_axi_waddr = "010" then
                     start_processing <= '0';
@@ -177,14 +186,12 @@ begin
         variable nof_data_written : integer;
         variable nof_weights_written : integer;
         variable nof_input_sets_processed : integer;
-        variable set_size : integer;
     begin
         if reset = '0' then
             nof_processed_outputs := 0;
             nof_data_written := 0;
             nof_weights_written := 0;
             nof_input_sets_processed := 0;
-            set_size := to_integer(unsigned(Layer1_Set_Size));
 
             is_executing_cl <= '0';
             is_writing_weights <= '0';
@@ -252,7 +259,7 @@ begin
                     cl_final_set <= '0';
                     m_axis_tvalid <= '0';
                     m_axis_tlast <= '0';
-                    if nof_data_written = set_size-1 then
+                    if nof_data_written = to_integer(unsigned(Set_Size))-1 then
                         is_writing_weights <= '1';
                         is_executing_cl <= '0';
                         nof_data_written := 0;
@@ -267,7 +274,6 @@ begin
                 nof_data_written := 0;
                 nof_weights_written := 0;
                 nof_input_sets_processed := 0;
-                set_size := to_integer(unsigned(Layer1_Set_Size));
 
                 is_executing_cl <= '0';
                 is_writing_weights <= '0';

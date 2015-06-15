@@ -79,6 +79,8 @@ begin
     begin
         if output_reg >= 0 then
             data_out <= shift_reg_values(output_reg);
+        elsif output_reg = 0 then
+            data_out <= data_in;
         else
             data_out <= shift_reg_values(0);
         end if;

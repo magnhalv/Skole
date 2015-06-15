@@ -10,7 +10,7 @@ entity conv_controller is
 	port (
 		clk 				: in  std_logic;
 		conv_en 			: in  std_logic;
-        layer_nr            : in std_logic;
+        layer_nr            : in Natural;
 		output_valid 	    : out std_logic
 	);
 end conv_controller;
@@ -31,10 +31,12 @@ begin
 
     set_img_dim : process(layer_nr)
     begin
-        if layer_nr = '0' then
+        if layer_nr = 0 then
             curr_img_dim <= IMAGE_DIM;
-        else
+        elsif layer_nr = 1 then
             curr_img_dim <= (IMAGE_DIM-KERNEL_DIM+1)/2;
+        else
+            curr_img_dim <= (((IMAGE_DIM-KERNEL_DIM+1)/2)-KERNEL_DIM+1)/2;
         end if;
     end process;
 

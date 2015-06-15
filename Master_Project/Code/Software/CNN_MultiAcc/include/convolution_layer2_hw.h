@@ -114,7 +114,7 @@ public:
     		}
     		fmp.push_back(clv_vec);
 		}
-    	acc_driver.CalculateLayer(fmp);
+    	acc_driver.CalculateLayer(fmp, 2);
 
 		return this->next_ ? this->next_->forward_propagation(this->output_[index], index) : this->output_[index]; // 15.6%
 	}
