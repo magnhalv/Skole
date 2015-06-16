@@ -57,7 +57,8 @@ In order to decide which part of the network that should be accelerated one has 
 \end{table}
 
 Table \ref{tab_nofOps} shows the number of connections for each layer in the network. Each connection corresponds to a multiply-and-accumulate (MAC) operation, e.g. 122304 MAC operations are required to compute C1. Since the number of activation functions to be computed is strongly correlated to the number of connections, we refrained from including them in the analysis. 
-We see that 97\% of the computations in our network is performed in the convolution layers, giving a clear indication of what layers should be accelerated. 
+We see that 97\% of the computations in our network is performed in the convolution layers, giving a clear indication of what layers should be accelerated.
+
 
 We also decided to accelerate the subsampling/pooling layers, even though only 0.8\% of computations are done there. The reason for this that we were able to make a design where the subsampling/pooling could be done virtually in parallel with the convolution, at a minimal cost to hardware resources (see Section \ref{sec_average_pooler}. We deemed the small cost worth the 0.8\% potential performance boost. But more importantly, it makes our architecture eaiser to extend to compute several layers in a row, without going back to software, which would greatly reduce off-chip traffic and performance (see Chapter \ref{chap_future_work}).
 
@@ -77,7 +78,7 @@ Figure \ref{fig_software_architecture} A shows a simplified version of the archi
 
 Figure \ref{fig_software_architecture} B shows how the original software was changed in order to make use of the accelerator. As mentioned, we decided to accelerate the convolutional layer and the subsample/average-pooling layer, thus we wrote a new software module that would handle both operations. But instead of computing the operations in software, the new module transfers the input data and the weight to the hardware accelerator and extracts the result from the computations. 
 
-We decided against accelerating layer C5. The main reason being that in its current form, the accelerator is only able to compute one feature map at a time. Each computation comes with a certain amount of overhead, i.e. transfering data to/from the accelerator and configuring it. Thus for C5, which takes in 120 $ 5 \times 5 $ matices, we figured that input was so numerous and so small that it would cause too much overhead in order to be efficient. Though this is mostly guesswork, and should be tested before any absolute conclusion is reached. But due to lack of time, this was saved for future work. 
+While our architecture supports accelerations of C5, we refrained from using it in its current form. The reason being that currently the accelerator is only able to compute one feature map at a time. Each computation comes with a certain amount of overhead, i.e. transfering data to/from the accelerator and configuring it. Thus for C5, which takes in 120 $ 5 \times 5 $ matices, we figured that input was so numerous and so small that it would cause too much overhead in order to be efficient. In Chapter \ref{chap_results} we show data that confirms this claim.
 
 
 \begin{figure}[h!]
@@ -89,26 +90,161 @@ We decided against accelerating layer C5. The main reason being that in its curr
 
 \subsection{Hardware driver}
 
-A driver for the accelerator was written in order to create a simple and easy to use interface to the hardware. As mentioned, the accelerator can only compute on feature map at a time, thus the input to the driver is all the data required to compute said feature map. That is, a set of images, their respective kernels and bias, the average pooling constant and its respective bias. The driver then feeds this data to the accelerator, and returns the computed feature map. 
-
-In order to control the accelerator, the driver accesses two memory-mapped control registers. The first registers is used to set which layer is currently going to be processsed, i.e. C1/S2 or C3/S4, and the second one is used to start the accelerator when the input data is ready. 
-
-For data transfer the driver uses a \textit{direct memory access controller} (DMA) IP from Xilinx. This is where most of work on the driver had to be done, since the DMA interface is much more complex compared to the accelerator interface. The DMA is configured to transfer the weights and image(s) to the accelerator's input buffer, and extract the data from the output buffer. Since the output buffer is a FIFO, the DMA is able to extract each output value as they are produced, instead of waiting for the accelerator to finish and then transfer all the output data. 
+A driver for the accelerator was written in order to create a simple and easy to use interface to the hardware. As mentioned, in its current form the accelerator is able to compute on feature map at a time, thus the input to the driver is all the data required to compute said feature map. That is, a set of images, their respective kernels and bias, the average pooling constant and its respective bias. The driver then feeds this data to the accelerator, and returns the computed feature map. Due to the architecture of the accelerator the input has to be transfered in a certain order. The biases and average pooling constant first, the weights second and the image last. Figure \ref{fig_fifo_content} shows in what order the data should be in the accelerator FIFO buffer.
 
 
 \begin{figure}[h!]
   \centering
-      \includegraphics[width=0.5\textwidth]{Figures/Method/DriverAcceleratorInteraction}
+      \includegraphics[width=1.0\textwidth]{Figures/Method/FIFO_content}
+    \caption{Shows how the data must be sequentially ordered in the input FIFO. In this example the output feature map is computed using two input maps.}
+    \label{fig_fifo_content}
+\end{figure}
+
+For data transfer the driver uses a \textit{direct memory access controller} (DMA) IP from Xilinx. This is where most of work on the driver had to be done, since the DMA interface is much more complex compared to the accelerator interface. The DMA is configured to transfer the weights and image(s) to the accelerator's input buffer, and extract the data from the output buffer. Since the output buffer is a FIFO, the DMA is able to extract each output value as they are produced, instead of waiting for the accelerator to finish and then transfer all the output data. Figure \ref{fig_fifo_content} shows how the data has to be structured when transfered to the accelerator's input buffer.
+
+The processor can make use of the DMA by providing it with a set of \textit{buffer descriptors} (BD), also called a BD ring. Each descriptor provides the DMA with the neccessary information to perform a memory transfer: a source address and/or a destination address (depends on type of channel), and the length of the packet to transfer. One also need to set a \textit{start of file}(SOF) and \textit{end of file} (EOF) control bit for the first and last BD in the ring, respectively. 
+
+Our DMA has two channels, a transmit (Tx) and receive (Rx) channel. For the Tx channel the destination of the data is set to the address of the component connected to the DMA's Tx bus. Which in our case is the buffer which feeds the accelerator. Similary, the Rx channel's source address is set to the component connected to the Rx bus, i.e. the FIFO buffer containing the output of the accelerator.
+
+E.g. if a feature map requires two sets of input maps, weight and bias, then Figure \ref{fig_bdring} shows a simplified version of the Tx BD ring. Since the BDs are processed sequentially, the data will be transfered in the correct order, as in Figure \ref{fig_fifo_content}.
+
+\begin{figure}[h!]
+  \centering
+      \includegraphics[width=0.7\textwidth]{Figures/Method/BdRing}
+    \caption{Simplified version of the Tx BD ring. First BD points to the location of the bias, second to the weights, and the third to the image, etc.}
+    \label{fig_bdring}
+\end{figure}
+
+
+Xilinx provides a software driver for the DMA that manages the BD rings and initializes DMA transfers. A subset of the driver interface is listed below, showing the functions we used to control the DMA. For a more detailed explaination of the interface, please refer to the documentation in the driver source code, available at \cite{DMA_DRIVER_SOURCE}
+
+
+\begin{lstlisting}
+/* Retrievies the config structure required to initialize the DMA. */
+Config* XAxiDma_LookupConfig(u32 XAxiDma_id);
+
+/* Initializes the DMA */
+int XAxiDma_CfgInitialize(XAxiDma *dma, XAxiDma_Config *config);
+
+/* Returns a pointer to the BD ring for the Rx channel */
+XAxiDma_BdRing* XAxiDma_GetRxRing(XAxiDma *XAxiDmaInstPtr);
+
+/* Returns a pointer to the BD ring for the Tx channel */
+XAxiDma_BdRing* XAxiDma_GetTxRing(XAxiDma *XAxiDmaInstPtr);
+
+/* Returns the maximum number of BDs given the available memory size */
+int XAxiDma_BdRingCntCalc(u32 bd_size, u32 size_of_available_memory);
+
+/* Allocatetes memory for storing the BD ring */
+int XAxiDma_BdRingCreate(XAxiDma_BdRing *RxRingPtr, u32 BaseAddr, u32 BdSize, u32 BdCount);
+
+/* Allocated a number of BDs from the BD ring, which can be configured at submitted for hardware processing */
+int XAxiDma_BdRingAllc(XAxiDma_BdRing *BdRingPtr, u32 BdCount, XAxiDma_Bd *FirstFreeBdInRing);
+
+/* Sets of address the packet the BD should transfer. */
+int AxiDma_BdSetBufAddr(XAxiDma_Bd *BdPtr, u32 addr);
+
+/* Sets the length of the packet the BD should transfer */
+int AxiDmaBdSetLength(XAxiDma_Bd *BdPtr, u32 length);
+
+/* Set control signals for BD. E.g. SOF and EOF. */
+XAxiDma_BdSetCtrl(XAxiDma_Bd *BdPtr, u32 CtrlMask);
+
+/* Starts the channel. I.e. the DMA will start processing BDs as soon as they are submitted to hardware */
+int XAxiDma_BdRingStart(XAxiDma_BdRing *BdRingPtr);
+
+/* Submits the BD ring to hardware. Can not be accessed again before hardware is done processing. */
+int XAxiDma_BdRingToHw(XAxiDma_Bdring *BdRingPtr, u32 BdCount, XAxiDma_Bd *FirstBd);
+
+/* Extracts BDs from hardware after they are processed. Returns maximally BdCount BDs from hardware, but perhaps less */
+int  XAxiDma_BdRingFromHw(XAxiDma_BdRing *BdRingPtr, u32 BdCount, XAxiDma *FirstBdRetrived);
+
+/* Frees BdCount BDs after they have been processed by hardware. Must be done before the can resused for other transfers */
+XAxiDma_BdRingFree(XAxiDma_BdRing *BdRingPtr, u32 BdCount, XAxiDma_Bd *FirstBdToFree);
+\end{lstlisting}
+
+Below we will show in simplified C code how we have used the above interface to transfer data to and from the accelerator. The first thing that has to be done is to initialize the DMA driver, allocate memory for the Tx and Rx BD rings, and start the channels.
+
+\begin{lstlisting}
+
+  void initializeDMA() {
+    XAxiDma Dma;
+    XAxiDma_Config *Config = XAxiDma_LookupConfig(DmaId);
+    XAxiDma_CfgInitialize(&Dma, Config);
+
+    SetupTx(&Dma);
+    SetupRx(&Dma);
+  }
+
+  void SetupTx(XAxiDma *Dma) {
+    XAxiDma_BdRingPtr *TxRing = XAxiDma_GetTxRing(Dma);
+    int BdCount = XAxiDma_BdringCntCalc(MINIMUM_ALIGNMENT, TxBdMemorySpaceHigh-TxBdMemorySpaceBase);
+    XAxiDma_BdRingCreate(TxRing, TxBdMemorySpaceBase, MINIMUM_ALIGNMENT, BdCount);
+    XaxiDma_BdRingStart(TxRing);
+  }
+
+  void SetupRx(XAxiDma *Dma) {
+    /* Virtually the same as SetupTx */
+  }
+  
+\end{lstlisting}
+
+This should only be neccessary to do once, as long as one does not need more BDs than what is currently allocated.
+
+\begin{lstlisting}
+
+  void computeOutputMap(XAxiDma *Dma) {
+
+    SetupTransferToAccelerator(Dma);
+    SetupTransferFromAccelerator(Dma);
+    WaitForTx(Dma);
+    RunAccelerator();
+    WaitForRx(Dma);
+    
+  }
+
+  SetupTransferToAccelerator(XAxiDma *Dma) {
+    XaxiDma_BdRing *TxRing = XAxiDma_GetTxRing(Dma);
+    XAxiDma_Bd *Bdptr;
+    XAxiDma_BdRingAlloc(TxRing, NumberOfInputMaps*3, &BdPtr); /* Multiply with three, because each input map needs to transfer three packets: bias, weights and image. */
+
+    for each input map {
+      
+    }
+    
+  }
+  
+\end{lstlisting}
+
+
+
+
+
+In order to control the accelerator, the driver accesses two memory-mapped control registers. The first registers is used to set which layer is currently going to be processsed, i.e. C1/S2 or C3/S4, and the second one is used to start the accelerator when the input data is ready. 
+
+
+\begin{figure}[h!]
+  \centering
+      \includegraphics[width=1.0\textwidth]{Figures/Method/DriverAcceleratorInteraction}
     \caption{The interaction between the driver, DMA and accelerator.}
     \label{fig_driver_acc_interact}
 \end{figure}
  
+
+
 
 \section{Hardware Architecture}
 
 In this section we will describe the hardware architecture of the system as a whole, and more specifically, our accelerator. Do note that the descriptions and the figures are simplified to some extent. This simplication is done with the intent avoiding complex description and explainations. We will rather focus on conveying the important ideas behind the design, instead of describing every tiny detail of the architecture. 
 
 \subsection{Overview of Hardware Achitecture}
+
+\begin{figure}[h!]
+  \centering
+      \includegraphics[width=1.0\textwidth]{Figures/Method/system_architecture}
+    \caption{The system architecture.}
+    \label{fig_system_architecture}
+\end{figure}
 
 
 \subsection{Accelerator Interface}

@@ -1,6 +1,6 @@
 \chapter{Background} \label{chap_background}
 
-In order to be able to accelerate a system, it is important to understand the mathematical model behind it. For this reason, we have included Section \ref{sec_ann} and \ref{sec_cnn}  from our previous work \cite{Halvorsen2014}, which purposed a theoretical accelerator architecture. The sections will introduce the fundamental mathematics and concepts behind the \textit{Convolutional Neural Network} (CNN) model. They give a basic introduction to both general neural networks and \textit{CNNs}. 
+In order to be able to accelerate a system, it is important to understand the mathematical model behind it. For this reason, we have included Section \ref{sec_ann} and \ref{sec_cnn}  from our previous work \cite{Halvorsen2014}, which purposed a theoretical accelerator architecture. The sections will introduce the fundamental mathematics and concepts behind the \textit{Convolutional Neural Network} (CNN) model. They give a basic introduction to both general neural networks and \textit{CNNs}. Section \ref{sec_zedboard} will present the hardware platform we used to implement our accelerator. 
 
 \section{Artificial Neural Networks}\label{sec_ann}
 
@@ -292,3 +292,17 @@ A vast amount of the computation required by a CNN can be parallelized. Thus, in
 	
     \item The activation of each neuron in the fully connected layer. One option is to parallelize them by creating a binary tree multiplier, where you have \textit{n} units compute the product of the input and its respective weight, then you use $ \frac{n}{2} $ units to add two of the results each, and so on until you have a single value. This will reduce the time it takes from \textit{n} time to $ log_2 n $ time if they can all be done in parallel.   
 \end{enumerate}
+
+
+\section{Zedboard} \label{sec_zedboard}
+
+The Zedboard is a development board for the \textit{Xilinx Zynq®-7020 All Programmable System-on-Chip (SoC)}. The Zynq®-7020 consists of a dual-core \textit{ARM Cortex-A9 MPCore based Processing System (PS)} that is tightly coupled to Xilinx \textit{programmable logic} (PL), that contains a Artix-7 FPGA. The PS includes on-chip memory, external memory interfaces, and a number of I/O peripherals.
+
+TODO
+
+\begin{figure}[h!]
+  \centering
+      \includegraphics[width=1.0\textwidth]{Figures/Background/zynq_architecture}
+  \caption{Zyng-7000 system architecture.}
+  \label{fig_zynq_architecture}
+\end{figure}
