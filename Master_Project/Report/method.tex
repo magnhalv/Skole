@@ -322,7 +322,7 @@ The flash memory is used to store the trained parameters of the neural network, 
 
 Figure \ref{fig_accelerator_interface} shows the block diagram for the interface of the accelerator. The S\_AXI bus, which the processor uses to configure the accelerator, is connected to a controller. The input maps, weights and biases are streamed into the processing unit via the S\_AXIS bus, and the resulting output map is streamed out via the M\_AXIS bus.
 
-The controller is a state machine which controls the processing unit. It has three states: idle, loading weights and processing, as seen in Figure \ref{fig_accelerator_state_machine}.
+The controller is a state machine which controls the processing unit. It has three states: idle, loading weights and processing, as seen in Figure \ref{fig_accelerator_state_machine}. 
 
 \begin{figure}[h!]
   \centering
