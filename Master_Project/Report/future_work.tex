@@ -32,7 +32,11 @@ Developing a convolutional neural network hardware accelerator is a complex and 
 	\item \textbf{Hardware accelerate float to fixed.}
 	
 	Currently our system pre-processes the image and weights into fixed point before processing them. If this system were to be integrated into system using floating points it would be beneficial to do this transformation in hardware. Currently we are able to do fixed point to floating point in hardware using only one clock cycle, and thus we believe it should be possible to do the same for float to fixed. 
-	
+
+  \item Test with bigger images.
+
+    \item Better memory scheme. Keep all input maps in hardware buffer. 
+    
 	\item \textbf{Training on hardware.}
 	
 \end{enumerate}

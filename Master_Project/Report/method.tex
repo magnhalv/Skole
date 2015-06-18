@@ -49,7 +49,7 @@ In order to decide which part of the network that should be accelerated one has 
     $ C3 $ & $ 151600 $ & $ 0.46 $  \\ \hline
     $ S4 $ & $ 2000 $ & $ 0.006 $ \\ \hline
     $ C5 $ & $ 48120 $ & $ 0.14 $  \\ \hline
-    $ F6 $ & $ 1200 $ & $ 0.004 $ \\ \hline
+    $ F6 $ & $ 120 $ & $ 0.004 $ \\ \hline
     $ Total $ & $ 331104 $ & $ 1.0 $  \\ \hline
         \end{tabular}
     \caption{An overview of the number of connections in the network layers.}
@@ -88,7 +88,7 @@ While our architecture supports accelerations of C5, we refrained from using it 
     \label{fig_software_architecture}
 \end{figure}
 
-\subsection{Hardware driver}
+\subsection{Hardware driver} \label{sec_hardware_driver}
 
 A driver for the accelerator was written in order to create a simple and easy to use interface to the hardware. As mentioned, in its current form the accelerator is able to compute on feature map at a time, thus the input to the driver is all the data required to compute said feature map. That is, a set of images, their respective kernels and bias, the average pooling constant and its respective bias. The driver then feeds this data to the accelerator, and returns the computed feature map. Due to the architecture of the accelerator the input has to be transfered in a certain order. The biases and average pooling constant first, the weights second and the image last. Figure \ref{fig_fifo_content} shows in what order the data should be in the accelerator FIFO buffer.
 

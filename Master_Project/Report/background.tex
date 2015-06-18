@@ -298,7 +298,12 @@ A vast amount of the computation required by a CNN can be parallelized. Thus, in
 
 The Zedboard is a development board for the \textit{Xilinx Zynq®-7020 All Programmable System-on-Chip (SoC)}. The Zynq®-7020 consists of a dual-core \textit{ARM Cortex-A9 MPCore based Processing System (PS)} that is tightly coupled to Xilinx \textit{programmable logic} (PL), that contains a Artix-7 FPGA. The PS includes on-chip memory, external memory interfaces, and a number of I/O peripherals.
 
-TODO
+The architecture described in Chapter \ref{chap_method} was prototyped on an \textit{Avnet Zedboard}, containing a \textit{Xilinx Zyngq-7020 All Programmable System-On-Chip} (SoC). The SoC contains two ARM Cortex-A9 processors, and a Artix-7 FPGA. 
+
+The main reason for choosing this system was that it contains four DMA channels, and 220 DSP slices, which should have allowed us to run four fully saturated accelerators in parallel. Unfortunately resource constraint for our architecture turned out to be \textit{look-up tables} (LUTs)
+
+In this prototype we were only able to use one of the two ARM processors for controlling the accelerator(s) and processing the layers that were not accelerated. Preferably we should have used both for processing layer C5 and F6, but we were unable to do so due to time constraints. 
+
 
 \begin{figure}[h!]
   \centering
