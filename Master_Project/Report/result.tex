@@ -109,13 +109,6 @@ This produced the results seen in Figure \ref{fig_performance_sub_init}. We can 
 \end{enumerate}
 
 
-
-
-
-
-
-
-
 \begin{figure}[h!]
 	\centering
 	\includegraphics[width=1.0\textwidth,height=5cm]{Figures/Results/performance_whole_system}
@@ -130,3 +123,20 @@ This produced the results seen in Figure \ref{fig_performance_sub_init}. We can 
 	\label{fig_performance_whole_system_sub_dma_init}
 \end{figure}
 
+In Figure \ref{fig_performance_whole_system} we can see how our system performs compared to the laptop CPU. In the current state of the system it gets handely outperformed by the laptop, even if we subtract the DMA initializations (Figure \ref{fig_performance_whole_system_sub_dma_init}. The primary reason for this is the bottleneck created by C5. If we look at the performance when considering only layer C1, S2, S3 and C4 our system is 2x as energy efficient, as seen in Figure \ref{fig_performance_C1C2_laptop}. And Figure \ref{fig_performance_C1C2_laptop_sub_dma_init} shows it is almost 5x as power efficienct if we assume the DMA initialization bug gets fixed. 
+
+\begin{figure}[h!]
+	\centering
+	\includegraphics[width=1.0\textwidth,height=5cm]{Figures/Results/performance_C1C2_laptop}
+	\caption{Performance when only processing C1, S2, C3 and S4.}
+	\label{fig_performance_C1C2_laptop}
+\end{figure}
+
+\begin{figure}[h!]
+	\centering
+	\includegraphics[width=1.0\textwidth,height=5cm]{Figures/Results/performance_C1C2_laptop_sub_dma_init}
+	\caption{Performance when only processing C1, S2, C3 and S4, but assuming that the DMA initialization bug is fixed.}
+	\label{fig_performance_C1C2_laptop_sub_dma_init}
+\end{figure}
+
+It is worth noticing that our system is currently only a prototype, and there remains several performance boosting features and optimizations that can be implemented. We have dedicated Chapter \ref{chap_future_work} for this discussion. 

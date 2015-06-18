@@ -6,10 +6,17 @@ Developing a convolutional neural network hardware accelerator is a complex and 
 \begin{enumerate}                           
 
 
-	\item \textbf{Acceleration of layer C5.}
+  \item \textbf{Improve the memory transfer and access scheme.}
+    
+    As we mentioned in Section \ref{sec_result_discussion}, the current memory access scheme is inefficient. This is because we transfer the same input maps multiple times to the accelerator, since different output maps require the same input maps. A better scheme would be to have two input buffers to the accelerator, one for input maps and one for weights/bias. One could then transfer all the input maps to the map buffer once, and let them reside there through the computations of the whole layer. The accelerator could then access the required input maps for the respective output map directly from that buffer. Thus would reduce off-chip trafic greatly, since the input maps are only transfered ones. It would require some extra control logic, so the accelerator acceses the corrent input maps in the buffer. 
+
+	\item \textbf{Stream data through accelerator, instead of filling the buffer first.}
 	
--	Will probably try this before delivering. 
-%	While improvements can still be made to imrove the current accelerated layers, the relative gain would be so little compared to accelerating C5, and potentially F6. 
+	Currently all the data required for computations are loaded into a buffer before it is processed by the accelerator. Changing it so that the data can be streamed directly into the accelerator would provide two potential benefits: 1) faster processing, since data can be processed while the DMA is transfering data to the accelerator, 2) reduced storage on chip, since we no longer need to store all the data in an input buffer. Should be fairly easy to extend the design for this, but due to time constraints, it was not implemented. 
+
+  \item \textbf{Stay in hardware, instead of going back to software for next layer}
+	
+	The main reason \cite{Zhang2015} and \cite{Ovtcharov2015} achieved high performance was by reducing off-chip traffic. In the current state of our system, software has to be involved for every feature map to be computed, and data is being transfered back and forth between software and hardware several times. This is inefficient. Thus extending the system with logic that can redistrubute the output maps as new input maps without involving software could provide a substantial performance boost. But it will increase resource usage and development time, and will probably require a bigger board. Both the mentioned papers used FPGAs at the size of a Virtex 7. The mentioned improved memory scheme is a step in this directions. 
 	
 	\item \textbf{Explore ways to reduce the resource usage.}
 	
@@ -19,15 +26,9 @@ Developing a convolutional neural network hardware accelerator is a complex and 
 	
 	\item \textbf{More accelerators in parallel.}
 	
-	Currently we are only running two accelerators in parallel, which both have a respective DMA that moves their input and output data. The maximum DDR bandwidth is at about 3.2 GB/s, and each DMA has access to a \textit{high-performance} port which can  deliver up to 800 MB/s. This effectively means that we are exploiting half of the available DDR bandwidth. Given a big enough hardware platform or improvements to resource usage, as mentioned in the above point, this feature should be simple to implement. 
+	Currently we are only running two accelerators in parallel, which both have a respective DMA that moves their input and output data. The maximum DDR bandwidth is at about 3.2 GB/s, and each DMA has access to a \textit{high-performance} port which can  deliver up to 800 MB/s. This effectively means that we are exploiting half of the available DDR bandwidth. Given a big enough hardware platform or improvements to resource usage, as mentioned in the above point, this feature should be simple to implement. But before this can be exploited, the memory access scheme needs to be improved so the accelerators do not get starved. 
 	
-	\item \textbf{Stay in hardware, instead of going back to software for next layer}
 	
-	The main reason \cite{Zhang2015} and \cite{Ovtcharov2015} achieved high performance was by reducing off-chip traffic. In the current state of our system, software has to be involved for every feature map to be computed, and data is being transfered back and forth between software and hardware several times. This is inefficient. Thus extending the system with logic that can redistrubute the output maps as new input maps without involving software could provide a substantial performance boost. But it will increase resource usage and development time, and will probably require a bigger board. Both the mentioned papers used FPGAs at the size of a Virtex 7.  
-	
-	\item \textbf{Stream data through accelerator, instead of filling the buffer first.}
-	
-	Currently all the data required for computations are loaded into a buffer before it is processed by the accelerator. Changing it so that the data can be streamed directly into the accelerator would provide two potential benefits: 1) faster processing, since data can be processed while the DMA is transfering data to the accelerator, 2) reduced storage on chip, since we no longer need to store all the data in an input buffer. Should be fairly easy to extend the design for this, but due to time constraints, and the gains probably not being that great, it was not prioritized. 
 	
 	\item \textbf{Hardware accelerate float to fixed.}
 	
@@ -35,7 +36,6 @@ Developing a convolutional neural network hardware accelerator is a complex and 
 
   \item Test with bigger images.
 
-    \item Better memory scheme. Keep all input maps in hardware buffer. 
     
 	\item \textbf{Training on hardware.}
 	

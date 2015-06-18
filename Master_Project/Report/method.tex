@@ -119,7 +119,8 @@ E.g. if a feature map requires two sets of input maps, weight and bias, then Fig
 Xilinx provides a software driver for the DMA that manages the BD rings and initializes DMA transfers. A subset of the driver interface is listed below, showing the functions we used to control the DMA. For a more detailed explaination of the interface, please refer to the documentation in the driver source code, available at \cite{DMA_DRIVER_SOURCE}
 
 
-\begin{lstlisting}
+\begin{lstlisting}[caption={XAxiDma driver interface},label=dma_interface]
+
 /* Retrievies the config structure required to initialize the DMA. */
 Config* XAxiDma_LookupConfig(u32 XAxiDma_id);
 
@@ -163,7 +164,9 @@ int  XAxiDma_BdRingFromHw(XAxiDma_BdRing *BdRingPtr, u32 BdCount, XAxiDma *First
 XAxiDma_BdRingFree(XAxiDma_BdRing *BdRingPtr, u32 BdCount, XAxiDma_Bd *FirstBdToFree);
 \end{lstlisting}
 
-Below we will show in simplified C code how we have used the above interface to transfer data to and from the accelerator. The first thing that has to be done is to initialize the DMA driver, allocate memory for the Tx and Rx BD rings, and start the channels.
+Below we will show in simplified C code how we have used the above interface to configure and run, and transfer data to and from the accelerator. 
+
+The first thing that has to be done is to initialize the DMA driver, allocate memory for the Tx and Rx BD rings, and start the channels.
 
 \begin{lstlisting}
 
@@ -189,7 +192,7 @@ Below we will show in simplified C code how we have used the above interface to 
   
 \end{lstlisting}
 
-This should only be neccessary to do once, as long as one does not need more BDs than what is currently allocated.
+This should only be neccessary to do once, as long as one does not need more BDs than what is currently allocated. Afterwards one can transfer data to the accelerator, run the accelerator and retrieve the output the following way: 
 
 \begin{lstlisting}
 
@@ -203,41 +206,80 @@ This should only be neccessary to do once, as long as one does not need more BDs
     
   }
 
-  SetupTransferToAccelerator(XAxiDma *Dma) {
-    XaxiDma_BdRing *TxRing = XAxiDma_GetTxRing(Dma);
-    XAxiDma_Bd *Bdptr;
-    XAxiDma_BdRingAlloc(TxRing, NumberOfInputMaps*3, &BdPtr); /* Multiply with three, because each input map needs to transfer three packets: bias, weights and image. */
+  void SetupTransferToAccelerator(XAxiDma *Dma) {
 
+    XAxiDma_Bd *Bdptr;
+    int BdCount = NumberOfInputMaps*3; /* Multiply with three, because each input map needs to transfer three packets: bias, weights and image. */
+    XaxiDma_BdRing *TxRing = XAxiDma_GetTxRing(Dma);
+    XAxiDma_BdRingAlloc(TxRing, BdCount, &BdPtr); 
+
+    int index = 0;
     for each input map {
+      for bias, weight and input map {
+        XAxiDma_BdSetBufAddr(BdPtr[index], PacketAddr);
+        XAxiDma_BdSetLength(BdPtr[index], LengthOfPacket);
+        index++;
+      }
       
     }
+    XAxiDma_BdSetCtrl(BdPtr[0], SOF); /* First Bd in ring */
+    XAxiDma_BdSetCtrl(BdPtr[BdCount-1], EOF); /* Last Bd in ring */
+
+    XAxiDma_BringToHw(TxRing, BdCount, BdPtr[0]);
     
   }
-  
+
+ void  SetupTransferFromAccelerator(XAxiDma *Dma) {
+    int BdCount = 1; /* Only need to retrieve one output map */
+    XAxiDma_bd *BdPtr;
+    XAxiDma_BdRing *RxRing = XaxiDma_GetRxRing(Dma);
+    XAxiDma_BdRingAlloc(RxRing, BdCount, &BdPtr);
+    XAxiDma_BdSetBufAddr(BdPtr, PacketAddr); /* specifies where the output map should be stored */
+    XaxiDma_BdSetLength(BdPtr, PacketLength);
+    XaxiDma_BdRingToHw(RxRing, BdCount, BdPtr);
+ }
+
+ void WaitForTx(XAxiDma *Dma) {
+   XAxiDma_Bd *BdPtr;
+   XaxiDma_BdRing *TxPtr = XAxiDma_GetTxRing(Dma);
+
+   /* Get processed Bds from hardware */
+   int ProcessedBdCount = 0;
+   while (ProcessedBdCount < TotalBdCount) {
+     ProcessedBdCount += XAxiDma_BdRingFromHw(TxPtr, TotalBdCount, BdPtr);
+   }
+
+   /* Free all Bds when transfer is complete */
+   XAxiDma_BdRingFree(TxPtr, ProcessedBdCount, BdPtr);
+ }
+
+ void WaitForRx(XaxiDma *Dma) {
+   /* Virtually the same as WaitForTx */
+ }
 \end{lstlisting}
 
+The interface to the accelerator is designed to be as easy to use as possible, and requires little configurations. One simply needs to specify the layer that is going to be processed and the number of input maps that is needed to compute the output map. In addition, it is vitual that the input data is in the accelerators input buffer before it is started. With this is mind, the accelerator can be used in the following way:
+
+\begin{lstlisting}
+  void RunAccelerator() {
+  	Xil_Out32(AcceleratorAddr+4, layer); //Set current layer
+	Xil_Out32(AcceleratorAddr+8, nof_input_mapsx); //Set the number of input maps
+	Xil_Out32(AcceleratorAddr, 0); //Start processing
+  }
+\end{lstlisting}
+
+Where Xil\_Out32(u32 addr, u32 value) writes \textit{value} to the memory location of \textit{addr} in the PL. 
 
 
 
-
-In order to control the accelerator, the driver accesses two memory-mapped control registers. The first registers is used to set which layer is currently going to be processsed, i.e. C1/S2 or C3/S4, and the second one is used to start the accelerator when the input data is ready. 
-
-
-\begin{figure}[h!]
-  \centering
-      \includegraphics[width=1.0\textwidth]{Figures/Method/DriverAcceleratorInteraction}
-    \caption{The interaction between the driver, DMA and accelerator.}
-    \label{fig_driver_acc_interact}
-\end{figure}
+%% \begin{figure}[h!]
+%%   \centering
+%%       \includegraphics[width=1.0\textwidth]{Figures/Method/DriverAcceleratorInteraction}
+%%     \caption{The interaction between the driver, DMA and accelerator.}
+%%     \label{fig_driver_acc_interact}
+%% \end{figure}
  
 
-
-
-\section{Hardware Architecture}
-
-In this section we will describe the hardware architecture of the system as a whole, and more specifically, our accelerator. Do note that the descriptions and the figures are simplified to some extent. This simplication is done with the intent avoiding complex description and explainations. We will rather focus on conveying the important ideas behind the design, instead of describing every tiny detail of the architecture. 
-
-\subsection{Overview of Hardware Achitecture}
 
 \begin{figure}[h!]
   \centering
@@ -246,22 +288,53 @@ In this section we will describe the hardware architecture of the system as a wh
     \label{fig_system_architecture}
 \end{figure}
 
+\section{Hardware Architecture}
+
+In this section we will describe the hardware architecture of the system as a whole, and more specifically, our accelerator. Do note that the descriptions and the figures are simplified to some extent. This simplication is done with the intent avoiding complex description and explainations. We will rather focus on conveying the important ideas behind the design, instead of describing every tiny detail of the architecture. 
+
+\subsection{Overview of Hardware Achitecture}
+
+Figure \ref{fig_system_architecture} shows the block diagram of our system architecture. In this design we have to accelerators running in parallel, with their own respective DMA which is used to feed them data. The DMA's are connected to two of the four available \textit{high performance AXI} ports, which are optimized for high bandwidth access from PL to external memory. The DMA has three bus interfaces that uses the HP ports:
+
+\begin{itemize}
+\item The AXI slave port \textit{Memory-Mapped to Streaming} (S\_AXI\_MM2S) is used to transfer data from memory to the DMA. All the data transfered by the DMA's Tx channel is transfered to this port. The data can than be rerouted to any arbitary hardware module, as long as they implement a S\_AXIS bus port which is connected to the DMA's M\_AXI\_MM2S port. 
+\item The AXI master port \textit{Stream to Memory-Mapped} (M\_AXI\_S2MM) is used to transfer data from the DMA to external memory. The DMA receives data from the \textit{S\_AXI\_S2MM} which it rerouted to the M\_AXI\_S2MM if the Rx channel is active.
+\item The \textit{Scatter-Gather} (SG) is used to transfer BDs between software and hardware. I.e. when software is done configuring the BDs and submit them to DMA control, the DMA transfers the BDs from memory to itself, and starts processing them. When the DMA is done processing the BDs are returned to memory through the same port. 
+\end{itemize}
+
+In order to configure and run the DMA, the processor is connected to it with a S\_AXI bus. This is used to tell the DMA where in memory it can find the BD ring, when BDs are ready for processing etc.
+
+The accelerators are connected to two FIFOs, one for input and the other for output. The DMAs fill the input FIFO with data which the accelerator consumes, and extracts the accelerator's output data from the output FIFO. The processor can configure the accelerator directly by writing to it via the S\_AXI port.
+
+The flash memory is used to store the trained parameters of the neural network, and the input images and their respective labels. When the application starts up, this data is parsed by the processor and then stored in the external memory, so it can be accessed by the DMA later on.  
+
+
+
+\begin{figure}[h!]
+  \centering
+      \includegraphics[width=0.9\textwidth]{Figures/Method/accelerator_interface}
+    \caption{The interface of the accelerator.}
+    \label{fig_accelerator_interface}
+\end{figure}
+
 
 \subsection{Accelerator Interface}
 
-The accelerator has three bus interfaces that are used to control it. The first is a slave \textit{Advanced eXtensible Interface} (AXI) interface which is used to write the two control registers, and reading a set of status registers of the accelerator. The status registers are mostly used for debugging, i.e. reading various crucial values inside the accelerator, but also to determine whether the accelerator is currently processing. The bus is connected to the ARM processor, to allow direct communication between software and hardware.
+Figure \ref{fig_accelerator_interface} shows the block diagram for the interface of the accelerator. The S\_AXI bus, which the processor uses to configure the accelerator, is connected to a controller. The input maps, weights and biases are streamed into the processing unit via the S\_AXIS bus, and the resulting output map is streamed out via the M\_AXIS bus.
 
-The second bus interface is a slave \textit{AXI-Streaming} (AXIS) interface, which is used to stream the data input into the accelerator. The interface is connected to a \textit{first-in-first-out} (FIFO) buffer, where all the data required by the accelerator is stored until the accelerator is ready to consume them. 
+The controller is a state machine which controls the processing unit. It has three states: idle, loading weights and processing, as seen in Figure \ref{fig_accelerator_state_machine}.
 
-The third bus interface is a master AXIS interface, which is connected to another FIFO buffer. The computed feature map is streamed out of the accelerator into the buffer, and stored there until the DMA  moves the data back to software control.
+\begin{figure}[h!]
+  \centering
+      \includegraphics[width=0.9\textwidth]{Figures/Method/accelerator_state_machine}
+    \caption{The three states of the accelerator's controller.}
+    \label{fig_accelerator_state_machine}
+\end{figure}
 
- 
+  
+\subsection{The Accelerator's Processing Unit}
 
-
-
-\subsection{Accelerator Architecture}
-
-As previously stated, the accelerator takes \textit{n} images as input, $ I_1, I_2, \dots, I_n $, n respective kernels $ K_1, K_2, \dots, K_n $, two biases, and outputs a single processed image $ O $. Using the input images, the kernel and the bias, it performs the operations of the convolution and subsampling/pooling layer for a single feature map. Thus the output $ O $ is a subsampled/pooled feature map that has been produced by convoluting the images $ I_1, I_2, \dots, I_n $ with the kernels $ K_1, \dots, K_n $. 
+As previously stated, the accelerator takes \textit{n} images as input, $ I_1, I_2, \dots, I_n $, n respective kernels $ K_1, K_2, \dots, K_n $, two biases and an average pooling cofficient, and outputs a single processed image $ O $. Using the input images, the kernel and the bias, it performs the operations of the convolution and subsampling/average-pooling layer for a single feature map. Thus the output $ O $ is a subsampled/pooled feature map that has been produced by convoluting the images $ I_1, I_2, \dots, I_n $ with the kernels $ K_1, \dots, K_n $. 
 
 The accelerator can thus compute the whole convolution and subsample/pooling layer by doing the above computations for all the output feature maps in the layer. One can exploit inter-parallelism by making several instances of the accelerator run in parallel. One can also exploit intra-parallelism, but then one need to connect the different accelerator instances so they can add up the results from the convolutions without using the intermediate convolution buffer, as described in \cite{Chakradhar2010}. Unfortunately, within the given timeframe we were unable to get a system working that exploited inter- and intra parallelism. But the architecture is designed to be easily extendable to support this, given more development time. 
 
