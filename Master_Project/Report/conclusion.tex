@@ -1,2 +1,19 @@
 \chapter{Conclusion}
 
+In this report we have presented our hardware accelerator prototype for a Convolutional Neural Network. We have given a thorough description of our whole system, and how it was implemented on a ZedBoard development board. We have demonstrated the performance of our network by using it to compute a LeNet-5 inspired network, in order to classify handwritten digits. Compared to an ARM Cortex-A9 we achieved a significant performance boost, and outperformed an i7 CPU on the two first layers of the network in terms of energy efficiency. 
+
+We set out to complete two mandatory and two optional tasks. We will here give a quick summary of which of them were completed, and which ones remain incomplete: \\ \hfil \\ \hfil
+\textbf{Task 1 \textit{(mandatory)}} Implement a hardware accelerator for a Convolutional Neural Network, with the intention of improving energy efficiency. \textbf{Completed.} \\ \hfil \\ \hfil
+% % % % % % % % % % % % % % % % % % % % % % % %
+We have in this project built a full system that is able to compute a CNN using a handcrafted hardware accelerator. Chapter \ref{chap_method} gives a complete description of its design and implementation, and Chapter \ref{chap_results} shows it improves energy-efficiency by 5.6x over an ARM Cortex-A9 processor.  \\ \hfil \\ \hfil
+\textbf{Task 2 \textit{(mandatory)}} Compare our accelerator to an equivalent pure-software implementation on a general-purpose CPU, primarily in terms of power consumption. Chapter \ref{chap_future_work} gives further suggestions on how this design's performance can be further improved. \textbf{Completed.}  \\ \hfil \\ \hfil
+% % % % % % % % % % % % % % % % % % % % % % % % % % %
+Chapter \ref{chap_results} gives an detailed analysis of how our system performs in terms of both execution speed and performance. While our accelerator is more power efficient on the layers it was designed to enhance, it gets held back by the bottleneck created by the layers that are not accelerated. Because of this our system is notable to outperform a state of the art CPU. But the results provided gives a strong indication with further improvements, it has the potential to do so. \\ \hfil \\ \hfil
+% % % % % % % % % % % % % % % % % % % % %
+\textbf{Task 3 \textit{(optional)}} Implement said system on a  Zynq FPGA board, but weigh the advantages and disadvantages of other platforms, such as SHMAC or other FPGA platforms. \textbf{Partly completed.} \\ \hfil \\ \hfil
+% % % % % % % % % % % % % % % % % % % % % % % % % % % % %
+Our design was implemented on a ZedBoard, which contains a Zynq FPGA board. Section \ref{sec_hardware_resources} provide some argumentation for using a bigger board, since it would allow us to run more accelerators in parallel. But apart from that we have not made any considerations of moving to another platform. This is mainly due to the amount of work that had to be done to get our current design working, and find ways to further optimize the design.  \\ \hfil \\ \hfil
+% % % % % % % % % % % % % % % % % % % % % % % % % % %
+\textbf{Task 4 \textit{(optional)}} Extend the system to be able to recognize objects from a web-cam stream. \textbf{Not completed.} \\ \hfil \\ \hfil
+% % % % % % % % % % % % % % % % % % % % % %
+Due to time constraints we were unable to complete this task. 

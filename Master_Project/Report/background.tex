@@ -294,20 +294,31 @@ A vast amount of the computation required by a CNN can be parallelized. Thus, in
 \end{enumerate}
 
 
-\section{Zedboard} \label{sec_zedboard}
+\section{ZedBoard} \label{sec_zedboard}
 
-The Zedboard is a development board for the \textit{Xilinx Zynq®-7020 All Programmable System-on-Chip (SoC)}. The Zynq®-7020 consists of a dual-core \textit{ARM Cortex-A9 MPCore based Processing System (PS)} that is tightly coupled to Xilinx \textit{programmable logic} (PL), that contains a Artix-7 FPGA. The PS includes on-chip memory, external memory interfaces, and a number of I/O peripherals.
+We choose the ZedBoard as the development board for our implementation of our accelerator prototype. It contains a \textit{Xilinx Zynq®-7000 All Programmable System-on-Chip (SoC)} Z-7020, which consists of a dual-core \textit{ARM Cortex-A9 MPCore based Processing System (PS)} and an Artix-7 XC7Z020 FPGA as \textit{programmable logic} (PL) \cite{zyng_resource_documentation}. The PS includes on-chip memory, external memory interfaces, and a number of I/O peripherals. The system offers the flexibility and scalability of an FPGA, while providing performance, power, and ease of use typically associated with ASIC and \textit{application specific standard product} (ASSP) \cite{zyng_documentation}.
 
-The architecture described in Chapter \ref{chap_method} was prototyped on an \textit{Avnet Zedboard}, containing a \textit{Xilinx Zyngq-7020 All Programmable System-On-Chip} (SoC). The SoC contains two ARM Cortex-A9 processors, and a Artix-7 FPGA. 
+The PL makes use of the second version of the \textit{Advanced eXtensible Interface} (AXI4) bus protocol, which is part of the \textit{ARM Advanced Microcontroller Bus Architecture} (AMBA) \cite{Axi4_doc}. There are three types of AXI4 interfaces:
 
-The main reason for choosing this system was that it contains four DMA channels, and 220 DSP slices, which should have allowed us to run four fully saturated accelerators in parallel. Unfortunately resource constraint for our architecture turned out to be \textit{look-up tables} (LUTs)
+\begin{itemize}
+\item AXI4 - for high-performance memory-mapped requirements.
+\item AXI4-Lite - for simple, low-throughput memory mapped communication.
+\item AXI4-Stream - for high-speed streaming data.
+\end{itemize}
 
-In this prototype we were only able to use one of the two ARM processors for controlling the accelerator(s) and processing the layers that were not accelerated. Preferably we should have used both for processing layer C5 and F6, but we were unable to do so due to time constraints. 
+As long as a component in the PL implements any of these interfaces, it can be connected directly to the PS through a set of AXI4 bus ports. For the rest of this report we will refer to AXI4-Lite as AXI, and AXI4-Stream as AXIS. The prefixes S\_ and M\_ will refer to slave and master port, respectively. These acronyms will be use extensively in Section \ref{sec_hardware_architecture}.
+
+The feature that makes the ZedBoard especially well-fitted for hardware acceleration applications, is the tight coupling between the PS and the PL. The ARM processors can be connected directly to any component in the PL area through the \textit{extended multiplexed I/O} (EMIO) port or a set of general purpose AXI ports (see Figure \ref{fig_zynq_architecture}). In addition, there are four high performance (HP) AXI4 ports that PL components can use to access external memory directly. At max capacity the HP AXI4 ports have a bandwidth of 1200 MB/s. This integration of the PS with the PL allows levels of performance that the two-chip solutions (e.g. an ASSP with an FPGA) cannot match due to their limited I/O bandwidth, latency and power budgets \cite{zyng_documentation}.
+
+
+% http://www.xilinx.com/support/documentation/data_sheets/ds190-Zynq-7000-Overview.pdf
+% http://www.xilinx.com/publications/prod_mktg/zynq7000/Zynq-7000-combined-product-table.pdf
+% http://www.xilinx.com/support/documentation/ip_documentation/axi_ref_guide/v13_4/ug761_axi_reference_guide.pdf
 
 
 \begin{figure}[h!]
   \centering
       \includegraphics[width=1.0\textwidth]{Figures/Background/zynq_architecture}
-  \caption{Zyng-7000 system architecture.}
+  \caption[Zyng-7000 system architecture.]{Zyng-7000 system architecture.}
   \label{fig_zynq_architecture}
 \end{figure}

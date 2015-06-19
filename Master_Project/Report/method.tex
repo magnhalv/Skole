@@ -1,11 +1,11 @@
 \chapter{Architecture} \label{chap_method}
 
-In this chapter we will present our suggested architecture for a hardware accelerated forward propagation of a Convolutional Neural Network used for recognizing handwritten digits. The architecuture will be presented in a top-down approach, starting with the topology and dataset of the network, followed by an overview of the software used, and finally, the hardware architecture of the accelerator. The source files for the VHDL and software code used in this project can for the time being be found at \cite{Halvorsen2015}
+In this chapter we will present our suggested architecture for a hardware accelerated forward propagation of a Convolutional Neural Network used for recognizing handwritten digits. The architecture will be presented in a top-down approach, starting with the topology and dataset of the network, followed by an overview of the software used, and finally, the hardware architecture of the accelerator. The source files for the VHDL and software code used in this project can for the time being be found at \cite{Halvorsen2015}
 
 \begin{figure}[h!]
   \centering
       \includegraphics[width=1.2\textwidth, height=5cm]{Figures/Method/Network_topology}
-    \caption{The topology of the implemented network.}
+    \caption[The topology of the implemented network.]{The topology of the implemented network.}
     \label{fig_network_topology}
 \end{figure}
 
@@ -26,7 +26,7 @@ We chose to implement a network with a smiliar topology as the LetNet-5 for digi
 \begin{figure}[h!]
   \centering
       \includegraphics[width=1.0\textwidth]{Figures/Method/partial_connections}
-    \caption{Table showing which of the six feature maps from S2 that are needed in order compute the feature maps of C3.}
+    \caption[Feature map dependencies]{Table showing which of the six feature maps from S2 that are needed in order compute the feature maps of C3.}
     \label{table_partial_connections}
 \end{figure}
 
@@ -52,7 +52,7 @@ In order to decide which part of the network that should be accelerated one has 
     $ F6 $ & $ 120 $ & $ 0.004 $ \\ \hline
     $ Total $ & $ 331104 $ & $ 1.0 $  \\ \hline
         \end{tabular}
-    \caption{An overview of the number of connections in the network layers.}
+    \caption[Number of connections in the network]{An overview of the number of connections in the network layers.}
    	\label{tab_nofOps}
 \end{table}
 
@@ -61,6 +61,8 @@ We see that 97\% of the computations in our network is performed in the convolut
 
 
 We also decided to accelerate the subsampling/pooling layers, even though only 0.8\% of computations are done there. The reason for this that we were able to make a design where the subsampling/pooling could be done virtually in parallel with the convolution, at a minimal cost to hardware resources (see Section \ref{sec_average_pooler}. We deemed the small cost worth the 0.8\% potential performance boost. But more importantly, it makes our architecture eaiser to extend to compute several layers in a row, without going back to software, which would greatly reduce off-chip traffic and performance (see Chapter \ref{chap_future_work}).
+
+For future conveniences, we hereby define layer 1 as C1/S2, layer 2 as C3/S4, layer 3 as C5 and layer 4 as F6.
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % Software
@@ -72,51 +74,51 @@ This section gives an overview of software architecture used to compute the netw
 
 \subsection{Network Software}
 
-We have made extensive use of Taiga Nomi's C++ framework for neural networks, available at \cite{Nomi2015}, in our project. The framework was used in order to train the parameters of our network, for measuring the efficency of a pure software implementation, and as a basis for the implementation that uses the hardware accelerator. The framework treats each layer in the network as a seperate software module, which makes it easy to swap diffrent implementations of a layer. This simplified the process of integrating the hardware accelerator into the network, since we could simply exchange the original modules with our own.
+We have made extensive use of Taiga Nomi's C++ framework for neural networks, available at \cite{Nomi2015}, in our project. The framework was used in order to train the parameters of our network, for measuring the efficiency of a pure software implementation, and as a basis for the implementation that uses the hardware accelerator. The framework treats each layer in the network as a separate software module, which makes it easy to swap different implementations of a layer. This simplified the process of integrating the hardware accelerator into the network, since we could simply exchange the original modules with our own.
 
-Figure \ref{fig_software_architecture} A shows a simplified version of the architecture of the pure software implementation of our network. Each layer contains a set of pretrained weights which are loaded before the network starts processing the images. When an image is inputted to the first layer, it performs the calculations described in Chapter \ref{chap_background} in software, and propegates the result to the next layer. 
+Figure \ref{fig_software_architecture} A shows a simplified version of the architecture of the pure software implementation of our network. Each layer contains a set of pre-trained weights which are loaded before the network starts processing the images. When an image is inputted to the first layer, it performs the calculations described in Chapter \ref{chap_background} in software, and propagates the result to the next layer. 
 
 Figure \ref{fig_software_architecture} B shows how the original software was changed in order to make use of the accelerator. As mentioned, we decided to accelerate the convolutional layer and the subsample/average-pooling layer, thus we wrote a new software module that would handle both operations. But instead of computing the operations in software, the new module transfers the input data and the weight to the hardware accelerator and extracts the result from the computations. 
 
-While our architecture supports accelerations of C5, we refrained from using it in its current form. The reason being that currently the accelerator is only able to compute one feature map at a time. Each computation comes with a certain amount of overhead, i.e. transfering data to/from the accelerator and configuring it. Thus for C5, which takes in 120 $ 5 \times 5 $ matices, we figured that input was so numerous and so small that it would cause too much overhead in order to be efficient. In Chapter \ref{chap_results} we show data that confirms this claim.
+While our architecture supports accelerations of C5, we refrained from using it in its current form. The reason being that currently the accelerator is only able to compute one feature map at a time. Each computation comes with a certain amount of overhead, i.e. transferring data to/from the accelerator and configuring it. Thus for C5, which takes in 120 $ 5 \times 5 $ matrices, we figured that input was so numerous and so small that it would cause too much overhead in order to be efficient. In Chapter \ref{chap_results} we show data that confirms this claim.
 
 
 \begin{figure}[h!]
   \centering
       \includegraphics[width=1.0\textwidth]{Figures/Method/SoftwareArchitecture}
-    \caption{A simplified overview of the software architecture with and without hardware acceleration.}
+    \caption[Software architecture]{A simplified overview of the software architecture with and without hardware acceleration.}
     \label{fig_software_architecture}
 \end{figure}
 
 \subsection{Hardware driver} \label{sec_hardware_driver}
 
-A driver for the accelerator was written in order to create a simple and easy to use interface to the hardware. As mentioned, in its current form the accelerator is able to compute on feature map at a time, thus the input to the driver is all the data required to compute said feature map. That is, a set of images, their respective kernels and bias, the average pooling constant and its respective bias. The driver then feeds this data to the accelerator, and returns the computed feature map. Due to the architecture of the accelerator the input has to be transfered in a certain order. The biases and average pooling constant first, the weights second and the image last. Figure \ref{fig_fifo_content} shows in what order the data should be in the accelerator FIFO buffer.
+A driver for the accelerator was written in order to create a simple and easy to use interface to the hardware. As mentioned, in its current form the accelerator is able to compute on feature map at a time, thus the input to the driver is all the data required to compute said feature map. That is, a set of images, their respective kernels and bias, the average pooling constant and its respective bias. The driver then feeds this data to the accelerator, and returns the computed feature map. Due to the architecture of the accelerator the input has to be transferred in a certain order. The biases and average pooling constant first, the weights second and the image last. Figure \ref{fig_fifo_content} shows in what order the data should be in the accelerator FIFO buffer.
 
 
 \begin{figure}[h!]
   \centering
       \includegraphics[width=1.0\textwidth]{Figures/Method/FIFO_content}
-    \caption{Shows how the data must be sequentially ordered in the input FIFO. In this example the output feature map is computed using two input maps.}
+    \caption[FIFO order]{Shows how the data must be sequentially ordered in the input FIFO. In this example the output feature map is computed using two input maps.}
     \label{fig_fifo_content}
 \end{figure}
 
-For data transfer the driver uses a \textit{direct memory access controller} (DMA) IP from Xilinx. This is where most of work on the driver had to be done, since the DMA interface is much more complex compared to the accelerator interface. The DMA is configured to transfer the weights and image(s) to the accelerator's input buffer, and extract the data from the output buffer. Since the output buffer is a FIFO, the DMA is able to extract each output value as they are produced, instead of waiting for the accelerator to finish and then transfer all the output data. Figure \ref{fig_fifo_content} shows how the data has to be structured when transfered to the accelerator's input buffer.
+For data transfer the driver uses a \textit{direct memory access controller} (DMA) IP from Xilinx. This is where most of work on the driver had to be done, since the DMA interface is much more complex compared to the accelerator interface. The DMA is configured to transfer the weights and image(s) to the accelerator's input buffer, and extract the data from the output buffer. Since the output buffer is a FIFO, the DMA is able to extract each output value as they are produced, instead of waiting for the accelerator to finish and then transfer all the output data. Figure \ref{fig_fifo_content} shows how the data has to be structured when transferred to the accelerator's input buffer.
 
-The processor can make use of the DMA by providing it with a set of \textit{buffer descriptors} (BD), also called a BD ring. Each descriptor provides the DMA with the neccessary information to perform a memory transfer: a source address and/or a destination address (depends on type of channel), and the length of the packet to transfer. One also need to set a \textit{start of file}(SOF) and \textit{end of file} (EOF) control bit for the first and last BD in the ring, respectively. 
+The processor can make use of the DMA by providing it with a set of \textit{buffer descriptors} (BD), also called a BD ring. Each descriptor provides the DMA with the necessary information to perform a memory transfer: a source address and/or a destination address (depends on type of channel), and the length of the packet to transfer. One also need to set a \textit{start of file}(SOF) and \textit{end of file} (EOF) control bit for the first and last BD in the ring, respectively. 
 
-Our DMA has two channels, a transmit (Tx) and receive (Rx) channel. For the Tx channel the destination of the data is set to the address of the component connected to the DMA's Tx bus. Which in our case is the buffer which feeds the accelerator. Similary, the Rx channel's source address is set to the component connected to the Rx bus, i.e. the FIFO buffer containing the output of the accelerator.
+Our DMA has two channels, a transmit (Tx) and receive (Rx) channel. For the Tx channel the destination of the data is set to the address of the component connected to the DMA's Tx bus. Which in our case is the buffer which feeds the accelerator. Similarly, the Rx channel's source address is set to the component connected to the Rx bus, i.e. the FIFO buffer containing the output of the accelerator.
 
-E.g. if a feature map requires two sets of input maps, weight and bias, then Figure \ref{fig_bdring} shows a simplified version of the Tx BD ring. Since the BDs are processed sequentially, the data will be transfered in the correct order, as in Figure \ref{fig_fifo_content}.
+E.g. if a feature map requires two sets of input maps, weight and bias, then Figure \ref{fig_bdring} shows a simplified version of the Tx BD ring. Since the BDs are processed sequentially, the data will be transferred in the correct order, as in Figure \ref{fig_fifo_content}.
 
 \begin{figure}[h!]
   \centering
       \includegraphics[width=0.7\textwidth]{Figures/Method/BdRing}
-    \caption{Simplified version of the Tx BD ring. First BD points to the location of the bias, second to the weights, and the third to the image, etc.}
+    \caption[Tx Bd ring]{Simplified version of the Tx BD ring. First BD points to the location of the bias, second to the weights, and the third to the image, etc.}
     \label{fig_bdring}
 \end{figure}
 
 
-Xilinx provides a software driver for the DMA that manages the BD rings and initializes DMA transfers. A subset of the driver interface is listed below, showing the functions we used to control the DMA. For a more detailed explaination of the interface, please refer to the documentation in the driver source code, available at \cite{DMA_DRIVER_SOURCE}
+Xilinx provides a software driver for the DMA that manages the BD rings and initializes DMA transfers. A subset of the driver interface is listed below, showing the functions we used to control the DMA. For a more detailed explanation of the interface, please refer to the documentation in the driver source code, available at \cite{DMA_DRIVER_SOURCE}
 
 
 \begin{lstlisting}[caption={XAxiDma driver interface},label=dma_interface]
@@ -192,7 +194,7 @@ The first thing that has to be done is to initialize the DMA driver, allocate me
   
 \end{lstlisting}
 
-This should only be neccessary to do once, as long as one does not need more BDs than what is currently allocated. Afterwards one can transfer data to the accelerator, run the accelerator and retrieve the output the following way: 
+This should only be necessary to do once, as long as one does not need more BDs than what is currently allocated. Afterwards one can transfer data to the accelerator, run the accelerator and retrieve the output the following way: 
 
 \begin{lstlisting}
 
@@ -284,20 +286,20 @@ Where Xil\_Out32(u32 addr, u32 value) writes \textit{value} to the memory locati
 \begin{figure}[h!]
   \centering
       \includegraphics[width=1.0\textwidth]{Figures/Method/system_architecture}
-    \caption{The system architecture.}
+    \caption[The system architecture]{The system architecture.}
     \label{fig_system_architecture}
 \end{figure}
 
-\section{Hardware Architecture}
+\section{Hardware Architecture} \label{sec_hardware_architecture}
 
-In this section we will describe the hardware architecture of the system as a whole, and more specifically, our accelerator. Do note that the descriptions and the figures are simplified to some extent. This simplication is done with the intent avoiding complex description and explainations. We will rather focus on conveying the important ideas behind the design, instead of describing every tiny detail of the architecture. 
+In this section we will describe the hardware architecture of the system as a whole, and more specifically, our accelerator. Do note that the descriptions and the figures are simplified to some extent. This simplification is done with the intent avoiding complex description and explanations. We will rather focus on conveying the important ideas behind the design, instead of describing every tiny detail of the architecture. 
 
-\subsection{Overview of Hardware Achitecture}
+\subsection{Overview of Hardware Architecture}
 
 Figure \ref{fig_system_architecture} shows the block diagram of our system architecture. In this design we have to accelerators running in parallel, with their own respective DMA which is used to feed them data. The DMA's are connected to two of the four available \textit{high performance AXI} ports, which are optimized for high bandwidth access from PL to external memory. The DMA has three bus interfaces that uses the HP ports:
 
 \begin{itemize}
-\item The AXI slave port \textit{Memory-Mapped to Streaming} (S\_AXI\_MM2S) is used to transfer data from memory to the DMA. All the data transfered by the DMA's Tx channel is transfered to this port. The data can than be rerouted to any arbitary hardware module, as long as they implement a S\_AXIS bus port which is connected to the DMA's M\_AXI\_MM2S port. 
+\item The AXI slave port \textit{Memory-Mapped to Streaming} (S\_AXI\_MM2S) is used to transfer data from memory to the DMA. All the data transferred by the DMA's Tx channel is transferred to this port. The data can than be rerouted to any arbitrary hardware module, as long as they implement a S\_AXIS bus port which is connected to the DMA's M\_AXI\_MM2S port. 
 \item The AXI master port \textit{Stream to Memory-Mapped} (M\_AXI\_S2MM) is used to transfer data from the DMA to external memory. The DMA receives data from the \textit{S\_AXI\_S2MM} which it rerouted to the M\_AXI\_S2MM if the Rx channel is active.
 \item The \textit{Scatter-Gather} (SG) is used to transfer BDs between software and hardware. I.e. when software is done configuring the BDs and submit them to DMA control, the DMA transfers the BDs from memory to itself, and starts processing them. When the DMA is done processing the BDs are returned to memory through the same port. 
 \end{itemize}
@@ -313,7 +315,7 @@ The flash memory is used to store the trained parameters of the neural network, 
 \begin{figure}[h!]
   \centering
       \includegraphics[width=0.9\textwidth]{Figures/Method/accelerator_interface}
-    \caption{The interface of the accelerator.}
+    \caption[The interface of the accelerator.]{The interface of the accelerator.}
     \label{fig_accelerator_interface}
 \end{figure}
 
@@ -322,21 +324,42 @@ The flash memory is used to store the trained parameters of the neural network, 
 
 Figure \ref{fig_accelerator_interface} shows the block diagram for the interface of the accelerator. The S\_AXI bus, which the processor uses to configure the accelerator, is connected to a controller. The input maps, weights and biases are streamed into the processing unit via the S\_AXIS bus, and the resulting output map is streamed out via the M\_AXIS bus.
 
-The controller is a state machine which controls the processing unit. It has three states: idle, loading weights and processing, as seen in Figure \ref{fig_accelerator_state_machine}. 
-
 \begin{figure}[h!]
   \centering
       \includegraphics[width=0.9\textwidth]{Figures/Method/accelerator_state_machine}
-    \caption{The three states of the accelerator's controller.}
+    \caption[Controller's states]{The three states of the accelerator's controller.}
     \label{fig_accelerator_state_machine}
 \end{figure}
 
-  
+The controller is a state machine which controls the processing unit. It has three states: idle, loading weights and processing, as seen in Figure \ref{fig_accelerator_state_machine}. The controller has two configurable registers, \textit{layer\_nr} and \textit{nof\_input\_sets}. \textit{Layer\_nr} specifies which layer the output map corresponds to, and \textit{nof\_input\_sets} specificities how many input maps are required to compute the output map. The controller have some hard-wired values which is related to the network it it supposed to processes. So based on the layer, it knows the size of the input map(s), output map and the kernel. E.g. for our specific network, the controller contains a table equivalent to Table \ref{table_controller}. Layer 1 corresponds to C1/S2, layer 2 to C3/S4 and layer 3 to C5. The reason for adding three to the kernel size is to include the two biases and the average pooling coefficient.
+
+\begin{table}
+	\centering
+    \begin{tabular}{| >{\centering\arraybackslash}m{1.0in} | >{\centering\arraybackslash}m{1.0in} | >{\centering\arraybackslash}m{1.2in} |>{\centering\arraybackslash}m{1.0in} |} 
+    \hline
+    Layer & Input map size & Output map size & Kernel size \\ \hline
+    1 & $ 32 \times 32 $ & $ 14 \times 14 $ & $ 5 \times 5 + 3 $ \\ \hline
+    2 & $ 14 \times 14 $ & $ 5\times 5 $ & $ 5 \times 5 + 3$ \\ \hline
+    3 & $ 5 \times 5 $ & $ 1 \times 1 $ & $ 5 \times 5 + 3 $ \\ \hline
+        \end{tabular}
+    \caption[Controller table]{Hard-wired values stored in the controller that are specific to the network.}
+   	\label{table_controller}
+\end{table}
+
+The controller uses three control signals to manage the processing unit:
+
+\begin{itemize}
+\item \textit{load\_weights}. Tells the processing unit to extract data from the input buffer to fill its kernel buffers.
+\item \textit{process\_map}.  Starts the processing of a single input map, extracted from the input buffer. 
+\item \textit{final\_map}. Activated when the processing units starts processing its final input map, so it can output the result to the output buffer when done processing. 
+\end{itemize}
+
+
 \subsection{The Accelerator's Processing Unit}
 
-As previously stated, the accelerator takes \textit{n} images as input, $ I_1, I_2, \dots, I_n $, n respective kernels $ K_1, K_2, \dots, K_n $, two biases and an average pooling cofficient, and outputs a single processed image $ O $. Using the input images, the kernel and the bias, it performs the operations of the convolution and subsampling/average-pooling layer for a single feature map. Thus the output $ O $ is a subsampled/pooled feature map that has been produced by convoluting the images $ I_1, I_2, \dots, I_n $ with the kernels $ K_1, \dots, K_n $. 
+As previously stated, the accelerator takes \textit{n} images as input, $ I_1, I_2, \dots, I_n $, n respective kernels $ K_1, K_2, \dots, K_n $, two biases and an average pooling coefficient, and outputs a single processed image $ O $. Using the input images, the kernel and the bias, it performs the operations of the convolution and subsampling/average-pooling layer for a single feature map. Thus the output $ O $ is a subsampled/pooled feature map that has been produced by convoluting the images $ I_1, I_2, \dots, I_n $ with the kernels $ K_1, \dots, K_n $. 
 
-The accelerator can thus compute the whole convolution and subsample/pooling layer by doing the above computations for all the output feature maps in the layer. One can exploit inter-parallelism by making several instances of the accelerator run in parallel. One can also exploit intra-parallelism, but then one need to connect the different accelerator instances so they can add up the results from the convolutions without using the intermediate convolution buffer, as described in \cite{Chakradhar2010}. Unfortunately, within the given timeframe we were unable to get a system working that exploited inter- and intra parallelism. But the architecture is designed to be easily extendable to support this, given more development time. 
+The accelerator can thus compute the whole convolution and subsample/pooling layer by doing the above computations for all the output feature maps in the layer. One can exploit inter-parallelism by making several instances of the accelerator run in parallel. One can also exploit intra-parallelism, but then one need to connect the different accelerator instances so they can add up the results from the convolutions without using the intermediate convolution buffer, as described in \cite{Chakradhar2010}. Unfortunately, within the given time frame we were unable to get a system working that exploited inter- and intra parallelism. But the architecture is designed to be easily extendable to support this, given more development time. 
 
 
 The accelerators consists of five major components (Figure \ref{fig_imagezor_architecture}):
@@ -351,7 +374,7 @@ The accelerators consists of five major components (Figure \ref{fig_imagezor_arc
 \begin{figure}[h!]
 	\centering
     	\includegraphics[width=1.0\textwidth]{Figures/Method/conv_layer_arch}
-  	\caption{The architecture of Imagezor.}
+  	\caption[Accelerator's processing unit]{The architecture of the accelerator's processing unit.}
   	\label{fig_imagezor_architecture}
 \end{figure}
 
@@ -373,7 +396,7 @@ At the end of each row of MACs there is $ n - k $ shift registers. The result of
 \begin{figure}[h!]
   \centering
       \includegraphics[width=0.7\textwidth]{Figures/Method/Convolver}
-  \caption[The convoluter ]{The convoluter, when $ n = 3 $ and $ k = 2 $.}
+  \caption[The Convoluter ]{The Convoluter, when $ n = 3 $ and $ k = 2 $.}
 \end{figure}
 	
 By providing this delay you only have to input each pixel once during the convolution. Generally every pixel is needed for $ k \times k $ convolution operations (the exception being the pixels close to the boarders of the image). Thus the shift registers are used to store the intermediate values of the convolutions until a pixel that is needed for the respective convolution operation is inputted. 
@@ -451,7 +474,7 @@ The control unit keeps track of when to shift the registers and when a neighbour
 \begin{figure}[h!]
   \centering
       \includegraphics[width=0.5\textwidth]{Figures/Method/submax}
-  \caption{The average pooler. The summation module and the shift registers are used to sum up the respective pools. The trained value C is used to average the summed pools.}
+  \caption[The Average Pooler]{The average pooler. The summation module and the shift registers are used to sum up the respective pools. The trained value C is used to average the summed pools.}
   \label{fig_average_pooler}
 \end{figure}
 
